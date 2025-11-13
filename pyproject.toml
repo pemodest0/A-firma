@@ -1,0 +1,36 @@
+[project]
+name = "gaq"
+version = "0.1.0"
+description = "Geometric Algebra for Qubits"
+authors = [{name = "GAQ authors"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["gaq/tests", "tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["gaq"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["gaq"]
+strict_optional = true
+warn_unused_configs = true
