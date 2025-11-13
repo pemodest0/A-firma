@@ -18,7 +18,7 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser.add_argument("--indicator", required=True, help="ID do indicador (ex.: SH.XPD.CHEX.PC.CD).")
     parser.add_argument("--start-year", type=int, default=2000, help="Ano inicial.")
     parser.add_argument("--end-year", type=int, default=2023, help="Ano final.")
-    parser.add_argument("--out-dir", type=Path, default=Path("data/metrics/health"), help="Diretório de saída.")
+    parser.add_argument("--out-dir", type=Path, default=Path("dados/brutos/metrics/health"), help="Diretório de saída.")
     return parser.parse_args(list(argv) if argv is not None else None)
 
 

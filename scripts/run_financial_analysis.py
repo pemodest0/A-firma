@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from data.financial_loader import (
+from dados.brutos.financial_loader import (
     PriceSeries,
     YFINANCE_AVAILABLE,
     download_price_series,
@@ -26,7 +26,7 @@ from financial_walk_model import (
 )
 RESULTS_DIR = Path("results_finance")
 if TYPE_CHECKING:  # pragma: no cover
-    from data.financial_loader import ReturnWindow
+    from dados.brutos.financial_loader import ReturnWindow
     from financial_walk_model import WindowAnalysis
 MODE_LABELS: Dict[str, str] = {
     MODE_CLASSICAL: "Classico",

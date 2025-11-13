@@ -17,7 +17,7 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser.add_argument("--start", required=True, help="Data inicial YYYY-MM-DD.")
     parser.add_argument("--end", required=True, help="Data final YYYY-MM-DD.")
     parser.add_argument("--limit", type=int, default=5000, help="Limite de registros da API.")
-    parser.add_argument("--out-dir", type=Path, default=Path("data/metrics/logistics"), help="Diretório de saída.")
+    parser.add_argument("--out-dir", type=Path, default=Path("dados/brutos/metrics/logistics"), help="Diretório de saída.")
     return parser.parse_args(list(argv) if argv is not None else None)
 
 

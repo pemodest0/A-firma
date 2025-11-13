@@ -74,7 +74,7 @@ def main() -> None:
     parser.add_argument('--tickers', nargs='+', required=True, help='Lista de tickers conforme Yahoo Finance (ex.: AAPL ^BVSP SPY)')
     parser.add_argument('--start', type=str, default='2016-01-01', help='Data inicial (YYYY-MM-DD)')
     parser.add_argument('--end', type=str, default='2025-12-31', help='Data final (YYYY-MM-DD)')
-    parser.add_argument('--output-dir', type=str, default='data/yf', help='Diretório onde salvar CSVs')
+    parser.add_argument('--output-dir', type=str, default='dados/brutos/yf', help='Diretório onde salvar CSVs')
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)

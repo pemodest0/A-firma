@@ -1,0 +1,103 @@
+﻿{
+  "project_root": ".",
+  "log_dir": "results/pipeline_logs",
+  "assets": [
+    {
+      "label": "SPY",
+      "data": "dados/brutos/yf/SPY.csv",
+      "forecast_output": "results/spy_forecast",
+      "residual_output": "results/hybrid_residual_spy",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "dq_output": "results/data_quality/spy.json"
+    },
+    {
+      "label": "IBOV",
+      "data": "dados/brutos/yf/BVSP.csv",
+      "forecast_output": "results/ibov_forecast",
+      "residual_output": "results/hybrid_residual_ibov",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "dq_output": "results/data_quality/ibov.json"
+    },
+    {
+      "label": "AAPL",
+      "data": "dados/brutos/yf/AAPL.csv",
+      "forecast_output": "results/aapl_forecast",
+      "residual_output": "results/hybrid_residual_aapl",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "residual_enabled": false,
+      "dq_output": "results/data_quality/aapl.json"
+    },
+    {
+      "label": "MSFT",
+      "data": "dados/brutos/yf/MSFT.csv",
+      "forecast_output": "results/msft_forecast",
+      "residual_output": "results/hybrid_residual_msft",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "dq_output": "results/data_quality/msft.json"
+    },
+    {
+      "label": "GOOG",
+      "data": "dados/brutos/yf/GOOG.csv",
+      "forecast_output": "results/goog_forecast",
+      "residual_output": "results/hybrid_residual_goog",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "dq_output": "results/data_quality/goog.json"
+    },
+    {
+      "label": "AMZN",
+      "data": "dados/brutos/yf/AMZN.csv",
+      "forecast_output": "results/amzn_forecast",
+      "residual_output": "results/hybrid_residual_amzn",
+      "window": 30,
+      "bins": 15,
+      "start": "2016-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2016-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": false,
+      "residual_enabled": false,
+      "dq_output": "results/data_quality/amzn.json"
+    }
+  ],
+  "benchmark_output": "results/multi_asset_benchmark",
+  "benchmark_years": [
+    2024,
+    2025
+  ]
+}

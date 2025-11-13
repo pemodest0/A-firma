@@ -1,0 +1,100 @@
+﻿{
+  "project_root": ".",
+  "log_dir": "results/pipeline_logs",
+  "benchmark_output": "results/multi_asset_benchmark",
+  "benchmark_years": [
+    2024,
+    2025
+  ],
+  "assets": [
+    {
+      "label": "META",
+      "data": "dados/brutos/yf/META.csv",
+      "forecast_output": "results/meta_forecast",
+      "residual_output": "results/hybrid_residual_meta",
+      "window": 30,
+      "bins": 15,
+      "start": "2010-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2010-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": true,
+      "residual_tune_splits": 3,
+      "dq_output": "results/data_quality/meta.json",
+      "forecast_extra_args": [
+        "--adaptive-noise",
+        "--noise-ratio-scale",
+        "0.6",
+        "--noise-max",
+        "0.35",
+        "--noise-min",
+        "0.01"
+      ]
+    },
+    {
+      "label": "JPM",
+      "data": "dados/brutos/yf/JPM.csv",
+      "forecast_output": "results/jpm_forecast",
+      "residual_output": "results/hybrid_residual_jpm",
+      "window": 30,
+      "bins": 15,
+      "start": "2010-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2010-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": true,
+      "residual_tune_splits": 3,
+      "dq_output": "results/data_quality/jpm.json"
+    },
+    {
+      "label": "N225",
+      "data": "dados/brutos/yf/N225.csv",
+      "forecast_output": "results/n225_forecast",
+      "residual_output": "results/hybrid_residual_n225",
+      "window": 30,
+      "bins": 15,
+      "start": "2010-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2010-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": true,
+      "residual_tune_splits": 3,
+      "dq_output": "results/data_quality/n225.json"
+    },
+    {
+      "label": "OIL",
+      "data": "dados/brutos/yf/CL=F.csv",
+      "forecast_output": "results/cl_forecast",
+      "residual_output": "results/hybrid_residual_cl",
+      "window": 30,
+      "bins": 15,
+      "start": "2010-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2010-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": true,
+      "residual_tune_splits": 3,
+      "dq_output": "results/data_quality/cl.json"
+    },
+    {
+      "label": "SILVER",
+      "data": "dados/brutos/yf/SI=F.csv",
+      "forecast_output": "results/si_forecast",
+      "residual_output": "results/hybrid_residual_si",
+      "window": 30,
+      "bins": 15,
+      "start": "2010-01-01",
+      "end": "2025-12-31",
+      "residual_start": "2010-01-01",
+      "residual_train_end": "2023-12-31",
+      "residual_test_start": "2024-01-01",
+      "residual_tune": true,
+      "residual_tune_splits": 3,
+      "dq_output": "results/data_quality/si.json"
+    }
+  ]
+}

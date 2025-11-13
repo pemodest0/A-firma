@@ -1,0 +1,10 @@
+﻿{
+  "target_definition": "value_zscore > 1.0",
+  "value_zscore_threshold": 1.0,
+  "aggregation_top_k": 10,
+  "fallback_thresholds": [
+    0.3,
+    0.2,
+    0.1
+  ]
+}

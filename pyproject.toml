@@ -16,14 +16,19 @@ test = ["pytest>=7.0"]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["modelos"]
+include = ["gaq*"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
-testpaths = ["gaq/tests", "tests"]
+pythonpath = ["modelos/core", "modelos"]
+testpaths = ["modelos/gaq/tests", "modelos/tests"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["gaq"]
+src = ["modelos/gaq"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]

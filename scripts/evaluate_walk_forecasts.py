@@ -26,7 +26,7 @@ def _load_config(path: Path) -> Dict:
 
 
 def _load_finance() -> Dict:
-    cfg = _load_config(Path("configs/data_pipeline_finance.json"))
+    cfg = _load_config(Path("dados/configs/data_pipeline_finance.json"))
     finance_cfg = cfg["finance"]
     dataset = load_finance_dataset(
         FinanceImportConfig(
@@ -46,7 +46,7 @@ def _load_finance() -> Dict:
 
 
 def _load_logistics() -> Dict:
-    cfg = _load_config(Path("configs/data_pipeline_logistics.json"))
+    cfg = _load_config(Path("dados/configs/data_pipeline_logistics.json"))
     logistics_cfg = cfg["logistics"]
     dataset = load_logistics_dataset(
         LogisticsImportConfig(
@@ -65,7 +65,7 @@ def _load_logistics() -> Dict:
 
 
 def _load_health() -> Dict:
-    cfg = _load_config(Path("configs/data_pipeline_health.json"))
+    cfg = _load_config(Path("dados/configs/data_pipeline_health.json"))
     health_cfg = cfg["health"]
     dataset = load_health_dataset(
         HealthImportConfig(

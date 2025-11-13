@@ -11,6 +11,7 @@ from typing import Dict, List
 
 LOG_FORMAT = "[%(asctime)s] %(levelname)s: %(message)s"
 PYTHON_EXECUTABLE = Path(sys.executable).as_posix()
+PYTHONPATH_EXPORT = "PYTHONPATH=modelos/core:.:modelos"
 
 
 def _safe_label(name: str) -> str:
@@ -58,14 +59,14 @@ def main() -> None:
 
         # 1. Data quality
         dq_output = asset.get("dq_output")
-        dq_args = ["PYTHONPATH=src:.", PYTHON_EXECUTABLE, "scripts/check_data_quality.py", data_path]
+        dq_args = [PYTHONPATH_EXPORT, PYTHON_EXECUTABLE, "scripts/check_data_quality.py", data_path]
         if dq_output:
             dq_args.extend(["--output", dq_output])
         _run(["bash", "-lc", " ".join(dq_args)], project_root)
 
         # 2. Forecast
         forecast_cmd = [
-            "PYTHONPATH=src:.",
+            PYTHONPATH_EXPORT,
             PYTHON_EXECUTABLE,
             "scripts/run_daily_forecast.py",
             "--csv",
@@ -95,7 +96,7 @@ def main() -> None:
         if asset.get("residual_enabled", True):
             residual_output = asset.get("residual_output", f"results/hybrid_residual_{label.lower()}")
             residual_cmd = [
-                "PYTHONPATH=src:.",
+                PYTHONPATH_EXPORT,
                 PYTHON_EXECUTABLE,
                 "scripts/train_residual_model.py",
                 "--metrics",
@@ -135,8 +136,8 @@ def main() -> None:
         )
         assets_args.append(f"{label}:{metrics_path}")
 
-    benchmark_cmd = [
-        "PYTHONPATH=src:.",
+        benchmark_cmd = [
+            PYTHONPATH_EXPORT,
         PYTHON_EXECUTABLE,
         "scripts/benchmark_multi_assets.py",
         "--assets",

@@ -1,0 +1,61 @@
+﻿{
+  "finance": {
+    "sources": [
+      "dados/brutos/yf/SPY.csv",
+      "dados/brutos/yf/AAPL.csv",
+      "dados/brutos/yf/ETH-USD.csv"
+    ],
+    "tickers": [
+      "SPY",
+      "AAPL",
+      "ETH-USD"
+    ],
+    "min_history": 500,
+    "compute_returns": true,
+    "max_rows": 750
+  },
+  "graph_candidates": [
+    {
+      "family": "hypercube",
+      "params": {
+        "feature_columns": [
+          "mom",
+          "vol_ratio",
+          "drawdown"
+        ],
+        "bin_count": 4,
+        "max_vertices": 4096
+      }
+    },
+    {
+      "family": "knn",
+      "params": {
+        "feature_columns": [
+          "mom",
+          "vol_ratio",
+          "drawdown"
+        ],
+        "k": 12
+      }
+    },
+    {
+      "family": "mst_shortcuts",
+      "params": {
+        "feature_columns": [
+          "mom",
+          "vol_ratio",
+          "drawdown"
+        ],
+        "shortcut_quantile": 0.85
+      }
+    }
+  ],
+  "selection": {
+    "penalties": {
+      "density": 0.4,
+      "short_cycles": 0.2,
+      "diameter": 0.1
+    },
+    "label_column": "return_t1"
+  }
+}

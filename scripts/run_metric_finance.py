@@ -18,7 +18,7 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
     parser.add_argument("--interval", default="d", help="Intervalo (d=diário, w=semanal, m=mensal).")
     parser.add_argument("--start", help="Data inicial YYYY-MM-DD (opcional).")
     parser.add_argument("--end", help="Data final YYYY-MM-DD (opcional).")
-    parser.add_argument("--out-dir", type=Path, default=Path("data/metrics/finance"), help="Diretório de saída.")
+    parser.add_argument("--out-dir", type=Path, default=Path("dados/brutos/metrics/finance"), help="Diretório de saída.")
     return parser.parse_args(list(argv) if argv is not None else None)
 
 

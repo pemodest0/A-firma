@@ -1,0 +1,48 @@
+﻿{
+  "physics": {
+    "sources": [
+      "dados/brutos/physics_demo.csv"
+    ],
+    "system_filter": [
+      "duffing_osc"
+    ],
+    "min_steps": 200,
+    "smoothing_window": 5,
+    "derive_velocity": true,
+    "max_rows": 600
+  },
+  "graph_candidates": [
+    {
+      "family": "hypercube",
+      "params": {
+        "feature_columns": [
+          "displacement",
+          "displacement_ma",
+          "displacement_zscore",
+          "force"
+        ],
+        "bin_count": 3,
+        "max_vertices": 2048
+      }
+    },
+    {
+      "family": "knn",
+      "params": {
+        "feature_columns": [
+          "displacement",
+          "displacement_zscore",
+          "force"
+        ],
+        "k": 12
+      }
+    }
+  ],
+  "selection": {
+    "penalties": {
+      "density": 0.25,
+      "short_cycles": 0.1,
+      "diameter": 0.05
+    },
+    "label_column": "displacement"
+  }
+}

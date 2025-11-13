@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import math
 
-from data.financial_loader import download_price_series, prepare_returns, discretize_returns, generate_return_windows
+from dados.brutos.financial_loader import download_price_series, prepare_returns, discretize_returns, generate_return_windows
 from classical_walk import simulate_classical_walk
 from graph_utils import line_graph
 import src.quantum_walk as qw

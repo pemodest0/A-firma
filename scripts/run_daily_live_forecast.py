@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 
+PYTHONPATH_EXPORT = "PYTHONPATH=modelos/core:.:modelos"
 
 def _safe_label(name: str) -> str:
     return "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in name)
@@ -91,7 +92,7 @@ def main() -> None:
     parser.add_argument("--days-back", type=int, default=750, help="Número de dias para retroceder quando --start não é informado.")
     parser.add_argument("--end", type=str, default=None, help="Data final (padrão: hoje).")
     parser.add_argument("--forecast-extra-args", nargs=argparse.REMAINDER, default=[], help="Argumentos adicionais repassados ao run_daily_forecast (coloque após '--' na chamada).")
-    parser.add_argument("--use-local-csv", action="store_true", help="Usa CSV em data/yf/<ticker>.csv ao invés de baixar do yfinance.")
+    parser.add_argument("--use-local-csv", action="store_true", help="Usa CSV em dados/brutos/yf/<ticker>.csv ao invés de baixar do yfinance.")
     parser.add_argument("--config", type=str, default=None, help="Arquivo JSON com configuração por ativo.")
     args = parser.parse_args()
 
@@ -140,7 +141,7 @@ def main() -> None:
         ticker = task["ticker"]
         forecast_output.mkdir(parents=True, exist_ok=True)
         cmd = [
-            "PYTHONPATH=src:.",
+            PYTHONPATH_EXPORT,
             "python3",
             "scripts/run_daily_forecast.py",
         ]
@@ -148,7 +149,7 @@ def main() -> None:
         if task.get("csv_path"):
             csv_path = Path(task["csv_path"])
         elif task.get("use_local_csv", False):
-            csv_path = Path("data/yf") / f"{ticker.replace('^', '')}.csv"
+            csv_path = Path("dados/brutos/yf") / f"{ticker.replace('^', '')}.csv"
         if csv_path is not None:
             if not csv_path.exists():
                 raise FileNotFoundError(f"CSV local não encontrado: {csv_path}")

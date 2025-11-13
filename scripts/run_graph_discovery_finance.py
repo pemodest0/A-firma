@@ -14,7 +14,7 @@ from graph_discovery import graph_registry, select_best_graph, GraphPenalties, G
 from meta import extract_walk_features
 from walks import run_classical_walk
 
-CONFIG_PATH = Path("configs/data_pipeline_finance.json")
+CONFIG_PATH = Path("dados/configs/data_pipeline_finance.json")
 OUTPUT_DIR = Path("results/graph_discovery")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -134,7 +134,7 @@ def main() -> None:
 
     best_candidate, best_score = select_best_graph(candidates, score_fn, penalties)
 
-    target_cfg_path = Path("configs/targets_finance.json")
+        target_cfg_path = Path("dados/configs/targets_finance.json")
     threshold_values = (0.5, 0.3, 0.1)
     aggregate_top_k = 5
     custom_target_nodes = None

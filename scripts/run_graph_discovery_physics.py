@@ -20,7 +20,7 @@ from graph_discovery import (
 from meta import extract_walk_features
 from walks import run_classical_walk
 
-CONFIG_PATH = Path("configs/data_pipeline_physics.json")
+CONFIG_PATH = Path("dados/configs/data_pipeline_physics.json")
 OUTPUT_DIR = Path("results/graph_discovery")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 

@@ -1,0 +1,47 @@
+﻿{
+  "health": {
+    "sources": [
+      "dados/brutos/health_demo.csv"
+    ],
+    "metric_filter": [
+      "temperature"
+    ],
+    "min_history": 60,
+    "smoothing_window": 5,
+    "max_rows": 600
+  },
+  "graph_candidates": [
+    {
+      "family": "hypercube",
+      "params": {
+        "feature_columns": [
+          "value",
+          "value_ma",
+          "value_zscore",
+          "humidity"
+        ],
+        "bin_count": 3,
+        "max_vertices": 2048
+      }
+    },
+    {
+      "family": "knn",
+      "params": {
+        "feature_columns": [
+          "value",
+          "value_zscore",
+          "humidity"
+        ],
+        "k": 10
+      }
+    }
+  ],
+  "selection": {
+    "penalties": {
+      "density": 0.2,
+      "short_cycles": 0.1,
+      "diameter": 0.05
+    },
+    "label_column": "value"
+  }
+}

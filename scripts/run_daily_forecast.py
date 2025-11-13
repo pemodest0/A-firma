@@ -9,7 +9,7 @@ import math
 import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SRC_ROOT = PROJECT_ROOT / "src"
+SRC_ROOT = PROJECT_ROOT / "modelos" / "core" / "src"
 for candidate in (PROJECT_ROOT, SRC_ROOT):
     path_str = str(candidate)
     if path_str not in sys.path:
@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from classical_walk import simulate_classical_walk
-from data.financial_loader import (
+from dados.brutos.financial_loader import (
     PriceSeries,
     YFINANCE_AVAILABLE,
     download_price_series,

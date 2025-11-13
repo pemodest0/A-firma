@@ -1,0 +1,10 @@
+﻿{
+  "target_definition": "drivers with highest lateness",
+  "top_k_drivers": 5,
+  "aggregation_top_k": 10,
+  "fallback_thresholds": [
+    0.3,
+    0.2,
+    0.1
+  ]
+}
