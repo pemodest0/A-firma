@@ -16,13 +16,28 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-MIN_POINTS = 200
+MIN_POINTS_DEFAULT = 200
 OUTDIR_DEFAULT = ROOT / "results" / "validation" / "universe_mini"
 
 
 def _json_dump(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def _min_points_for_timeframe(cfg: dict[str, Any], timeframe: str) -> int:
+    by_tf = cfg.get("min_points_by_timeframe")
+    if isinstance(by_tf, dict):
+        key = str(timeframe or "").strip().lower()
+        if key in by_tf:
+            try:
+                return max(1, int(by_tf[key]))
+            except Exception:
+                pass
+    try:
+        return max(1, int(cfg.get("min_points_default", MIN_POINTS_DEFAULT)))
+    except Exception:
+        return MIN_POINTS_DEFAULT
 
 
 def _discover_datasets(max_assets: int) -> list[dict[str, Any]]:
@@ -165,8 +180,9 @@ def _run_one(
         dates = dates[-max_points:]
     result_line["n_points"] = int(values.shape[0])
 
-    if values.shape[0] < MIN_POINTS:
-        reason = f"pontos insuficientes (<{MIN_POINTS})"
+    min_points = _min_points_for_timeframe(cfg, timeframe=timeframe)
+    if values.shape[0] < min_points:
+        reason = f"pontos insuficientes (<{min_points})"
         _json_dump(asset_dir / "summary.json", {"status": "fail", "reason": reason})
         pd.DataFrame(columns=["t", "date", "regime_id", "regime_label", "confidence", "quality"]).to_csv(
             asset_dir / "regimes.csv", index=False
@@ -394,6 +410,10 @@ def main() -> None:
     parser.add_argument("--alpha", type=float, default=2.0)
     parser.add_argument("--asset-timeout-sec", type=float, default=0.0, help="Timeout por ativo (0 = desabilitado)")
     parser.add_argument("--max-points", type=int, default=0, help="Limita pontos por ativo aos N mais recentes (0 = sem corte)")
+    parser.add_argument("--min-points-default", type=int, default=MIN_POINTS_DEFAULT)
+    parser.add_argument("--min-points-daily", type=int, default=200)
+    parser.add_argument("--min-points-weekly", type=int, default=120)
+    parser.add_argument("--min-points-monthly", type=int, default=60)
     args = parser.parse_args()
 
     outdir = Path(args.outdir)
@@ -421,6 +441,12 @@ def main() -> None:
         "theiler": args.theiler,
         "alpha": args.alpha,
         "max_points": int(args.max_points),
+        "min_points_default": int(args.min_points_default),
+        "min_points_by_timeframe": {
+            "daily": int(args.min_points_daily),
+            "weekly": int(args.min_points_weekly),
+            "monthly": int(args.min_points_monthly),
+        },
     }
 
     rows = []

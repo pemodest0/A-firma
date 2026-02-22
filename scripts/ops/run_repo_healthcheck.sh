@@ -35,6 +35,7 @@ git rev-parse --short HEAD >"$OUTDIR/git_head.txt" || true
 
 run_check "python_compileall" "python3 -m compileall -q engine scripts tools tests"
 run_check "engine_purity_audit" "python3 tools/engine_purity_audit.py"
+run_check "anti_leakage_guard" "python3 tools/anti_leakage_guard.py"
 run_check "frontend_payload_audit" "python3 scripts/ops/audit_frontend_payloads.py"
 run_check "daily_master_dry_run" "python3 scripts/ops/run_daily_master.py --dry-run --run-id HEALTH_${RUN_ID}"
 run_check "frontend_lint" "cd website-ui && npm run lint"

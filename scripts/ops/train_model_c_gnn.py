@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
+import re
+import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -26,6 +29,7 @@ FEATURE_NAMES = (
     "changepoint_flag",
     "pseudo_bifurcation_flag",
 )
+LEVEL_RISK = {"verde": 0.1, "amarelo": 0.55, "vermelho": 0.9}
 
 
 def _read_json(path: Path, fallback: Any) -> Any:
@@ -43,6 +47,24 @@ def _to_float(value: Any, default: float = 0.0) -> float:
     except Exception:
         pass
     return float(default)
+
+
+def _clip01(value: float) -> float:
+    return float(np.clip(float(value), 0.0, 1.0))
+
+
+def _target(mean_conf: float, pct_transition: float, hazard: float) -> float:
+    return _clip01(0.40 * _clip01(pct_transition) + 0.35 * _clip01(hazard) + 0.25 * _clip01(1.0 - mean_conf))
+
+
+def _parse_ts(value: Any, fallback: datetime) -> datetime:
+    raw = str(value or "").strip()
+    if raw:
+        try:
+            return datetime.fromisoformat(raw.replace("Z", "+00:00")).astimezone(timezone.utc)
+        except ValueError:
+            pass
+    return fallback
 
 
 def _norm_stats(X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -72,13 +94,12 @@ def _build_adjacency(Xz: np.ndarray, k: int) -> np.ndarray:
     return deg_inv_sqrt @ A @ deg_inv_sqrt
 
 
-def _extract_features(panel: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
+def _extract_panel_samples(panel: dict[str, Any], *, fallback_ts: datetime) -> list[dict[str, Any]]:
     entries = panel.get("entries")
     if not isinstance(entries, list):
-        return np.zeros((0, len(FEATURE_NAMES)), dtype=float), np.zeros((0,), dtype=float)
+        return []
 
-    rows = []
-    y = []
+    rows: list[dict[str, Any]] = []
     for entry in entries:
         if not isinstance(entry, dict):
             continue
@@ -92,11 +113,11 @@ def _extract_features(panel: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
         if not isinstance(macro, dict):
             macro = {}
 
-        mean_conf = _to_float(micro.get("mean_confidence"), 0.5)
-        mean_quality = _to_float(micro.get("mean_quality"), 0.5)
-        pct_transition = _to_float(micro.get("pct_transition"), 0.5)
-        hazard = _to_float(gates.get("hazard_score"), 0.5)
-        ews = _to_float(gates.get("hybrid_ews_score"), 0.5)
+        mean_conf = _clip01(_to_float(micro.get("mean_confidence"), 0.5))
+        mean_quality = _clip01(_to_float(micro.get("mean_quality"), 0.5))
+        pct_transition = _clip01(_to_float(micro.get("pct_transition"), 0.5))
+        hazard = _clip01(_to_float(gates.get("hazard_score"), 0.5))
+        ews = _clip01(_to_float(gates.get("hybrid_ews_score"), 0.5))
         var95 = _to_float(gates.get("hybrid_var95_hist"), 0.0)
         ewma_sigma = _to_float(gates.get("hybrid_ewma_sigma"), 0.0)
         regime_age = _to_float(gates.get("regime_age_days"), 0.0)
@@ -104,29 +125,244 @@ def _extract_features(panel: dict[str, Any]) -> tuple[np.ndarray, np.ndarray]:
         pseudo_flag = 1.0 if bool(macro.get("pseudo_bifurcation_flag", False)) else 0.0
 
         rows.append(
-            [
-                mean_conf,
-                mean_quality,
-                pct_transition,
-                hazard,
-                ews,
-                var95,
-                ewma_sigma,
-                regime_age,
-                changepoint,
-                pseudo_flag,
-            ]
+            {
+                "features": [
+                    mean_conf,
+                    mean_quality,
+                    pct_transition,
+                    hazard,
+                    ews,
+                    var95,
+                    ewma_sigma,
+                    regime_age,
+                    changepoint,
+                    pseudo_flag,
+                ],
+                "target": _target(mean_conf, pct_transition, hazard),
+                "timestamp": _parse_ts(entry.get("timestamp"), fallback_ts),
+                "source": "risk_truth_panel",
+                "entity": str(entry.get("asset_id", "unknown")),
+            }
         )
+    return rows
 
-        # pseudo-supervision target in [0,1]
-        target = 0.40 * np.clip(pct_transition, 0.0, 1.0) + 0.35 * np.clip(hazard, 0.0, 1.0) + 0.25 * np.clip(
-            1.0 - mean_conf, 0.0, 1.0
+
+def _load_asset_group_map(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    out: dict[str, str] = {}
+    try:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                asset = str(row.get("asset", "")).strip().upper()
+                group = str(row.get("group", "")).strip().lower() or "unknown"
+                if asset:
+                    out[asset] = group
+    except OSError:
+        return {}
+    return out
+
+
+def _timestamp_from_path(path: Path) -> datetime:
+    text = str(path)
+    m_full = re.search(r"(20\d{6}T\d{6}Z)", text)
+    if m_full:
+        try:
+            return datetime.strptime(m_full.group(1), "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    m_day = re.search(r"(20\d{6})", text)
+    if m_day:
+        try:
+            return datetime.strptime(m_day.group(1), "%Y%m%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    except OSError:
+        return datetime.now(timezone.utc)
+
+
+def _extract_master_summary_samples(path: Path, *, asset_groups: dict[str, str]) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+
+    ts = _timestamp_from_path(path)
+    rows: list[dict[str, Any]] = []
+    by_group: dict[str, list[tuple[float, float, float, float, float]]] = {}
+
+    try:
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for raw in reader:
+                status = str(raw.get("status", "ok")).strip().lower()
+                if status and status != "ok":
+                    continue
+                conf = _clip01(_to_float(raw.get("mean_confidence"), 0.5))
+                quality = _clip01(_to_float(raw.get("mean_quality"), conf))
+                transition = _clip01(_to_float(raw.get("pct_transition"), 0.5))
+                hazard = _clip01(0.55 * transition + 0.45 * (1.0 - conf))
+                ews = _clip01(0.50 * transition + 0.50 * hazard)
+                asset_id = str(raw.get("asset_id", "")).strip()
+                if not asset_id:
+                    continue
+
+                rows.append(
+                    {
+                        "features": [conf, quality, transition, hazard, ews, 0.0, 0.0, 0.0, 0.0, 0.0],
+                        "target": _target(conf, transition, hazard),
+                        "timestamp": ts,
+                        "source": f"master_summary_asset:{path.parent.name}",
+                        "entity": asset_id,
+                    }
+                )
+
+                group = asset_groups.get(asset_id.upper(), "unknown")
+                by_group.setdefault(group, []).append((conf, quality, transition, hazard, ews))
+    except OSError:
+        return []
+
+    for group, vals in by_group.items():
+        if len(vals) < 3:
+            continue
+        arr = np.array(vals, dtype=float)
+        conf, quality, transition, hazard, ews = np.mean(arr, axis=0).tolist()
+        rows.append(
+            {
+                "features": [conf, quality, transition, hazard, ews, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "target": _target(conf, transition, hazard),
+                "timestamp": ts,
+                "source": f"master_summary_group:{path.parent.name}",
+                "entity": f"group:{group}",
+            }
         )
-        y.append(float(np.clip(target, 0.0, 1.0)))
+    return rows
 
-    if not rows:
-        return np.zeros((0, len(FEATURE_NAMES)), dtype=float), np.zeros((0,), dtype=float)
-    return np.array(rows, dtype=float), np.array(y, dtype=float)
+
+def _extract_sector_db_samples(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+
+    try:
+        conn = sqlite3.connect(path)
+    except sqlite3.Error:
+        return []
+
+    query = """
+    SELECT
+      s.sector,
+      LOWER(COALESCE(s.alert_level, 'verde')) AS alert_level,
+      s.sector_score,
+      s.share_unstable,
+      s.share_transition,
+      s.mean_confidence,
+      r.generated_at_utc
+    FROM sector_snapshots s
+    JOIN runs r ON r.run_id = s.run_id
+    ORDER BY r.generated_at_utc ASC, s.sector ASC
+    """
+    try:
+        data = conn.execute(query).fetchall()
+    except sqlite3.Error:
+        conn.close()
+        return []
+    conn.close()
+
+    rows: list[dict[str, Any]] = []
+    prev_level: dict[str, str] = {}
+    regime_age: dict[str, int] = {}
+    now = datetime.now(timezone.utc)
+
+    for sector, level, score, share_unstable, share_transition, mean_confidence, ts_raw in data:
+        sector_s = str(sector or "unknown")
+        lvl = str(level or "verde").lower()
+
+        conf = _clip01(_to_float(mean_confidence, 0.5))
+        quality = conf
+        transition = _clip01(_to_float(share_transition, 0.5))
+        unstable = _clip01(_to_float(share_unstable, transition))
+        hazard = _clip01(0.55 * unstable + 0.45 * transition)
+
+        score_f = _to_float(score, hazard)
+        ews = _clip01(score_f / 2.0) if score_f > 1.0 else _clip01(score_f)
+
+        prev = prev_level.get(sector_s)
+        changed = 1.0 if prev is not None and prev != lvl else 0.0
+        age = int(regime_age.get(sector_s, 0))
+        if prev is None or prev != lvl:
+            age = 0
+        else:
+            age += 1
+        regime_age[sector_s] = age
+        prev_level[sector_s] = lvl
+
+        level_risk = _clip01(LEVEL_RISK.get(lvl, 0.5))
+        target = _clip01(0.30 * transition + 0.35 * hazard + 0.20 * (1.0 - conf) + 0.15 * level_risk)
+        rows.append(
+            {
+                "features": [
+                    conf,
+                    quality,
+                    transition,
+                    hazard,
+                    ews,
+                    0.0,
+                    0.0,
+                    float(age),
+                    changed,
+                    0.0,
+                ],
+                "target": target,
+                "timestamp": _parse_ts(ts_raw, now),
+                "source": "sector_alerts_db",
+                "entity": sector_s,
+            }
+        )
+    return rows
+
+
+def _samples_to_arrays(samples: list[dict[str, Any]]) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str]]:
+    if not samples:
+        return (
+            np.zeros((0, len(FEATURE_NAMES)), dtype=float),
+            np.zeros((0,), dtype=float),
+            np.zeros((0,), dtype=float),
+            [],
+        )
+    X = np.array([s["features"] for s in samples], dtype=float)
+    y = np.array([float(s["target"]) for s in samples], dtype=float)
+    ts = np.array([float(s["timestamp"].timestamp()) for s in samples], dtype=float)
+    sources = [str(s.get("source", "unknown")) for s in samples]
+    return X, y, ts, sources
+
+
+def _source_counts(sources: list[str]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for source in sources:
+        counts[source] = counts.get(source, 0) + 1
+    return counts
+
+
+def _split_temporal_indices(
+    timestamps: np.ndarray,
+    *,
+    holdout_frac: float,
+    min_holdout: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    n = int(timestamps.shape[0])
+    if n <= 12:
+        return np.arange(n, dtype=int), np.zeros((0,), dtype=int)
+
+    order = np.argsort(timestamps, kind="stable")
+    hold = int(round(max(0.0, holdout_frac) * n))
+    hold = max(int(min_holdout), hold)
+    hold = min(hold, n - 8)
+    if hold <= 0:
+        return order, np.zeros((0,), dtype=int)
+
+    split = max(1, n - hold)
+    return order[:split], order[split:]
 
 
 def _relu(x: np.ndarray) -> np.ndarray:
@@ -185,12 +421,11 @@ def _train_gnn(
 
     losses = []
     for _ in range(epochs):
-        H1, H2, logits, pred = _forward(A, Xz, W1, b1, W2, b2, w_out, b_out)
+        H1, H2, _, pred = _forward(A, Xz, W1, b1, W2, b2, w_out, b_out)
         err = pred - y
         loss = float(np.mean(err**2) + l2 * (np.mean(W1**2) + np.mean(W2**2) + np.mean(w_out**2)))
         losses.append(loss)
 
-        # backprop (mse + sigmoid)
         n_inv = 1.0 / max(1, n)
         d_pred = 2.0 * err * n_inv
         d_logits = d_pred * pred * (1.0 - pred)
@@ -250,9 +485,8 @@ def _infer_with_checkpoint(checkpoint: dict[str, Any], X: np.ndarray) -> dict[st
         raise RuntimeError("checkpoint feature_names incompativel.")
     norm = checkpoint.get("normalization")
     graph = checkpoint.get("graph")
-    arch = checkpoint.get("architecture")
     w = checkpoint.get("weights")
-    if not isinstance(norm, dict) or not isinstance(graph, dict) or not isinstance(arch, dict) or not isinstance(w, dict):
+    if not isinstance(norm, dict) or not isinstance(graph, dict) or not isinstance(w, dict):
         raise RuntimeError("checkpoint incompleto.")
 
     mean = np.array(norm.get("mean", []), dtype=float)
@@ -280,7 +514,7 @@ def _infer_with_checkpoint(checkpoint: dict[str, Any], X: np.ndarray) -> dict[st
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train model C GNN checkpoint from risk truth panel.")
+    parser = argparse.ArgumentParser(description="Train model C GNN checkpoint with expanded panel + temporal holdout.")
     parser.add_argument("--panel", type=str, default="results/validation/risk_truth_panel.json")
     parser.add_argument("--out", type=str, default="models/model_c_gnn_checkpoint.json")
     parser.add_argument("--epochs", type=int, default=600)
@@ -289,16 +523,56 @@ def main() -> None:
     parser.add_argument("--hidden-dim", type=int, default=16)
     parser.add_argument("--k-neighbors", type=int, default=4)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--holdout-frac", type=float, default=0.20)
+    parser.add_argument("--min-holdout-samples", type=int, default=8)
+    parser.add_argument("--disable-extra-panel", action="store_true")
+    parser.add_argument("--extra-master-pattern", type=str, default="results/validation/**/master_summary.csv")
+    parser.add_argument("--asset-groups-csv", type=str, default="data/asset_groups_470_enriched.csv")
+    parser.add_argument("--sector-db", type=str, default="results/event_study_sectors/sector_alerts.db")
+    parser.add_argument("--max-extra-samples", type=int, default=5000)
     args = parser.parse_args()
 
-    panel = _read_json(ROOT / args.panel, {})
-    X, y = _extract_features(panel if isinstance(panel, dict) else {})
-    if X.shape[0] == 0:
+    panel_path = ROOT / args.panel
+    panel = _read_json(panel_path, {})
+    trained_at = datetime.now(timezone.utc)
+
+    panel_samples = _extract_panel_samples(panel if isinstance(panel, dict) else {}, fallback_ts=trained_at)
+
+    extra_samples: list[dict[str, Any]] = []
+    master_paths: list[str] = []
+    sector_db_path = ROOT / args.sector_db
+    if not bool(args.disable_extra_panel):
+        group_map = _load_asset_group_map(ROOT / args.asset_groups_csv)
+        for path in sorted(ROOT.glob(args.extra_master_pattern)):
+            master_rows = _extract_master_summary_samples(path, asset_groups=group_map)
+            if master_rows:
+                master_paths.append(str(path))
+                extra_samples.extend(master_rows)
+        extra_samples.extend(_extract_sector_db_samples(sector_db_path))
+
+    max_extra = int(max(0, args.max_extra_samples))
+    if max_extra > 0 and len(extra_samples) > max_extra:
+        extra_samples = sorted(extra_samples, key=lambda x: float(x["timestamp"].timestamp()))[-max_extra:]
+
+    samples = [*panel_samples, *extra_samples]
+    X_all, y_all, ts_all, source_all = _samples_to_arrays(samples)
+    if X_all.shape[0] == 0:
         raise RuntimeError("risk_truth_panel sem entries para treino.")
 
+    train_idx, holdout_idx = _split_temporal_indices(
+        ts_all,
+        holdout_frac=float(max(0.0, args.holdout_frac)),
+        min_holdout=int(max(0, args.min_holdout_samples)),
+    )
+
+    X_train = X_all[train_idx] if train_idx.size else X_all
+    y_train = y_all[train_idx] if train_idx.size else y_all
+    source_train = [source_all[int(i)] for i in (train_idx.tolist() if train_idx.size else list(range(X_all.shape[0])))]
+    source_holdout = [source_all[int(i)] for i in holdout_idx.tolist()] if holdout_idx.size else []
+
     ckpt = _train_gnn(
-        X,
-        y,
+        X_train,
+        y_train,
         hidden_dim=int(args.hidden_dim),
         epochs=int(args.epochs),
         lr=float(args.lr),
@@ -306,14 +580,74 @@ def main() -> None:
         k_neighbors=int(args.k_neighbors),
         seed=int(args.seed),
     )
-    infer = _infer_with_checkpoint(ckpt, X)
+    infer = _infer_with_checkpoint(ckpt, X_all)
+
+    train_ts = ts_all[train_idx] if train_idx.size else ts_all
+    holdout_metrics: dict[str, Any] = {
+        "enabled": bool(holdout_idx.size > 0),
+        "n_train": int(X_train.shape[0]),
+        "n_holdout": int(holdout_idx.size),
+        "holdout_frac_requested": float(max(0.0, args.holdout_frac)),
+        "start_train_utc": datetime.fromtimestamp(float(np.min(train_ts)), tz=timezone.utc).isoformat(),
+        "end_train_utc": datetime.fromtimestamp(float(np.max(train_ts)), tz=timezone.utc).isoformat(),
+        "start_holdout_utc": None,
+        "end_holdout_utc": None,
+        "rmse": None,
+        "mae": None,
+        "corr": None,
+        "baseline_rmse": None,
+        "generalization_gap_rmse": None,
+    }
+
+    if holdout_idx.size > 0:
+        X_hold = X_all[holdout_idx]
+        y_hold = y_all[holdout_idx]
+        pred_hold = np.array(_infer_with_checkpoint(ckpt, X_hold).get("node_scores", []), dtype=float)
+        if pred_hold.shape[0] == y_hold.shape[0] and y_hold.shape[0] > 0:
+            rmse = float(np.sqrt(np.mean((pred_hold - y_hold) ** 2)))
+            mae = float(np.mean(np.abs(pred_hold - y_hold)))
+            baseline = float(np.mean(y_train)) if y_train.size > 0 else 0.5
+            baseline_rmse = float(np.sqrt(np.mean((baseline - y_hold) ** 2)))
+            corr = None
+            if y_hold.size >= 3 and float(np.std(y_hold)) > 1e-8 and float(np.std(pred_hold)) > 1e-8:
+                corr = float(np.corrcoef(y_hold, pred_hold)[0, 1])
+            holdout_metrics.update(
+                {
+                    "start_holdout_utc": datetime.fromtimestamp(float(np.min(ts_all[holdout_idx])), tz=timezone.utc).isoformat(),
+                    "end_holdout_utc": datetime.fromtimestamp(float(np.max(ts_all[holdout_idx])), tz=timezone.utc).isoformat(),
+                    "rmse": rmse,
+                    "mae": mae,
+                    "corr": corr,
+                    "baseline_rmse": baseline_rmse,
+                    "generalization_gap_rmse": rmse - float(ckpt["training"]["rmse"]),
+                }
+            )
+
+    ckpt["training"]["n_nodes_total"] = int(X_all.shape[0])
+    ckpt["training"]["n_nodes_train"] = int(X_train.shape[0])
+    ckpt["training"]["n_nodes_holdout"] = int(holdout_idx.size)
+    ckpt["training"]["source_counts_total"] = _source_counts(source_all)
+    ckpt["training"]["source_counts_train"] = _source_counts(source_train)
+    ckpt["training"]["source_counts_holdout"] = _source_counts(source_holdout)
+    ckpt["training"]["holdout_temporal"] = holdout_metrics
 
     payload = {
         "version": "model_c_gnn_v1",
-        "trained_at_utc": datetime.now(timezone.utc).isoformat(),
-        "source_panel": str(ROOT / args.panel),
+        "trained_at_utc": trained_at.isoformat(),
+        "source_panel": str(panel_path),
+        "extra_sources": {
+            "enabled": not bool(args.disable_extra_panel),
+            "extra_master_pattern": str(args.extra_master_pattern),
+            "master_summary_paths": master_paths,
+            "sector_db": str(sector_db_path),
+            "asset_groups_csv": str(ROOT / args.asset_groups_csv),
+            "max_extra_samples": int(max_extra),
+            "n_panel_samples": int(len(panel_samples)),
+            "n_extra_samples": int(len(extra_samples)),
+        },
         "checkpoint": ckpt,
         "sanity_inference": infer,
+        "holdout_temporal": holdout_metrics,
     }
 
     out_path = ROOT / args.out
@@ -321,11 +655,12 @@ def main() -> None:
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(
-        f"[train_model_c_gnn] out={out_path} n_nodes={X.shape[0]} "
-        f"risk={infer['risk_score']:.3f} conf={infer['confidence']:.3f}"
+        f"[train_model_c_gnn] out={out_path} n_total={X_all.shape[0]} "
+        f"n_train={X_train.shape[0]} n_holdout={holdout_idx.size} "
+        f"risk={infer['risk_score']:.3f} conf={infer['confidence']:.3f} "
+        f"holdout_rmse={holdout_metrics.get('rmse')}"
     )
 
 
 if __name__ == "__main__":
     main()
-

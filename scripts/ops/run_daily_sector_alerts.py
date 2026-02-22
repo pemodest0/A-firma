@@ -637,14 +637,69 @@ def main() -> None:
             "out_json": str(drift_monitor_path),
         }
 
+    structural_report_path = outdir / "sector_structural_report.json"
+    structural_payload: dict[str, object] = {
+        "status": "error",
+        "message": "not_run",
+        "out_json": str(structural_report_path),
+    }
+    cmd_structural = [
+        sys.executable,
+        "scripts/ops/build_sector_structural_report.py",
+        "--run-id",
+        str(run_id),
+        "--levels-csv",
+        str(outdir / "sector_alert_levels_latest.csv"),
+        "--weekly-compare-json",
+        str(weekly_compare_path),
+        "--drift-json",
+        str(drift_monitor_path),
+        "--out-json",
+        str(structural_report_path),
+    ]
+    try:
+        out_struct = run_retry(
+            cmd_structural,
+            label="build_sector_structural_report",
+            retries=int(args.retries),
+            retry_delay_sec=float(args.retry_delay_sec),
+            step_log=step_log,
+        )
+        _ = json.loads(out_struct.splitlines()[-1])
+        structural_payload = json.loads(structural_report_path.read_text(encoding="utf-8"))
+    except (subprocess.CalledProcessError, OSError, json.JSONDecodeError, IndexError) as exc:
+        step_log.append(
+            {
+                "step": "build_sector_structural_report",
+                "status": "error",
+                "attempt": 1,
+                "duration_sec": 0.0,
+                "error": str(exc),
+            }
+        )
+        structural_payload = {
+            "status": "error",
+            "message": str(exc),
+            "out_json": str(structural_report_path),
+        }
+
     required_files = [
         outdir / "sector_alert_levels_latest.csv",
         outdir / "sector_rank_l5.csv",
         outdir / "weekly_compare.json",
         outdir / "drift_monitor.json",
+        outdir / "sector_structural_report.json",
         ROOT / str(args.sector_pack_outdir) / "sector_overview.csv",
     ]
     missing = [str(p) for p in required_files if not p.exists()]
+
+    counts = structural_payload.get("counts") if isinstance(structural_payload.get("counts"), dict) else {}
+    clarity = (
+        structural_payload.get("structural_clarity")
+        if isinstance(structural_payload.get("structural_clarity"), dict)
+        else {}
+    )
+    drift_block = structural_payload.get("drift") if isinstance(structural_payload.get("drift"), dict) else {}
 
     latest = {
         "status": "ok",
@@ -681,6 +736,11 @@ def main() -> None:
         "previous_run_id": prev_id,
         "weekly_compare_file": str(weekly_compare_path),
         "drift_monitor": drift_payload,
+        "structural_report_file": str(structural_report_path),
+        "structural_report": structural_payload,
+        "counts": counts,
+        "structural_clarity": clarity,
+        "drift_level": str(drift_block.get("level", drift_payload.get("drift_level", "unknown"))),
         "notification": notification_payload,
         "sector_pack": pack_payload,
     }
@@ -698,6 +758,13 @@ def main() -> None:
         "missing_files": missing,
         "drift_level": str(drift_payload.get("drift_level", "unknown")),
         "drift_score": drift_payload.get("drift_score", None),
+        "clarity_score": clarity.get("score"),
+        "clarity_label": clarity.get("label"),
+        "structural_gate_hint": (
+            (structural_payload.get("gate_hint") or {}).get("status")
+            if isinstance(structural_payload.get("gate_hint"), dict)
+            else "unknown"
+        ),
         "notification": {
             "n_exited_green": int(notification_payload.get("n_exited_green", 0)),
             "webhook_sent": bool(notification_payload.get("webhook_sent", False)),
@@ -719,6 +786,13 @@ def main() -> None:
         "weekly_changed_down": int(weekly_compare.get("summary", {}).get("changed_down", 0)),
         "drift_level": str(drift_payload.get("drift_level", "unknown")),
         "drift_score": drift_payload.get("drift_score", None),
+        "clarity_score": clarity.get("score"),
+        "clarity_label": clarity.get("label"),
+        "structural_gate_hint": (
+            (structural_payload.get("gate_hint") or {}).get("status")
+            if isinstance(structural_payload.get("gate_hint"), dict)
+            else "unknown"
+        ),
         "duration_sec": health["duration_sec"],
     }
     with audit_path.open("a", encoding="utf-8") as f:

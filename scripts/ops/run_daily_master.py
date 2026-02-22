@@ -217,7 +217,18 @@ def main() -> None:
         "prediction_precision_risk": _as_float((prediction_truth.get("metrics") or {}).get("precision_risk")),
         "sector_vermelho": _as_float((latest_sector.get("counts") or {}).get("vermelho")),
         "sector_amarelo": _as_float((latest_sector.get("counts") or {}).get("amarelo")),
+        "sector_verde": _as_float((latest_sector.get("counts") or {}).get("verde")),
+        "sector_clarity_score": _as_float((latest_sector.get("structural_clarity") or {}).get("score")),
+        "sector_drift_score": _as_float((latest_sector.get("structural_report") or {}).get("drift", {}).get("score")),
+        "sector_weekly_change_rate": _as_float((latest_sector.get("structural_report") or {}).get("weekly_change", {}).get("change_rate")),
     }
+    sector_drift_level = str(
+        (latest_sector.get("structural_report") or {}).get("drift", {}).get(
+            "level", latest_sector.get("drift_level", "unknown")
+        )
+    )
+    sector_clarity_label = str((latest_sector.get("structural_clarity") or {}).get("label", "unknown"))
+    sector_gate_hint = str((latest_sector.get("structural_report") or {}).get("gate_hint", {}).get("status", "unknown"))
     prev_metrics = (prev_sum.get("metrics") or {}) if isinstance(prev_sum, dict) else {}
     history_compare = {
         "current_run_id": run_id,
@@ -256,6 +267,17 @@ def main() -> None:
     )
     lines.append(f"- setores vermelho: {int(cur_metrics['sector_vermelho']) if cur_metrics['sector_vermelho'] is not None else '--'}")
     lines.append(f"- setores amarelo: {int(cur_metrics['sector_amarelo']) if cur_metrics['sector_amarelo'] is not None else '--'}")
+    lines.append(f"- setores verde: {int(cur_metrics['sector_verde']) if cur_metrics['sector_verde'] is not None else '--'}")
+    lines.append(
+        f"- clareza_setorial: {cur_metrics['sector_clarity_score'] if cur_metrics['sector_clarity_score'] is not None else '--'} ({sector_clarity_label})"
+    )
+    lines.append(
+        f"- drift_setorial: {cur_metrics['sector_drift_score'] if cur_metrics['sector_drift_score'] is not None else '--'} ({sector_drift_level})"
+    )
+    lines.append(
+        f"- rotacao_semanal_setorial: {cur_metrics['sector_weekly_change_rate'] if cur_metrics['sector_weekly_change_rate'] is not None else '--'}"
+    )
+    lines.append(f"- gate_hint_setorial: {sector_gate_hint}")
     lines.append("")
     lines.append("Comparacao com execucao anterior:")
     if prev_run_id:
@@ -280,6 +302,11 @@ def main() -> None:
         "checks": sanity["checks"],
         "previous_run_id": prev_run_id,
         "prediction_truth": prediction_truth,
+        "sector_structural": {
+            "clarity_label": sector_clarity_label,
+            "drift_level": sector_drift_level,
+            "gate_hint": sector_gate_hint,
+        },
         "heavy_outputs": heavy_outputs,
     }
     (outdir / "daily_master_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")

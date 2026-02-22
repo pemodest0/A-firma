@@ -24,6 +24,15 @@ jobs:
       - name: Engine purity audit
         run: python3 tools/engine_purity_audit.py
 
+      - name: Anti-leakage static guard
+        run: python3 tools/anti_leakage_guard.py
+
+      - name: Install pytest
+        run: python3 -m pip install --disable-pip-version-check pytest
+
+      - name: Anti-leakage unit tests
+        run: python3 -m pytest -q tests/test_anti_leakage_guard.py
+
       - name: Daily master dry run
         run: python3 scripts/ops/run_daily_master.py --dry-run --run-id CI_DRY_${{ github.run_id }}
 
