@@ -65,6 +65,8 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--out-root", type=str, default="results/ops/runs")
     ap.add_argument("--step-timeout-sec", type=float, default=900.0, help="Timeout por etapa em segundos")
+    ap.add_argument("--asset-timeout-sec", type=float, default=180.0, help="Timeout por ativo na validacao")
+    ap.add_argument("--max-points", type=int, default=1200, help="Maximo de pontos por ativo na validacao")
     args = ap.parse_args()
 
     run_id = str(args.run_id).strip() or _ts_id()
@@ -110,6 +112,10 @@ def main() -> None:
                 run_id,
                 "--step-timeout-sec",
                 str(args.step_timeout_sec),
+                "--asset-timeout-sec",
+                str(args.asset_timeout_sec),
+                "--max-points",
+                str(args.max_points),
             ],
         )
         do_step("build_snapshot", [PY, "scripts/ops/build_daily_snapshot.py", "--run-id", run_id])

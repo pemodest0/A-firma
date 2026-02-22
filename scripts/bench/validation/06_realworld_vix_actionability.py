@@ -34,9 +34,7 @@ def _json_dump(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _write_status(outdir: Path, payload: dict[str, Any]) -> None:
-    # Keep STATUS as canonical; VERDICT is written only for backward compatibility.
     _json_dump(outdir / "STATUS.json", payload)
-    _json_dump(outdir / "VERDICT.json", payload)
 
 
 def _resolve_col(df: pd.DataFrame, col: str | None) -> str | None:

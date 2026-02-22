@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import multiprocessing as mp
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -156,6 +158,11 @@ def _run_one(
     mask = np.isfinite(values)
     values = values[mask]
     dates = pd.to_datetime(df[date_col_res], errors="coerce").astype("datetime64[ns]").to_numpy()[mask]
+    max_points = int(cfg.get("max_points") or 0)
+    if max_points > 0 and values.shape[0] > max_points:
+        # Keep the most recent history window only (causal, no future leakage).
+        values = values[-max_points:]
+        dates = dates[-max_points:]
     result_line["n_points"] = int(values.shape[0])
 
     if values.shape[0] < MIN_POINTS:
@@ -292,6 +299,89 @@ def _run_one(
     return result_line
 
 
+def _build_fail_row(ds: dict[str, Any], reason: str) -> dict[str, Any]:
+    asset_id = str(ds.get("asset_id", ""))
+    return {
+        "asset_id": asset_id,
+        "domain": "realestate" if asset_id.startswith("RE_") else ("energy" if asset_id.startswith("ons_") else "finance"),
+        "timeframe": str(ds.get("timeframe", "daily")),
+        "dataset": str(ds.get("path", "")),
+        "n_points": 0,
+        "n_regimes": 0,
+        "pct_transition": None,
+        "mean_confidence": None,
+        "mean_quality": None,
+        "n_alerts": 0,
+        "status": "fail",
+        "reason": reason,
+    }
+
+
+def _write_fail_artifacts(outdir: Path, ds: dict[str, Any], reason: str) -> None:
+    asset_dir = outdir / str(ds.get("asset_id", "unknown"))
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    _json_dump(asset_dir / "summary.json", {"status": "fail", "reason": reason})
+    pd.DataFrame(columns=["t", "date", "regime_id", "regime_label", "confidence", "quality"]).to_csv(
+        asset_dir / "regimes.csv", index=False
+    )
+    pd.DataFrame(columns=["t", "date", "alert_type", "severity", "score"]).to_csv(asset_dir / "alerts.csv", index=False)
+
+
+def _run_one_worker(
+    queue: mp.Queue[dict[str, Any]],
+    ds: dict[str, Any],
+    outdir_str: str,
+    seed: int,
+    cfg: dict[str, Any],
+    engine_available: bool,
+    engine_err: str | None,
+) -> None:
+    outdir = Path(outdir_str)
+    try:
+        queue.put(_run_one(ds, outdir, seed=seed, cfg=cfg, engine_available=engine_available, engine_err=engine_err))
+    except Exception as exc:  # pragma: no cover
+        queue.put(_build_fail_row(ds, f"worker_exception: {exc}"))
+
+
+def _run_one_mp(
+    ds: dict[str, Any],
+    outdir: Path,
+    seed: int,
+    cfg: dict[str, Any],
+    engine_available: bool,
+    engine_err: str | None,
+    timeout_sec: float,
+) -> dict[str, Any]:
+    ctx = mp.get_context("spawn")
+    q: mp.Queue[dict[str, Any]] = ctx.Queue(maxsize=1)
+    proc = ctx.Process(
+        target=_run_one_worker,
+        args=(q, ds, str(outdir), int(seed), cfg, bool(engine_available), engine_err),
+    )
+    proc.start()
+    proc.join(timeout=max(1.0, float(timeout_sec)))
+
+    if proc.is_alive():
+        proc.terminate()
+        proc.join(timeout=2.0)
+        reason = f"asset_timeout>{int(timeout_sec)}s"
+        _write_fail_artifacts(outdir, ds, reason)
+        return _build_fail_row(ds, reason)
+
+    if proc.exitcode not in (0, None):
+        reason = f"worker_exitcode:{proc.exitcode}"
+        _write_fail_artifacts(outdir, ds, reason)
+        return _build_fail_row(ds, reason)
+
+    try:
+        row = q.get_nowait()
+    except Exception:
+        reason = "worker_no_payload"
+        _write_fail_artifacts(outdir, ds, reason)
+        return _build_fail_row(ds, reason)
+    return row
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Universe mini de diagnÃ³stico por ativos.")
     parser.add_argument("--max-assets", type=int, default=12)
@@ -302,6 +392,8 @@ def main() -> None:
     parser.add_argument("--k-nn", type=int, default=5)
     parser.add_argument("--theiler", type=int, default=10)
     parser.add_argument("--alpha", type=float, default=2.0)
+    parser.add_argument("--asset-timeout-sec", type=float, default=0.0, help="Timeout por ativo (0 = desabilitado)")
+    parser.add_argument("--max-points", type=int, default=0, help="Limita pontos por ativo aos N mais recentes (0 = sem corte)")
     args = parser.parse_args()
 
     outdir = Path(args.outdir)
@@ -328,15 +420,34 @@ def main() -> None:
         "k_nn": args.k_nn,
         "theiler": args.theiler,
         "alpha": args.alpha,
+        "max_points": int(args.max_points),
     }
 
     rows = []
     failures = []
     for i, ds in enumerate(datasets):
-        row = _run_one(ds, outdir, seed=args.seed + i, cfg=cfg, engine_available=engine_available, engine_err=engine_err)
+        t0 = time.time()
+        if float(args.asset_timeout_sec) > 0:
+            row = _run_one_mp(
+                ds,
+                outdir,
+                seed=args.seed + i,
+                cfg=cfg,
+                engine_available=engine_available,
+                engine_err=engine_err,
+                timeout_sec=float(args.asset_timeout_sec),
+            )
+        else:
+            row = _run_one(ds, outdir, seed=args.seed + i, cfg=cfg, engine_available=engine_available, engine_err=engine_err)
+        dt = float(time.time() - t0)
         rows.append(row)
         if row["status"] != "ok":
             failures.append({"asset_id": row["asset_id"], "reason": row["reason"]})
+        print(
+            f"[universe_mini] {i+1}/{len(datasets)} "
+            f"asset={row.get('asset_id')} status={row.get('status')} "
+            f"elapsed_sec={dt:.1f} reason={row.get('reason', '')}"
+        )
 
     master_df = pd.DataFrame(
         rows,
@@ -389,4 +500,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

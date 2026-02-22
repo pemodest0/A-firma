@@ -22,6 +22,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run validation suite and build product-ready validated artifacts.")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--max-assets", type=int, default=30)
+    parser.add_argument("--asset-timeout-sec", type=float, default=180.0)
+    parser.add_argument("--max-points", type=int, default=1200)
     args = parser.parse_args()
 
     steps = [
@@ -123,6 +125,10 @@ def main() -> None:
             str(args.seed),
             "--max-assets",
             str(args.max_assets),
+            "--asset-timeout-sec",
+            str(args.asset_timeout_sec),
+            "--max-points",
+            str(args.max_points),
         ],
         [
             PY,

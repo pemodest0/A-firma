@@ -39,13 +39,26 @@ def main() -> None:
     parser.add_argument("--run-id", type=str, default=datetime.now(timezone.utc).strftime("%Y%m%d"))
     parser.add_argument("--outdir", type=str, default="results/ops/daily")
     parser.add_argument("--step-timeout-sec", type=float, default=900.0)
+    parser.add_argument("--asset-timeout-sec", type=float, default=180.0)
+    parser.add_argument("--max-points", type=int, default=1200)
     args = parser.parse_args()
 
     run_dir = ROOT / args.outdir / args.run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
     steps = [
-        [PY, "scripts/bench/validation/run_product_pipeline.py", "--seed", str(args.seed), "--max-assets", str(args.max_assets)],
+        [
+            PY,
+            "scripts/bench/validation/run_product_pipeline.py",
+            "--seed",
+            str(args.seed),
+            "--max-assets",
+            str(args.max_assets),
+            "--asset-timeout-sec",
+            str(args.asset_timeout_sec),
+            "--max-points",
+            str(args.max_points),
+        ],
         [
             PY,
             "scripts/bench/validation/04_universe_mini.py",
@@ -55,6 +68,10 @@ def main() -> None:
             str(args.seed),
             "--max-assets",
             str(args.max_assets),
+            "--asset-timeout-sec",
+            str(args.asset_timeout_sec),
+            "--max-points",
+            str(args.max_points),
         ],
         [
             PY,
@@ -129,6 +146,8 @@ def main() -> None:
         "run_id": args.run_id,
         "seed": args.seed,
         "max_assets": args.max_assets,
+        "asset_timeout_sec": float(args.asset_timeout_sec),
+        "max_points": int(args.max_points),
         "checks": checks,
         "metrics": {
             "stability_score": stability,
