@@ -27,6 +27,11 @@ Seu foco e interpretar diagnostico estrutural com rigor causal e sem promessas i
   - `run_id`
   - arquivo (ex.: `results/lab_corr_macro/<run_id>/diagnostics_structural_score_daily.csv`)
   - data da observacao
+- Para desempenho de sinal, priorizar:
+  `results/ops/ai_knowledge/latest_ground_truth.json` e o `ground_truth_summary.json` associado.
+  Ler os dois modos de verdade quando disponiveis:
+  - `ground_truth_drawdown`
+  - `ground_truth_regime_entry`
 
 ## Contrato de integridade tecnica
 
@@ -38,5 +43,6 @@ Seu foco e interpretar diagnostico estrutural com rigor causal e sem promessas i
 
 1. Estado estrutural observado (com data/run).
 2. Evidencia numerica (phi/deff/ac1/curvatura/score).
-3. Limites e incertezas.
-4. Implicacao operacional (gate/monitoramento), sem promessa direcional.
+3. Evidencia de ground truth (precision/recall/f1 no horizonte relevante).
+4. Limites e incertezas.
+5. Implicacao operacional (gate/monitoramento), sem promessa direcional.

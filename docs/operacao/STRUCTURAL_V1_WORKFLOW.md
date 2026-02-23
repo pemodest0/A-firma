@@ -64,3 +64,15 @@ No run do offline com flag:
 
 - `docs/KNOWLEDGE_ASSYNTRAX.md`
 - `docs/AI_SYSTEM_PROMPT.md`
+
+## Ground truth operacional
+
+```bash
+python3 scripts/structural/run_ground_truth_tests.py --horizons 5,10,20 --drawdown-threshold 0.05 --score-quantile 0.85 --train-end 2024-12-31
+```
+
+Saidas:
+
+- `results/structural_ground_truth_<timestamp>/ground_truth_summary.json`
+- `results/structural_ground_truth_<timestamp>/ground_truth_daily.csv`
+- `results/ops/ai_knowledge/latest_ground_truth.json`

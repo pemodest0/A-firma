@@ -23,7 +23,9 @@ Mapa unico dos guias ativos do projeto.
 - `docs/DAILY_PIPELINE.md`: rotina diaria e artefatos.
 - `docs/operacao/ENERGIA_INGESTAO_CANONICA.md`: ingestao one-shot de energia (ONS), normalizacao e adequacy.
 - `docs/operacao/STRUCTURAL_V1_WORKFLOW.md`: comando a comando das etapas 0-6 do bloco estrutural v1.
+- `docs/operacao/MAC_TEST_ENV_PYTEST_DNS.md`: setup de pytest e DNS no Mac para destravar testes.
 - `docs/COPILOT_CORE_INSTRUCTIONS.md`: nucleo de instrucoes e gate do copiloto.
+- `results/ops/ai_knowledge/latest_ground_truth.json`: ponteiro para ultimo ground truth estrutural.
 - `results/platform/latest_db_snapshot.json`: snapshot consolidado do banco para API/site.
 - `docs/ops_playbook.md`: runbook operacional e incidente.
 

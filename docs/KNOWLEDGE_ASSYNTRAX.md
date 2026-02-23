@@ -45,3 +45,27 @@ Base semantica minima para agentes de IA que interpretam o motor Assyntrax.
 - Referenciar sempre artefatos reais em `results/...`.
 - Citar `run_id` e arquivo origem ao resumir resultado.
 - Se dado estiver ausente, responder explicitamente que nao ha evidencia no run atual.
+
+## Ground truth oficial (estrutural v1)
+
+- Script de avaliacao:
+  `scripts/structural/run_ground_truth_tests.py`
+- Saidas:
+  - `results/structural_ground_truth_<timestamp>/ground_truth_summary.json`
+  - `results/structural_ground_truth_<timestamp>/ground_truth_daily.csv`
+  - `results/ops/ai_knowledge/latest_ground_truth.json`
+
+Definicao de evento-verdade no v1 (finance):
+
+- evento = drawdown futuro de benchmark abaixo de limiar em horizonte fixo
+- evento alternativo = entrada futura em regime critico (`stress` ou `transition`) no horizonte
+- base padrao: horizontes `5,10,20` dias e limiar de drawdown `5%`
+
+Metricas padrao para IA citar:
+
+- precision
+- recall
+- f1
+- accuracy
+- event_rate
+- alert_rate

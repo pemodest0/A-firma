@@ -1,6 +1,13 @@
 from .csd import ews_pack, rolling_ac1, rolling_variance
 from .forman_ricci import forman_edge_curvature, forman_summary
 from .graph import corr_to_graph
+from .ground_truth import (
+    build_event_label,
+    build_regime_future_event_label,
+    classification_report_binary,
+    forward_max_drawdown_from_equity,
+    threshold_from_train,
+)
 from .rmt import mp_bounds, rmt_report, significant_eigs
 from .run_manifest import write_run_manifest
 from .score import fit_normalizer, structural_score, transform
@@ -21,6 +28,11 @@ __all__ = [
     "corr_to_graph",
     "forman_edge_curvature",
     "forman_summary",
+    "forward_max_drawdown_from_equity",
+    "build_event_label",
+    "build_regime_future_event_label",
+    "classification_report_binary",
+    "threshold_from_train",
     "fit_normalizer",
     "transform",
     "structural_score",
