@@ -1,5 +1,7 @@
 # Fundamentacao Teorica do Assyntrax (versao estruturada)
 
+Nota: a versao teorica consolidada e transversal do motor esta em `docs/motor/THEORY_ASSYNTRAX.md`.
+
 Este documento consolida a base matematica e estatistica do Assyntrax em linguagem tecnica, com notacao em LaTeX.
 O objetivo do motor e diagnosticar **estado estrutural de risco** (estabilidade, transicao, estresse), nao gerar recomendacao direcional de compra/venda.
 

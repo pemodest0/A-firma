@@ -13,6 +13,7 @@ Documentos de referência do núcleo técnico.
 
 ## Referências
 - `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
+- `docs/motor/THEORY_ASSYNTRAX.md`
 - `docs/motor/FUNDAMENTACAO_TEORICA_ASSYNTRAX_LATEX.md`
 - `docs/motor/referencias/assyntrax_core.bib`
 - `docs/motor/manual_300p/PLANO_EDITORIAL_300_PAGINAS.md`

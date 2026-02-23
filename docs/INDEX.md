@@ -27,6 +27,7 @@ Mapa unico dos guias ativos do projeto.
 ## Engine, contratos e frontend
 - `docs/ENGINE_GUIDE.md`: API estavel do motor e contrato de consumo.
 - `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`: manual mestre do motor (regras, conclusoes, gate, operacao).
+- `docs/motor/THEORY_ASSYNTRAX.md`: base teorica consolidada (espectral, CSD, geometria de rede, limites v1/v2).
 - `docs/motor/manual_300p/PLANO_EDITORIAL_300_PAGINAS.md`: plano fechado para expansao em ~300 paginas.
 - `docs/DASHBOARD_SPEC.md`: regras de exibicao no frontend.
 - `docs/REAL_ESTATE_ARCH.md`: arquitetura do dominio imobiliario.
