@@ -5,12 +5,17 @@ import argparse
 import hashlib
 import json
 import math
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 try:
     from scipy.cluster.hierarchy import fcluster, linkage
@@ -20,8 +25,20 @@ try:
 except Exception:
     SCIPY_OK = False
 
+try:
+    from engine.structural.csd import rolling_ac1 as structural_rolling_ac1
+    from engine.structural.forman_ricci import forman_edge_curvature, forman_summary
+    from engine.structural.graph import corr_to_graph
+    from engine.structural.score import fit_normalizer as structural_fit_normalizer
+    from engine.structural.score import structural_score as structural_score_fusion
+    from engine.structural.score import transform as structural_transform
 
-ROOT = Path(__file__).resolve().parents[2]
+    STRUCTURAL_OK = True
+except Exception:
+    STRUCTURAL_OK = False
+
+
+ROOT = REPO_ROOT
 DEFAULT_OUT_BASE = ROOT / "results" / "lab_corr_macro"
 DEFAULT_FINANCE_BASE = ROOT / "results" / "finance_download"
 DEFAULT_BASELINE_DIR = DEFAULT_OUT_BASE / "_official_baseline"
@@ -166,6 +183,8 @@ def _process_window(
     bootstrap_block: int,
     overlap_step: int,
     seed: int,
+    compute_forman: bool = False,
+    forman_topk: int = 10,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     dates = returns_wide.index
     rows: list[dict[str, Any]] = []
@@ -201,6 +220,8 @@ def _process_window(
             "structure_score_bootstrap": np.nan,
             "eigvec_overlap_1d": np.nan,
             "eigvec_instability_1d": np.nan,
+            "forman_mean": np.nan,
+            "forman_share_negative": np.nan,
             "insufficient_universe": True,
         }
         for k in range(1, 11):
@@ -261,6 +282,17 @@ def _process_window(
                 prev_cols = aligned.columns.to_list()
             except Exception:
                 pass
+
+        if bool(compute_forman) and STRUCTURAL_OK:
+            try:
+                edges = corr_to_graph(corr, method="topk", k=int(max(1, forman_topk)), abs_weights=True)
+                curv = forman_edge_curvature(edges, n_nodes=int(corr.shape[0]))
+                fsum = forman_summary(curv)
+                rec["forman_mean"] = float(fsum.get("mean", np.nan))
+                rec["forman_share_negative"] = float(fsum.get("share_negative", np.nan))
+            except Exception:
+                rec["forman_mean"] = np.nan
+                rec["forman_share_negative"] = np.nan
 
         if SCIPY_OK:
             cid, ccount, largest_share, entropy = _cluster_metrics(corr)
@@ -2404,6 +2436,103 @@ def _write_case_studies_demo(outdir: Path, cases_df: pd.DataFrame) -> None:
     (outdir / "case_studies_demo.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _build_structural_parallel_diagnostics(
+    ts_off: pd.DataFrame,
+    outdir: Path,
+    *,
+    csd_window: int,
+    train_end: str,
+) -> dict[str, Any]:
+    if ts_off.empty:
+        return {"status": "skipped", "reason": "empty_ts"}
+
+    d = ts_off.copy()
+    d["date"] = pd.to_datetime(d.get("date"), errors="coerce")
+    d["phi"] = pd.to_numeric(d.get("p1"), errors="coerce")
+    d["deff"] = pd.to_numeric(d.get("deff"), errors="coerce")
+    d["lambda1"] = pd.to_numeric(d.get("lambda1"), errors="coerce")
+    d["topk"] = pd.to_numeric(d.get("top5"), errors="coerce")
+    d["forman_mean"] = pd.to_numeric(d.get("forman_mean"), errors="coerce")
+    d["forman_share_negative"] = pd.to_numeric(d.get("forman_share_negative"), errors="coerce")
+    d["H"] = np.where(d["deff"] > 0.0, np.log(d["deff"]), np.nan)
+    d = d.dropna(subset=["date", "phi", "deff"]).sort_values("date").reset_index(drop=True)
+    if d.empty:
+        return {"status": "skipped", "reason": "empty_after_filter"}
+
+    if STRUCTURAL_OK:
+        d["ac1_phi"] = pd.to_numeric(structural_rolling_ac1(d["phi"], window=int(max(3, csd_window))), errors="coerce")
+    else:
+        d["ac1_phi"] = np.nan
+
+    if str(train_end).strip():
+        cutoff = pd.Timestamp(str(train_end).strip())
+        train_mask = d["date"] <= cutoff
+        if int(train_mask.sum()) < 10:
+            pos = int(max(5, min(len(d) - 1, int(0.7 * len(d)))))
+            train_mask = d.index <= pos
+    else:
+        pos = int(max(5, min(len(d) - 1, int(0.7 * len(d)))))
+        train_mask = d.index <= pos
+
+    if STRUCTURAL_OK:
+        norm = structural_fit_normalizer(
+            {
+                "phi": d.loc[train_mask, "phi"],
+                "deff": d.loc[train_mask, "deff"],
+                "ac1_phi": d.loc[train_mask, "ac1_phi"],
+                "neg_kappa_mean": -d.loc[train_mask, "forman_mean"].fillna(0.0),
+            }
+        )
+        z_phi = structural_transform(d["phi"], norm, key="phi")
+        z_deff = structural_transform(d["deff"], norm, key="deff")
+        z_ac1 = structural_transform(d["ac1_phi"], norm, key="ac1_phi")
+        z_neg_kappa = structural_transform(-d["forman_mean"].fillna(0.0), norm, key="neg_kappa_mean")
+        d["score"] = pd.to_numeric(
+            structural_score_fusion(
+                {
+                    "phi": z_phi,
+                    "deff": z_deff,
+                    "ac1_phi": z_ac1,
+                    "neg_kappa_mean": z_neg_kappa,
+                }
+            ),
+            errors="coerce",
+        )
+    else:
+        norm = {}
+        d["score"] = np.nan
+
+    d["flags_valid"] = (
+        d[["phi", "deff", "ac1_phi", "forman_mean"]].replace([np.inf, -np.inf], np.nan).notna().all(axis=1).astype(int)
+    )
+    d["date"] = pd.DatetimeIndex(d["date"]).strftime("%Y-%m-%d")
+
+    diag_cols = ["date", "phi", "H", "deff", "lambda1", "topk", "ac1_phi", "forman_mean", "forman_share_negative", "flags_valid"]
+    score_cols = ["date", "score", "phi", "deff", "ac1_phi", "forman_mean", "flags_valid"]
+    for c in diag_cols + score_cols:
+        if c not in d.columns:
+            d[c] = np.nan
+
+    diag_path = outdir / "diagnostics_structural_daily.csv"
+    score_path = outdir / "diagnostics_structural_score_daily.csv"
+    d[diag_cols].to_csv(diag_path, index=False)
+    d[score_cols].to_csv(score_path, index=False)
+    meta = {
+        "status": "ok",
+        "structural_ok": bool(STRUCTURAL_OK),
+        "rows": int(d.shape[0]),
+        "csd_window": int(csd_window),
+        "train_end": str(train_end),
+        "normalizer": norm,
+        "files": {
+            "diagnostics_structural_daily_csv": str(diag_path),
+            "diagnostics_structural_score_daily_csv": str(score_path),
+        },
+    }
+    (outdir / "diagnostics_structural_meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    return meta
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Macro corr lab offline (no API).")
     ap.add_argument("--policy-path", type=str, default=str(ROOT / "config" / "lab_corr_policy.json"))
@@ -2427,6 +2556,10 @@ def main() -> None:
     ap.add_argument("--bootstrap-block", type=int, default=10)
     ap.add_argument("--overlap-step", type=int, default=5, help="Compute eigvec overlap every N days.")
     ap.add_argument("--seed", type=int, default=123)
+    ap.add_argument("--enable-structural-v1", type=int, default=0, help="Write parallel structural diagnostics files.")
+    ap.add_argument("--structural-topk", type=int, default=10)
+    ap.add_argument("--structural-csd-window", type=int, default=60)
+    ap.add_argument("--structural-train-end", type=str, default="2019-12-31")
     ap.add_argument("--official-window", type=int, default=120)
     ap.add_argument("--freeze-baseline", type=int, default=1)
     ap.add_argument("--strict-checks", type=int, default=1)
@@ -2506,6 +2639,10 @@ def main() -> None:
         "coverage_window": float(args.coverage_window),
         "overlap_step": int(args.overlap_step),
         "business_days_only": bool(int(args.business_days_only)),
+        "enable_structural_v1": bool(int(args.enable_structural_v1)),
+        "structural_topk": int(args.structural_topk),
+        "structural_csd_window": int(args.structural_csd_window),
+        "structural_train_end": str(args.structural_train_end),
         "official_window": int(args.official_window),
         "hysteresis_days": int(args.hysteresis_days),
         "regime_threshold_mode": str(args.regime_threshold_mode),
@@ -2621,6 +2758,8 @@ def main() -> None:
             bootstrap_block=int(args.bootstrap_block),
             overlap_step=int(args.overlap_step),
             seed=int(args.seed),
+            compute_forman=bool(int(args.enable_structural_v1)),
+            forman_topk=int(args.structural_topk),
         )
         ts_map[w] = ts.copy()
         cols = [
@@ -2651,6 +2790,8 @@ def main() -> None:
             "structure_score_bootstrap",
             "eigvec_overlap_1d",
             "eigvec_instability_1d",
+            "forman_mean",
+            "forman_share_negative",
             "insufficient_universe",
         ]
         for c in cols:
@@ -2838,6 +2979,26 @@ def main() -> None:
         json.dumps(level_payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
+    structural_meta: dict[str, Any] = {}
+    if bool(int(args.enable_structural_v1)):
+        structural_meta = _build_structural_parallel_diagnostics(
+            ts_off=ts_off,
+            outdir=outdir,
+            csd_window=int(args.structural_csd_window),
+            train_end=str(args.structural_train_end),
+        )
+        if str(structural_meta.get("status", "")).lower() == "ok":
+            summary += [
+                "",
+                "[STRUCTURAL_V1]",
+                f"rows={int(structural_meta.get('rows', 0))}; csd_window={int(args.structural_csd_window)}; structural_ok={bool(structural_meta.get('structural_ok', False))}",
+            ]
+        else:
+            summary += [
+                "",
+                "[STRUCTURAL_V1]",
+                f"status={str(structural_meta.get('status', 'unknown'))}; reason={str(structural_meta.get('reason', 'n/a'))}",
+            ]
     summary += ["", f"[OFFICIAL_T{int(args.official_window)}]"]
     if bt_df.empty:
         summary += ["backtest: unavailable"]
@@ -3023,6 +3184,13 @@ def main() -> None:
             "count": int(signif_df.shape[0]) if not signif_df.empty else 0,
             "file_csv": str(outdir / "significance_summary_by_window.csv"),
         },
+        "structural_v1": {
+            "enabled": bool(int(args.enable_structural_v1)),
+            "status": str(structural_meta.get("status", "disabled")) if bool(int(args.enable_structural_v1)) else "disabled",
+            "file_csv": str(outdir / "diagnostics_structural_daily.csv"),
+            "file_score_csv": str(outdir / "diagnostics_structural_score_daily.csv"),
+            "file_meta_json": str(outdir / "diagnostics_structural_meta.json"),
+        },
         "era_evaluation": {
             "count": int(era_df.shape[0]) if not era_df.empty else 0,
             "file_csv": str(outdir / f"era_evaluation_T{int(args.official_window)}.csv"),
@@ -3119,6 +3287,9 @@ def main() -> None:
         "asset_diagnostics_rows": int(asset_diag_df.shape[0]) if not asset_diag_df.empty else 0,
         "sector_diagnostics_rows": int(sector_diag_df.shape[0]) if not sector_diag_df.empty else 0,
         "operational_alerts_latest": int(len(op_payload.get("latest_events", []))) if isinstance(op_payload, dict) else 0,
+        "structural_v1_enabled": bool(int(args.enable_structural_v1)),
+        "structural_v1_status": str(structural_meta.get("status", "disabled")) if bool(int(args.enable_structural_v1)) else "disabled",
+        "structural_v1_rows": int(structural_meta.get("rows", 0)) if bool(int(args.enable_structural_v1)) else 0,
     }
 
     release_decision = {"updated": False}

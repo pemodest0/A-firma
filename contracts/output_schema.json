@@ -1,0 +1,76 @@
+{
+  "version": "v1.0.0",
+  "name": "assyntrax_structural_outputs",
+  "artifacts": [
+    {
+      "id": "run_manifest",
+      "path_glob": "results/**/RUN_MANIFEST.json",
+      "required_fields": [
+        "version",
+        "timestamp_utc",
+        "git_hash",
+        "params",
+        "paths",
+        "gates"
+      ]
+    },
+    {
+      "id": "rmt_report",
+      "path_glob": "results/**/rmt_report.json",
+      "required_fields": [
+        "q",
+        "lambda_max",
+        "lambda1",
+        "count_sig",
+        "frac_sig"
+      ]
+    },
+    {
+      "id": "spectral_pack_demo",
+      "path_glob": "results/**/spectral_pack_demo.json",
+      "required_fields": [
+        "phi",
+        "H",
+        "deff",
+        "lambda1",
+        "topk"
+      ]
+    },
+    {
+      "id": "ews_phi",
+      "path_glob": "results/**/ews_phi.csv",
+      "required_columns": [
+        "date",
+        "phi",
+        "var_phi",
+        "ac1_phi",
+        "z_var_phi",
+        "z_ac1_phi"
+      ]
+    },
+    {
+      "id": "forman_summary",
+      "path_glob": "results/**/forman_summary.json",
+      "required_fields": [
+        "mean",
+        "p5",
+        "p50",
+        "p95",
+        "share_negative"
+      ]
+    },
+    {
+      "id": "structural_score_daily",
+      "path_glob": "results/**/diagnostics_structural_score_daily.csv",
+      "required_columns": [
+        "date",
+        "score",
+        "phi",
+        "deff",
+        "ac1_phi",
+        "forman_mean",
+        "flags_valid"
+      ]
+    }
+  ]
+}

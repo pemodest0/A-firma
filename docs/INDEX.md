@@ -15,11 +15,14 @@ Mapa unico dos guias ativos do projeto.
 - `docs/notes/AGENT_MEMORY.md`: memoria operacional consolidada.
 - `docs/notes/DEV_LOG.md`: log curto de desenvolvimento.
 - `docs/notes/JOURNAL.md`: registro resumido de marcos.
+- `docs/KNOWLEDGE_ASSYNTRAX.md`: glossario e interpretacao oficial para IA.
+- `docs/AI_SYSTEM_PROMPT.md`: prompt base para agentes com restricoes tecnicas.
 
 ## Operacao e pipelines
 - `docs/OPS_EXECUTION_FLOW.md`: fluxo oficial motor -> validacao -> publicacao.
 - `docs/DAILY_PIPELINE.md`: rotina diaria e artefatos.
 - `docs/operacao/ENERGIA_INGESTAO_CANONICA.md`: ingestao one-shot de energia (ONS), normalizacao e adequacy.
+- `docs/operacao/STRUCTURAL_V1_WORKFLOW.md`: comando a comando das etapas 0-6 do bloco estrutural v1.
 - `docs/COPILOT_CORE_INSTRUCTIONS.md`: nucleo de instrucoes e gate do copiloto.
 - `results/platform/latest_db_snapshot.json`: snapshot consolidado do banco para API/site.
 - `docs/ops_playbook.md`: runbook operacional e incidente.
@@ -28,6 +31,8 @@ Mapa unico dos guias ativos do projeto.
 - `docs/ENGINE_GUIDE.md`: API estavel do motor e contrato de consumo.
 - `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`: manual mestre do motor (regras, conclusoes, gate, operacao).
 - `docs/motor/THEORY_ASSYNTRAX.md`: base teorica consolidada (espectral, CSD, geometria de rede, limites v1/v2).
+- `contracts/features.yaml`: contrato de definicao das features estruturais v1.
+- `contracts/output_schema.json`: contrato de artefatos de saida estruturais v1.
 - `docs/motor/manual_300p/PLANO_EDITORIAL_300_PAGINAS.md`: plano fechado para expansao em ~300 paginas.
 - `docs/DASHBOARD_SPEC.md`: regras de exibicao no frontend.
 - `docs/REAL_ESTATE_ARCH.md`: arquitetura do dominio imobiliario.

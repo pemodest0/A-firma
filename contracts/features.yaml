@@ -1,0 +1,42 @@
+version: v1.0.0
+name: assyntrax_structural_features
+updated_at_utc: "2026-02-23T00:00:00Z"
+features:
+  - id: phi
+    domain: spectral
+    dtype: float
+    formula: "lambda1 / sum(lambda_i)"
+    description: "Parametro de ordem estrutural."
+    constraints:
+      min: 0.0
+      max: 1.0
+  - id: deff
+    domain: spectral
+    dtype: float
+    formula: "exp(-sum(p_i * log(p_i)))"
+    description: "Dimensao efetiva espectral."
+    constraints:
+      min: 1.0
+  - id: spectral_entropy
+    domain: spectral
+    dtype: float
+    formula: "-sum(p_i * log(p_i))"
+    description: "Entropia espectral de autovalores normalizados."
+  - id: ac1_phi
+    domain: csd
+    dtype: float
+    formula: "autocorr(phi_t, phi_{t-1}) em janela causal"
+    description: "Autocorrelacao lag-1 de phi."
+    constraints:
+      min: -1.0
+      max: 1.0
+  - id: forman_mean
+    domain: geometry
+    dtype: float
+    formula: "media da curvatura de Forman-Ricci nas arestas"
+    description: "Indicador medio de fragilidade topologica."
+  - id: structural_score
+    domain: fusion
+    dtype: float
+    formula: "a*z(phi) - b*z(deff) + c*z(ac1_phi) + d*z(-forman_mean)"
+    description: "Score agregado de fragilidade estrutural."
