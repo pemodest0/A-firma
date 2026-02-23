@@ -36,6 +36,11 @@
       "source_name": "ons"
     },
     {
+      "pattern": "data/raw/ONS/ons_carga_diaria",
+      "source_type": "official",
+      "source_name": "ons_legacy"
+    },
+    {
       "pattern": "data/raw/energy/eia",
       "source_type": "official",
       "source_name": "eia"

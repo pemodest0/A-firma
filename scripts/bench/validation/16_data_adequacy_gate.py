@@ -63,11 +63,26 @@ def _infer_domain(path: Path) -> str:
 def _profile(path: Path, min_points: int, min_years: float, max_gap_days: int) -> dict[str, Any]:
     try:
         df = pd.read_csv(path)
+        if df.shape[1] == 1 and ";" in str(df.columns[0]):
+            df = pd.read_csv(path, sep=";")
     except Exception as exc:
         return {"dataset": str(path), "status": "fail", "reason": f"read_error: {exc}"}
 
-    dc = _find_col(df, ["date", "data", "datetime", "timestamp", "time"])
-    vc = _find_col(df, ["close", "adj_close", "price", "value", "valor", "load", "consumo"])
+    dc = _find_col(df, ["date", "data", "datetime", "timestamp", "time", "din_instante"])
+    vc = _find_col(
+        df,
+        [
+            "close",
+            "adj_close",
+            "price",
+            "value",
+            "valor",
+            "load",
+            "consumo",
+            "val_cargaenergiamwmed",
+            "carga_mw",
+        ],
+    )
     if dc is None or vc is None:
         return {"dataset": str(path), "status": "fail", "reason": "missing_date_or_value_col"}
 

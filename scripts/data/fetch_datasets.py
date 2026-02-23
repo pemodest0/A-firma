@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Optional, List
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def _detect_delimiter(sample_line: str) -> str:
     if ";" in sample_line and "," not in sample_line:
@@ -39,9 +41,9 @@ def _combine_csvs(paths: List[Path], output_path: Path) -> None:
 
 
 def load_config() -> dict:
-    config_path = Path(__file__).resolve().parents[1] / "data_sources.json"
+    config_path = REPO_ROOT / "data_sources.json"
     if not config_path.exists():
-        raise FileNotFoundError("data_sources.json not found in repo root.")
+        raise FileNotFoundError(f"data_sources.json not found: {config_path}")
     return json.loads(config_path.read_text(encoding="utf-8"))
 
 
@@ -84,7 +86,7 @@ def fetch_dataset(source: str, dataset: str, year: int, force: bool) -> Optional
 
     url = url_template.format(year=year)
     filename = Path(url).name
-    output_dir = Path(__file__).resolve().parents[1] / "data" / "raw" / source / dataset
+    output_dir = REPO_ROOT / "data" / "raw" / source / dataset
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / filename
 
@@ -125,7 +127,7 @@ def main() -> None:
             if path:
                 paths.append(path)
         if args.combine and paths:
-            output_dir = Path(__file__).resolve().parents[1] / "data" / "raw" / args.source / args.dataset
+            output_dir = REPO_ROOT / "data" / "raw" / args.source / args.dataset
             output_path = output_dir / f"{args.dataset}_{args.from_year}_{args.to_year}.csv"
             _combine_csvs(paths, output_path)
             print(f"[ok] Combined CSV saved at {output_path}")
