@@ -1,14 +1,14 @@
-# Assyntrax - Structural Stability Engine for Complex Systems
+# Eigen Engine (Assyntrax) - Structural Stability Engine for Complex Systems
 
 Status: nucleo teorico canonico v1  
 Atualizado em: 2026-02-23
 
-Este documento consolida a base matematica existente do Assyntrax com o enquadramento transversal de estabilidade (financas, energia e operacao).  
+Este documento consolida a base matematica existente do Eigen Engine com o enquadramento transversal de estabilidade (financas, energia e operacao).  
 Ele separa, de forma explicita, o que ja esta operacional em v1 do que e trilha de pesquisa v2.
 
 ## 1. Objetivo teorico
 
-O Assyntrax modela sistemas complexos multivariados como sistemas dinamicos de alta dimensionalidade sujeitos a transicoes criticas.
+O Eigen Engine modela sistemas complexos multivariados como sistemas dinamicos de alta dimensionalidade sujeitos a transicoes criticas.
 
 Hipotese central:
 
@@ -79,7 +79,7 @@ Leitura:
 - \(\phi\) alto: sincronizacao coletiva,
 - crescimento rapido de \(\phi\): concentracao sistemica.
 
-No Assyntrax v1, \(\phi\) e operacionalizado por `p1`.
+No Eigen Engine v1, \(\phi\) e operacionalizado por `p1`.
 
 ### 3.3 Entropia espectral e dimensao efetiva
 
@@ -103,7 +103,7 @@ D_{\text{eff}}(t) = \exp(H(t))
 
 Queda de \(D_{\text{eff}}\) indica colapso dimensional e menor resiliencia estrutural.
 
-No Assyntrax v1, isso e medido por `deff`.
+No Eigen Engine v1, isso e medido por `deff`.
 
 ### 3.4 Estabilidade temporal do modo dominante
 
@@ -115,7 +115,7 @@ O_{11}(t, t-\Delta) = |\langle v_1(t), v_1(t-\Delta)\rangle|^2
 
 Queda persistente de overlap indica rotacao estrutural do modo coletivo dominante.
 
-No Assyntrax v1:
+No Eigen Engine v1:
 
 - `eigvec_overlap_1d`,
 - `eigvec_instability_1d`.
@@ -143,7 +143,7 @@ Indicadores operacionais de CSD:
 - aumento da correlacao media cruzada,
 - menor taxa de recuperacao pos-choque.
 
-No Assyntrax v1, proxies dinamicos centrais:
+No Eigen Engine v1, proxies dinamicos centrais:
 
 - `|dp1_5|`,
 - `|ddeff_5|`,
@@ -177,7 +177,7 @@ Status de implementacao:
 
 ## 6. Dinamica integrada de transicao critica
 
-O Assyntrax integra tres mecanismos:
+O Eigen Engine integra tres mecanismos:
 
 - concentracao espectral (\(\phi\), \(D_{\text{eff}}\)),
 - perda dinamica de resiliencia (CSD),
@@ -231,7 +231,7 @@ Conjunto minimo v1 por setor:
 
 ## 10. Natureza da engine
 
-O Assyntrax nao tenta prever preco-alvo ou timestamp exato de evento.
+O Eigen Engine nao tenta prever preco-alvo ou timestamp exato de evento.
 
 Ele estima:
 

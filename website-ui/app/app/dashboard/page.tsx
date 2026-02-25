@@ -44,7 +44,7 @@ function confidenceBand(value: number | null) {
   return "baixa";
 }
 
-export default async function DashboardHome() {
+export default async function DashboardPage() {
   const [labRun, ts, opAlerts, playbook, uiView] = await Promise.all([
     findLatestLabCorrRun(),
     readLatestLabCorrTimeseries(120),
@@ -105,12 +105,11 @@ export default async function DashboardHome() {
     latestNUsed != null && officialWindow > 0 ? Math.max(0, Math.trunc(officialWindow - latestNUsed)) : null;
   const warmupActive = warmupRemaining != null ? warmupRemaining > 0 : false;
 
-export default function DashboardPage() {
   return (
     <div className="p-5 md:p-6 lg:p-8 space-y-6">
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-5">
         <p className="text-xs tracking-[0.14em] uppercase text-zinc-500">Painel</p>
-        <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-zinc-100">Painel operacional do motor</h1>
+        <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-zinc-100">Painel operacional do Eigen Engine</h1>
         <p className="mt-3 text-sm text-zinc-300">
           Leitura focada em estado atual, risco, confianca e governanca de publicacao.
         </p>
@@ -138,14 +137,14 @@ export default function DashboardPage() {
           helper={
             warmupActive
               ? `Warmup estrutural em andamento (${warmupRemaining} dias restantes).`
-              : "Motor totalmente operacional."
+              : "Eigen Engine totalmente operacional."
           }
         />
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <Card>
-          <div className="text-xs uppercase tracking-[0.12em] text-zinc-500">Estado atual do motor</div>
+          <div className="text-xs uppercase tracking-[0.12em] text-zinc-500">Estado atual do Eigen Engine</div>
           <div className="mt-2 text-zinc-100 font-semibold">Regime: {regime}</div>
           <div className="mt-1 text-sm text-zinc-300">Risco: {riskBand(riskScore)}</div>
           <div className="mt-1 text-sm text-zinc-300">Confianca: {confidenceBand(confidenceScore)}</div>

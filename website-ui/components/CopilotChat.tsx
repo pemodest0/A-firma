@@ -70,6 +70,20 @@ type CopilotContext = {
     db_path: string;
     copilot_row_exists: boolean;
   };
+  operational_brief: {
+    brief_available: boolean;
+    brief_path: string;
+    data_last_date: string;
+    freshness_status: string;
+    freshness_days_lag: number | null;
+    risk_level_next_month: string;
+    operational_state: string;
+    action_hint: string;
+    confidence_score: number | null;
+    top_sector_global: string;
+    top_asset_global: string;
+    insight_headlines: string[];
+  };
   watch_assets: AssetSample[];
   inconclusive_assets: AssetSample[];
   sources: string[];
@@ -90,6 +104,7 @@ type Message = {
 
 const quickPrompts = [
   "Me de um resumo do run atual",
+  "Qual o estado operacional e a acao sugerida?",
   "Como esta o gate de publicacao?",
   "Quais ativos estao em watch e inconclusive?",
   "Qual status dos modelos B e C?",
@@ -187,7 +202,7 @@ export default function CopilotChat() {
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-5">
         <p className="text-xs tracking-[0.14em] uppercase text-zinc-500">Copiloto</p>
         <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-zinc-100">
-          IA fisico-matematica para leitura do motor
+          IA fisico-matematica para leitura do Eigen Engine
         </h1>
         <p className="mt-3 text-sm text-zinc-300">
           Chat operacional em tempo real com base nos artefatos do run, sem dependencia externa.
@@ -205,6 +220,19 @@ export default function CopilotChat() {
             <div className="mt-1 text-sm text-zinc-100">{context?.run.id || "--"}</div>
             <div className="mt-1 text-xs text-zinc-400">
               gate: {context?.run.gate_blocked ? "nao verde" : "verde"} | politica: {context?.run.policy || "--"}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs uppercase tracking-[0.12em] text-zinc-500">Brief IA</div>
+            <div className="mt-1 text-xs text-zinc-300">
+              estado {context?.operational_brief.operational_state || "--"} | risco mes{" "}
+              {context?.operational_brief.risk_level_next_month || "--"}
+            </div>
+            <div className="mt-1 text-xs text-zinc-400">
+              data base {context?.operational_brief.data_last_date || "--"} | freshness{" "}
+              {context?.operational_brief.freshness_status || "--"}
+              {context?.operational_brief.freshness_days_lag == null ? "" : ` (${context?.operational_brief.freshness_days_lag}d)`}
             </div>
           </div>
 

@@ -1,6 +1,6 @@
-﻿# Assyntrax Engine + Product Platform
+﻿# Assyntrax Platform + Eigen Engine
 
-Este repositorio contem o motor de deteccao de regimes e risco, os pipelines de validacao/auditoria e o frontend operacional.
+Este repositorio contem a plataforma Assyntrax, o Eigen Engine (motor de deteccao de regimes e risco), os pipelines de validacao/auditoria e o frontend operacional.
 
 ## Estado atual
 - Motor unificado em `engine/` com wrappers de compatibilidade em `spa/` e `graph_engine/`.
@@ -31,7 +31,7 @@ Este repositorio contem o motor de deteccao de regimes e risco, os pipelines de 
 - Contrato de saida valido.
 - Data adequacy gate aprovado.
 - Drift diario sem bloqueio de deployment.
-- Global verdict em estado aceitavel para publicacao.
+- Global status em estado aceitavel para publicacao.
 
 ## Comandos uteis
 - Sincronizacao canonica (forca remoto sobre local):
@@ -39,12 +39,15 @@ Este repositorio contem o motor de deteccao de regimes e risco, os pipelines de 
   - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\git_sync_canonical.ps1`
 - Pipeline diario:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\run_daily_jobs.ps1 -Seed 17 -MaxAssets 80`
+  - `bash ./scripts/ops/run_daily_jobs.sh 23 80 "" 1`
 - Copiloto shadow manual (B+C):
   - `python scripts/ops/build_copilot_shadow.py --run-id 20260210_contractfix`
 - Banco SQLite manual:
   - `python scripts/ops/build_platform_db.py --run-id 20260210_contractfix`
 - Launcher unico (executavel local):
   - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\start_platform_local.ps1 -RunPipeline`
+  - `bash ./scripts/ops/start_platform_local.sh --run-pipeline`
+  - `bash ./scripts/ops/start_platform_local.sh --run-pipeline --threads 1`
 - Frontend local:
   - `cd website-ui`
   - `npm run dev`

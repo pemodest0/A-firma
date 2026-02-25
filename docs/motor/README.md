@@ -1,6 +1,6 @@
-# Motor
+# Eigen Engine
 
-Documentos de referência do núcleo técnico.
+Documentos de referencia do nucleo tecnico do Eigen Engine.
 
 ## O que faz
 - Diagnostica mudança estrutural de risco por ativo e por setor.
@@ -21,3 +21,6 @@ Documentos de referência do núcleo técnico.
 - `docs/MOTOR_STATUS_OVERVIEW.md`
 - `docs/MOTOR_ACTION_RULEBOOK.md`
 - `docs/REGIME_METHODS_STUDY.md`
+
+Nota:
+- Os paths legados mantem `ASSYNTRAX` no nome de alguns arquivos para preservar links e compatibilidade historica.

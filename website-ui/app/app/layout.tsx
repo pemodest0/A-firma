@@ -1,6 +1,5 @@
 import "@/app/globals.css";
 import Link from "next/link";
-import { featureFlags } from "@/lib/site/features";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-semibold tracking-tight">Assyntrax</div>
-                  <div className="text-xs text-zinc-400">Motor de Regime</div>
+                  <div className="text-xs text-zinc-400">Eigen Engine</div>
                 </div>
                 <span className="text-[10px] px-2 py-1 rounded-full border border-zinc-700 text-zinc-300">
                   Institucional

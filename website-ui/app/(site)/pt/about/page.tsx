@@ -3,7 +3,7 @@ import MethodLattice from "@/components/visuals/MethodLattice";
 import { buildPageMetadata } from "@/lib/site/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Sobre o motor Assyntrax",
+  title: "Sobre o Eigen Engine",
   description: "Versão espelhada em /pt. Conteúdo principal publicado em /about.",
   path: "/pt/about",
   locale: "pt-BR",
@@ -18,11 +18,11 @@ export default function AboutPage() {
         <div className="space-y-4">
           <div className="text-xs uppercase tracking-[0.3em] text-zinc-400">Sobre</div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-            Por que o motor Assyntrax existe
+            Por que o Eigen Engine existe
           </h1>
           <p className="text-zinc-300 max-w-3xl text-lg">
             Mercados mudam de regime. Modelos lineares continuam extrapolando como se nada tivesse
-            mudado. O Assyntrax existe para diagnosticar estrutura, risco e confiabilidade com trilha auditável.
+            mudado. O Eigen Engine existe para diagnosticar estrutura, risco e confiabilidade com trilha auditavel.
           </p>
         </div>
         <div className="overflow-hidden rounded-[28px]">

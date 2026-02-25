@@ -14,9 +14,9 @@ export default function HeroSection() {
           para tomar decisões com clareza e controle.
         </p>
         <p className="mt-4 text-zinc-400 max-w-2xl text-sm lg:text-base">
-          Somos físicos e engenheiros apaixonados pela estrutura dos mercados. Aplicamos teoria de sistemas dinâmicos,
-          análise espectral e estatística robusta para identificar mudanças estruturais no mercado brasileiro. Nosso
-          motor é causal: em cada momento t usa apenas informações observadas até t-1, evitando viés de look-ahead.
+          Somos fisicos e engenheiros apaixonados pela estrutura dos mercados. Aplicamos teoria de sistemas dinamicos,
+          analise espectral e estatistica robusta para identificar mudancas estruturais no mercado brasileiro. O
+          Eigen Engine e causal: em cada momento t usa apenas informacoes observadas ate t-1, evitando vies de look-ahead.
         </p>
         <ul className="mt-5 space-y-2 text-sm text-zinc-300">
           <li>Sem look-ahead: cálculo causal em modo walk-forward.</li>
@@ -29,13 +29,13 @@ export default function HeroSection() {
             href="/contact"
           >
             Solicitar demonstração
-          </a>
-          <a
+          </Link>
+          <Link
             className="rounded-xl border border-zinc-800 px-5 py-3 text-zinc-200 hover:border-zinc-600 transition"
             href="/app/dashboard"
           >
             Abrir painel
-          </a>
+          </Link>
         </div>
       </div>
       <div className="animate-float-slow">

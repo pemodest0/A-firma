@@ -17,7 +17,7 @@ export default function ProductPage() {
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Assyntrax Motor de Regime",
+    name: "Eigen Engine (Assyntrax)",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
@@ -38,7 +38,7 @@ export default function ProductPage() {
             Estrutura, métricas e diagnóstico em um fluxo único
           </h1>
           <p className="text-zinc-300 max-w-3xl text-lg">
-            O motor combina análise espectral de correlações, classificação de regime e governança de publicação.
+            O Eigen Engine combina analise espectral de correlacoes, classificacao de regime e governanca de publicacao.
             O foco é leitura de risco estrutural com transparência técnica.
           </p>
         </div>

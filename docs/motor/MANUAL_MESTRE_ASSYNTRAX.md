@@ -1,14 +1,23 @@
-# Manual Mestre do Motor Assyntrax
+# Manual Mestre do Eigen Engine (Assyntrax)
 
-Versão: v1.0 (base consolidada)
-Data: 2026-02-21
+Versao: v1.1 (nomenclatura oficial Assyntrax + Eigen Engine)
+Data: 2026-02-25
 Status: ativo
+
+---
+
+## Nomenclatura oficial (produto)
+
+- `Assyntrax`: empresa, marca e plataforma.
+- `Eigen Engine`: motor estrutural oficial da plataforma.
+
+Compatibilidade: caminhos legados de arquivo podem manter `ASSYNTRAX` no nome para preservar historico e links internos.
 
 ---
 
 ## 1. Objetivo do manual
 
-Este documento consolida, em um único lugar, como o motor Assyntrax funciona de ponta a ponta:
+Este documento consolida, em um unico lugar, como o Eigen Engine funciona de ponta a ponta:
 
 - como os dados entram,
 - como as métricas são calculadas,
@@ -21,11 +30,11 @@ Este manual não é material de marketing. É documento técnico-operacional par
 
 ---
 
-## 2. O que o motor é (e o que não é)
+## 2. O que o Eigen Engine e (e o que nao e)
 
 ### 2.1 O que é
 
-O motor é um sistema de diagnóstico estrutural de mercado baseado em correlação rolling e análise espectral.
+O Eigen Engine e um sistema de diagnostico estrutural de mercado baseado em correlacao rolling e analise espectral.
 
 Ele mede:
 
@@ -250,7 +259,7 @@ Esta é a parte central de interpretação.
 
 ## 7.1 Modo de análise que usamos
 
-As conclusões não vêm de uma única métrica. O motor combina quatro blocos:
+As conclusoes nao vem de uma unica metrica. O Eigen Engine combina quatro blocos:
 
 1. Estrutura agregada (`p1`, `deff`, espectro)
 2. Dinâmica de mudança (`dp1_5`, `ddeff_5`, overlap)
@@ -457,7 +466,7 @@ Saídas:
 
 Leitura correta:
 
-- motor é primariamente diagnóstico de risco estrutural,
+- Eigen Engine e primariamente diagnostico de risco estrutural,
 - não deve ser vendido como promessa de alpha constante.
 
 ---
@@ -483,7 +492,7 @@ Critério de leitura:
 
 ---
 
-## 16. Contrato de API do motor no app
+## 16. Contrato de API do Eigen Engine no app
 
 Rota:
 
@@ -645,7 +654,7 @@ Prioridades recomendadas:
 
 ## 25. Resumo executivo honesto
 
-O motor Assyntrax, no estado atual, é forte em:
+O Eigen Engine, no estado atual, e forte em:
 
 - leitura estrutural do mercado,
 - rastreabilidade e governança de publicação,
@@ -702,4 +711,3 @@ Depois do release:
 - `walk_forward`: calibração causal sem olhar futuro
 - `histerese`: regra de permanência mínima para troca de estado
 - `gate`: bloqueio/liberação de publicação
-

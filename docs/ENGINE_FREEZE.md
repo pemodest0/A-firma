@@ -1,8 +1,8 @@
-# Assyntrax Engine Freeze (Snapshot)
+# Eigen Engine Freeze (Snapshot)
 
 Data: 2026-02-07
 
-Objetivo: congelar o estado funcional do motor para referência, auditoria e retomada.
+Objetivo: congelar o estado funcional do Eigen Engine para referencia, auditoria e retomada.
 
 ## Componentes principais (core)
 - Embedding + seleção de parametros:
@@ -50,10 +50,10 @@ Objetivo: congelar o estado funcional do motor para referência, auditoria e ret
 - Benchmarks: `results/hypertest/`, `results/official_regimes/compare/`
 
 ## Versão congelada
-Este snapshot representa o ponto estável do motor com:
+Este snapshot representa o ponto estavel do Eigen Engine com:
 - Embedding automático opcional (AMI/Cao ou ACF/FNN)
 - HMM smoothing para reduzir flicker
 - Diagnósticos RQA e métricas de estabilidade
 - Forecast comparativo por regime
 
-Observação: este arquivo documenta o estado do motor. Não substitui versionamento em git.
+Observacao: este arquivo documenta o estado do Eigen Engine. Nao substitui versionamento em git.

@@ -24,7 +24,7 @@
   <circle cx="560" cy="320" r="8" fill="#f59e0b"/>
   <circle cx="940" cy="210" r="8" fill="#fb7185"/>
   <text x="130" y="160" fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700">
-    Assyntrax Motor de Regime
+    Assyntrax | Eigen Engine
   </text>
   <text x="130" y="218" fill="#9ca3af" font-family="Arial, Helvetica, sans-serif" font-size="30">
     Diagnostico de regime e risco estrutural com gate auditavel

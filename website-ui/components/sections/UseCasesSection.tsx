@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { KeyboardEvent, useRef, useState } from "react";
 import { FinanceVisual } from "@/components/visuals/UseCasePanels";
-import { motion } from "framer-motion";
 
 function GovernanceVisual() {
   return (
@@ -47,7 +46,7 @@ const tabs = [
     label: "Governanca",
     title: "Governanca",
     description:
-      "Mantenha auditoria continua. Registre decisoes, justifique mudancas de exposicao e demonstre transparencia para investidores e reguladores. O motor preserva historico e criterios objetivos por regime.",
+      "Mantenha auditoria continua. Registre decisoes, justifique mudancas de exposicao e demonstre transparencia para investidores e reguladores. O Eigen Engine preserva historico e criterios objetivos por regime.",
     note: "Governanca forte reduz risco reputacional e melhora consistencia de comites de investimento.",
     Visual: GovernanceVisual,
   },
@@ -81,16 +80,25 @@ export default function UseCasesSection() {
           <p className="mt-2 text-zinc-300 max-w-3xl text-base lg:text-lg">{current.description}</p>
           <p className="mt-2 text-xs text-zinc-500">{current.note}</p>
         </div>
-        <div className="flex gap-2">
-          {tabs.map((tab) => (
+        <div role="tablist" aria-label="Casos de uso" className="flex gap-2">
+          {tabs.map((tab, index) => (
             <button
               key={tab.id}
+              id={`use-case-tab-${tab.id}`}
+              role="tab"
+              aria-selected={index === activeIndex}
+              aria-controls={`use-case-panel-${tab.id}`}
+              tabIndex={index === activeIndex ? 0 : -1}
+              ref={(el) => {
+                tabRefs.current[index] = el;
+              }}
               className={`rounded-full border px-4 py-2 text-sm transition ${
-                active === tab.id
+                index === activeIndex
                   ? "border-cyan-400/70 bg-cyan-400/10 text-cyan-200"
                   : "border-zinc-800 text-zinc-400 hover:text-white"
               }`}
-              onClick={() => setActive(tab.id)}
+              onClick={() => setActiveIndex(index)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
             >
               {tab.label}
             </button>

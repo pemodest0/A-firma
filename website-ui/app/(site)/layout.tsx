@@ -45,7 +45,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <a href="https://github.com/pemodest0/Assyntrax" className="hover:text-zinc-300 transition">GitHub</a>
               <a href="https://www.linkedin.com/in/pedro-henrique-gesualdo-modesto-39a135272/" className="hover:text-zinc-300 transition">LinkedIn</a>
               <a href="https://pemodest0.github.io/" className="hover:text-zinc-300 transition">Portfólio</a>
-              <span>Motor de Regime</span>
+              <span>Eigen Engine</span>
             </div>
           </div>
         </footer>

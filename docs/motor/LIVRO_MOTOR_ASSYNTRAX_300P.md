@@ -1,7 +1,7 @@
-# Livro do Motor Assyntrax (Plano de 300 Paginas)
+# Livro do Eigen Engine (Plano de 300 Paginas)
 
 ## Objetivo
-Este arquivo e o guia mestre para consolidar todo o conhecimento do motor Assyntrax em um livro tecnico longo, auditavel e util para produto, operacao e venda institucional.
+Este arquivo e o guia mestre para consolidar todo o conhecimento do Eigen Engine em um livro tecnico longo, auditavel e util para produto, operacao e venda institucional.
 
 Meta editorial: 300 paginas.
 
@@ -14,7 +14,7 @@ Meta editorial: 300 paginas.
 ## Estrutura sugerida (15 blocos x 20 paginas = 300)
 
 ### Bloco 1 (20p) - Fundamentos do problema
-- O que o motor faz e o que nao faz.
+- O que o Eigen Engine faz e o que nao faz.
 - Definicao de regime: estavel, transicao, estresse, dispersao.
 - Fronteiras de validade e limites matematicos.
 

@@ -1,4 +1,4 @@
-Sector Event Study Validation - Motor de Regimes
+Sector Event Study Validation - Eigen Engine
 generated_at_utc: 2026-02-20T04:21:52.458092+00:00
 calibration_end: 2019-12-31
 test_start: 2020-01-01

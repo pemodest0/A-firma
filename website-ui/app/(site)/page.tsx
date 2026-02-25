@@ -28,7 +28,7 @@ export default function HomePage() {
   const softwareJsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Assyntrax Motor de Regime",
+    name: "Eigen Engine (Assyntrax)",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:

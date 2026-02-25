@@ -8,7 +8,7 @@ Mapa unico dos guias ativos do projeto.
 ## Documentos base
 - `README.md`: visao geral e comandos basicos.
 - `docs/notes/README.md`: mapa das notas de continuidade.
-- `docs/notes/METHODOLOGY.md`: metodologia oficial do motor.
+- `docs/notes/METHODOLOGY.md`: metodologia oficial do Eigen Engine.
 - `docs/notes/MAC_HANDOFF.md`: continuidade entre ambientes (Windows/Mac).
 - `docs/notes/SCOPE.md`: limites de escopo.
 - `docs/notes/BUSINESS_OUTCOME.md`: posicionamento de produto.
@@ -19,11 +19,13 @@ Mapa unico dos guias ativos do projeto.
 - `docs/AI_SYSTEM_PROMPT.md`: prompt base para agentes com restricoes tecnicas.
 
 ## Operacao e pipelines
-- `docs/OPS_EXECUTION_FLOW.md`: fluxo oficial motor -> validacao -> publicacao.
+- `docs/OPS_EXECUTION_FLOW.md`: fluxo oficial Eigen Engine -> validacao -> publicacao.
 - `docs/DAILY_PIPELINE.md`: rotina diaria e artefatos.
 - `docs/operacao/ENERGIA_INGESTAO_CANONICA.md`: ingestao one-shot de energia (ONS), normalizacao e adequacy.
 - `docs/operacao/STRUCTURAL_V1_WORKFLOW.md`: comando a comando das etapas 0-6 do bloco estrutural v1.
 - `docs/operacao/MAC_TEST_ENV_PYTEST_DNS.md`: setup de pytest e DNS no Mac para destravar testes.
+- `docs/operacao/NOMENCLATURA_OFICIAL_ASSYNTRAX_EIGEN_ENGINE.md`: regra canonica de naming (empresa vs motor).
+- `docs/operacao/RELATORIO_ALTERACOES_EIGEN_ENGINE_20260225.md`: consolidado de alteracoes recentes para lancamento.
 - `docs/COPILOT_CORE_INSTRUCTIONS.md`: nucleo de instrucoes e gate do copiloto.
 - `results/ops/ai_knowledge/latest_ground_truth.json`: ponteiro para ultimo ground truth estrutural.
 - `results/platform/latest_db_snapshot.json`: snapshot consolidado do banco para API/site.
@@ -31,7 +33,7 @@ Mapa unico dos guias ativos do projeto.
 
 ## Engine, contratos e frontend
 - `docs/ENGINE_GUIDE.md`: API estavel do motor e contrato de consumo.
-- `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`: manual mestre do motor (regras, conclusoes, gate, operacao).
+- `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`: manual mestre do Eigen Engine (regras, conclusoes, gate, operacao).
 - `docs/motor/THEORY_ASSYNTRAX.md`: base teorica consolidada (espectral, CSD, geometria de rede, limites v1/v2).
 - `contracts/features.yaml`: contrato de definicao das features estruturais v1.
 - `contracts/output_schema.json`: contrato de artefatos de saida estruturais v1.

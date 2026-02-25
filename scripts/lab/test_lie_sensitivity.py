@@ -7,14 +7,17 @@ from pathlib import Path
 
 import numpy as np
 
-from src.walk_lie.encoding import FeatureBin, HypercubeEncoder
-from src.walk_lie.lie_tools import lie_penalty
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Calcula métrica Λ de comutadores.")
     parser.add_argument("theta_json", type=str, help="JSON com lista de vetores theta")
     args = parser.parse_args()
+
+    try:
+        from src.walk_lie.lie_tools import lie_penalty
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "Modulo 'src.walk_lie' indisponivel. Reinstale o pacote legado walk_lie ou atualize este script."
+        ) from exc
 
     data = json.loads(Path(args.theta_json).read_text())
     thetas = [np.array(theta, dtype=float) for theta in data]

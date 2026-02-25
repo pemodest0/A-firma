@@ -8,17 +8,21 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.walk_lie.encoding import FeatureBin, HypercubeEncoder
-from src.walk_lie.classical_walk import ClassicalWalkConfig, simulate_walk
-from src.walk_lie.quantum_walk import simulate_quantum_walk
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Forecast com caminhada no hipercubo.")
     parser.add_argument("data", type=str, help="CSV com colunas: date, momentum, vol_ratio, drawdown, price")
     parser.add_argument("output", type=str, help="Diretório de saída")
     parser.add_argument("--steps", type=int, default=10)
     args = parser.parse_args()
+
+    try:
+        from src.walk_lie.encoding import FeatureBin, HypercubeEncoder
+        from src.walk_lie.classical_walk import ClassicalWalkConfig, simulate_walk
+        from src.walk_lie.quantum_walk import simulate_quantum_walk
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "Modulo 'src.walk_lie' indisponivel. Reinstale o pacote legado walk_lie ou atualize este script."
+        ) from exc
 
     df = pd.read_csv(args.data, parse_dates=["date"])  # columns: date, momentum, vol_ratio, drawdown, price
     df.sort_values("date", inplace=True)
