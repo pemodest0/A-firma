@@ -44,6 +44,17 @@ Criar estrutura base:
 bash scripts/ops/bootstrap_data_layout.sh
 ```
 
+Migrar dados legados para as camadas canonicas (sem apagar origem):
+
+```bash
+python3 scripts/ops/migrate_data_layout.py --domain realestate --domain energy --apply
+```
+
+Obs:
+
+- por padrao roda em dry-run.
+- gera manifesto em `results/ops/data_layout/<timestamp>/`.
+
 ## Check rapido recomendado
 
 ```bash

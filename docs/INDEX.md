@@ -35,6 +35,7 @@ Mapa unico dos guias ativos do projeto.
 
 ## Engine, contratos e frontend
 - `docs/ENGINE_GUIDE.md`: API estavel do motor e contrato de consumo.
+- `scripts/README.md`: registro canonico de pastas de scripts (oficial vs research).
 - `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`: manual mestre do Eigen Engine (regras, conclusoes, gate, operacao).
 - `docs/motor/THEORY_ASSYNTRAX.md`: base teorica consolidada (espectral, CSD, geometria de rede, limites v1/v2).
 - `contracts/features.yaml`: contrato de definicao das features estruturais v1.
