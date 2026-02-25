@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -70,6 +71,19 @@ def _safe_sign(a: np.ndarray) -> np.ndarray:
     s[np.abs(np.asarray(a, dtype=float)) < 1e-12] = 0.0
     s[~np.isfinite(np.asarray(a, dtype=float))] = 0.0
     return s
+
+
+def _parse_windows(text: str) -> list[int]:
+    vals: list[int] = []
+    for token in str(text).split(","):
+        t = token.strip()
+        if not t:
+            continue
+        vals.append(int(t))
+    out = sorted(set(int(max(20, x)) for x in vals))
+    if not out:
+        return [60, 120, 252]
+    return out
 
 
 def _cluster_metrics(corr: np.ndarray) -> tuple[np.ndarray, int, float, float]:
@@ -185,26 +199,33 @@ def _process_window(
     seed: int,
     compute_forman: bool = False,
     forman_topk: int = 10,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    capture_v1: bool = False,
+    universe_name: str = "",
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     dates = returns_wide.index
     rows: list[dict[str, Any]] = []
     snaps: list[dict[str, Any]] = []
     sector_rows: list[dict[str, Any]] = []
+    v1_rows: list[dict[str, Any]] = []
     cluster_assign: dict[pd.Timestamp, dict[str, int]] = {}
     min_obs = max(30, int(np.ceil(window * cov_window)))
     prev_v1: np.ndarray | None = None
     prev_cols: list[str] | None = None
     if (len(dates) - window + 1) <= 0:
-        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
     for i in range(window - 1, len(dates)):
         date = pd.Timestamp(dates[i])
         block = returns_wide.reindex(dates[i - window + 1 : i + 1])
         cov = block.notna().mean(axis=0)
         tickers_t = cov[cov >= cov_window].index.to_list()
+        n_used_init = int(len(tickers_t))
+        q_init = float(window) / max(float(n_used_init), 1.0)
         rec: dict[str, Any] = {
             "date": date.date().isoformat(),
-            "N_used": int(len(tickers_t)),
+            "T_window": int(window),
+            "N_used": n_used_init,
+            "Q": q_init,
             "p1": np.nan,
             "deff": np.nan,
             "top5": np.nan,
@@ -240,12 +261,14 @@ def _process_window(
         keep = std > 1e-12
         if int(np.sum(keep)) < min_assets:
             rec["N_used"] = int(np.sum(keep))
+            rec["Q"] = float(window) / max(float(rec["N_used"]), 1.0)
             rows.append(rec)
             continue
         if not np.all(keep):
             aligned = aligned.loc[:, keep]
             x = aligned.to_numpy(dtype=float)
             rec["N_used"] = int(aligned.shape[1])
+            rec["Q"] = float(window) / max(float(rec["N_used"]), 1.0)
 
         corr = np.corrcoef(x, rowvar=False)
         if not np.all(np.isfinite(corr)):
@@ -262,24 +285,36 @@ def _process_window(
         for k in range(1, 11):
             rec[f"lambda{k}"] = float(eig[k - 1]) if eig.size >= k else np.nan
         calc_overlap = (int(max(1, overlap_step)) == 1) or (i % int(max(1, overlap_step)) == 0)
-        if calc_overlap:
+        calc_v1 = bool(capture_v1) or bool(calc_overlap)
+        if calc_v1:
             try:
                 _, _, _, _, v1 = _spectral_metrics_with_v1(corr)
-                if (prev_v1 is not None) and (prev_cols is not None):
-                    common = sorted(set(prev_cols).intersection(aligned.columns.to_list()))
-                    if len(common) >= 3:
-                        prev_idx = [prev_cols.index(c) for c in common]
-                        cur_idx = [aligned.columns.get_loc(c) for c in common]
-                        a = prev_v1[prev_idx]
-                        b = v1[cur_idx]
-                        na = float(np.linalg.norm(a))
-                        nb = float(np.linalg.norm(b))
-                        if (na > 1e-12) and (nb > 1e-12):
-                            ov = float(abs(np.dot(a / na, b / nb)))
-                            rec["eigvec_overlap_1d"] = ov
-                            rec["eigvec_instability_1d"] = float(1.0 - ov)
-                prev_v1 = v1
-                prev_cols = aligned.columns.to_list()
+                if bool(capture_v1):
+                    for t, wgt in zip(aligned.columns.to_list(), v1.tolist()):
+                        v1_rows.append(
+                            {
+                                "date": date.date().isoformat(),
+                                "universe_name": str(universe_name),
+                                "asset_id": str(t),
+                                "weight": float(wgt),
+                            }
+                        )
+                if bool(calc_overlap):
+                    if (prev_v1 is not None) and (prev_cols is not None):
+                        common = sorted(set(prev_cols).intersection(aligned.columns.to_list()))
+                        if len(common) >= 3:
+                            prev_idx = [prev_cols.index(c) for c in common]
+                            cur_idx = [aligned.columns.get_loc(c) for c in common]
+                            a = prev_v1[prev_idx]
+                            b = v1[cur_idx]
+                            na = float(np.linalg.norm(a))
+                            nb = float(np.linalg.norm(b))
+                            if (na > 1e-12) and (nb > 1e-12):
+                                ov = float(abs(np.dot(a / na, b / nb)))
+                                rec["eigvec_overlap_1d"] = ov
+                                rec["eigvec_instability_1d"] = float(1.0 - ov)
+                    prev_v1 = v1
+                    prev_cols = aligned.columns.to_list()
             except Exception:
                 pass
 
@@ -353,7 +388,7 @@ def _process_window(
                         rec["structure_score_bootstrap"] = float((rec["p1"] - p1_bs) + (deff_bs - rec["deff"]))
 
         rows.append(rec)
-    return pd.DataFrame(rows), pd.DataFrame(snaps), pd.DataFrame(sector_rows)
+    return pd.DataFrame(rows), pd.DataFrame(snaps), pd.DataFrame(sector_rows), pd.DataFrame(v1_rows)
 
 
 def _summary_block(ts: pd.DataFrame, sector_daily: pd.DataFrame, window: int, outdir: Path) -> str:
@@ -399,7 +434,7 @@ def _summary_block(ts: pd.DataFrame, sector_daily: pd.DataFrame, window: int, ou
     return "\n".join(
         [
             f"[T={window}]",
-            f"N_used stats: min={float(ts['N_used'].min()):.0f}, mean={float(ts['N_used'].mean()):.2f}, max={float(ts['N_used'].max()):.0f}, insufficient_days={int(ts['insufficient_universe'].sum())}",
+            f"N_used stats: min={float(ts['N_used'].min()):.0f}, mean={float(ts['N_used'].mean()):.2f}, max={float(ts['N_used'].max()):.0f}, Q_min={float((float(window) / ts['N_used'].astype(float).clip(lower=1.0)).min()):.4f}, Q_med={float((float(window) / ts['N_used'].astype(float).clip(lower=1.0)).median()):.4f}, insufficient_days={int(ts['insufficient_universe'].sum())}",
             f"ultimos_60_dias: p1_mean={float(tails['p1'].mean()) if not tails.empty else np.nan:.6f}, deff_mean={float(tails['deff'].mean()) if not tails.empty else np.nan:.6f}, turnover_mean={float(tails['turnover_pair_frac'].mean()) if not tails.empty else np.nan:.6f}, eigvec_overlap_mean={ov_mean:.6f}",
             f"stress: {stress}",
             noise_line,
@@ -1458,12 +1493,15 @@ def _build_ui_view_model(
     robust_metrics: dict[str, float],
     gate: dict[str, Any],
     op_payload: dict[str, Any],
-    alert_level_payload: dict[str, Any],
-    asset_sector_payload: dict[str, Any],
     case_df: pd.DataFrame,
     era_df: pd.DataFrame,
     playbook_df: pd.DataFrame,
+    alert_level_payload: dict[str, Any] | None = None,
+    asset_sector_payload: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    alert_level_payload = alert_level_payload or {}
+    asset_sector_payload = asset_sector_payload or {}
+
     latest_state: dict[str, Any] = {}
     if not ts_off.empty:
         suff = ts_off[~ts_off["insufficient_universe"]].copy()
@@ -2442,12 +2480,20 @@ def _build_structural_parallel_diagnostics(
     *,
     csd_window: int,
     train_end: str,
+    file_prefix: str = "diagnostics_structural",
+    universe_name: str = "global",
 ) -> dict[str, Any]:
     if ts_off.empty:
         return {"status": "skipped", "reason": "empty_ts"}
 
     d = ts_off.copy()
     d["date"] = pd.to_datetime(d.get("date"), errors="coerce")
+    d["T_window"] = pd.to_numeric(d.get("T_window"), errors="coerce")
+    d["N_used"] = pd.to_numeric(d.get("N_used"), errors="coerce")
+    d["Q"] = pd.to_numeric(d.get("Q"), errors="coerce")
+    need_q = d["Q"].isna() & d["T_window"].notna() & d["N_used"].notna()
+    d.loc[need_q, "Q"] = d.loc[need_q, "T_window"] / d.loc[need_q, "N_used"].clip(lower=1.0)
+    d["universe_name"] = str(universe_name)
     d["phi"] = pd.to_numeric(d.get("p1"), errors="coerce")
     d["deff"] = pd.to_numeric(d.get("deff"), errors="coerce")
     d["lambda1"] = pd.to_numeric(d.get("lambda1"), errors="coerce")
@@ -2507,30 +2553,499 @@ def _build_structural_parallel_diagnostics(
     )
     d["date"] = pd.DatetimeIndex(d["date"]).strftime("%Y-%m-%d")
 
-    diag_cols = ["date", "phi", "H", "deff", "lambda1", "topk", "ac1_phi", "forman_mean", "forman_share_negative", "flags_valid"]
-    score_cols = ["date", "score", "phi", "deff", "ac1_phi", "forman_mean", "flags_valid"]
+    diag_cols = [
+        "date",
+        "universe_name",
+        "T_window",
+        "N_used",
+        "Q",
+        "phi",
+        "H",
+        "deff",
+        "lambda1",
+        "topk",
+        "ac1_phi",
+        "forman_mean",
+        "forman_share_negative",
+        "flags_valid",
+    ]
+    score_cols = [
+        "date",
+        "universe_name",
+        "T_window",
+        "N_used",
+        "Q",
+        "score",
+        "phi",
+        "deff",
+        "ac1_phi",
+        "forman_mean",
+        "flags_valid",
+    ]
     for c in diag_cols + score_cols:
         if c not in d.columns:
             d[c] = np.nan
 
-    diag_path = outdir / "diagnostics_structural_daily.csv"
-    score_path = outdir / "diagnostics_structural_score_daily.csv"
+    pref = str(file_prefix).strip() or "diagnostics_structural"
+    diag_path = outdir / f"{pref}_daily.csv"
+    score_path = outdir / f"{pref}_score_daily.csv"
+    meta_path = outdir / f"{pref}_meta.json"
     d[diag_cols].to_csv(diag_path, index=False)
     d[score_cols].to_csv(score_path, index=False)
     meta = {
         "status": "ok",
+        "universe_name": str(universe_name),
         "structural_ok": bool(STRUCTURAL_OK),
         "rows": int(d.shape[0]),
         "csd_window": int(csd_window),
         "train_end": str(train_end),
         "normalizer": norm,
         "files": {
-            "diagnostics_structural_daily_csv": str(diag_path),
-            "diagnostics_structural_score_daily_csv": str(score_path),
+            "diagnostics_daily_csv": str(diag_path),
+            "diagnostics_score_daily_csv": str(score_path),
+            "diagnostics_meta_json": str(meta_path),
         },
     }
-    (outdir / "diagnostics_structural_meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     return meta
+
+
+def _slug_token(text: str) -> str:
+    s = re.sub(r"[^a-zA-Z0-9]+", "_", str(text).strip().lower()).strip("_")
+    return s or "unknown"
+
+
+def _write_vectors(v1_df: pd.DataFrame, out_base: Path) -> str:
+    if v1_df.empty:
+        return ""
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    parquet_path = out_base.with_suffix(".parquet")
+    try:
+        v1_df.to_parquet(parquet_path, index=False)
+        return str(parquet_path)
+    except Exception:
+        csv_path = out_base.with_suffix(".csv")
+        v1_df.to_csv(csv_path, index=False)
+        return str(csv_path)
+
+
+def _load_hierarchical_metadata(universe_core: pd.DataFrame, metadata_path: Path) -> pd.DataFrame:
+    try:
+        from engine.ops.metadata import load_asset_metadata
+    except Exception:
+        load_asset_metadata = None
+
+    if load_asset_metadata is not None and metadata_path.exists():
+        md = load_asset_metadata(metadata_path)
+    else:
+        md = pd.DataFrame(columns=["asset_id", "ticker", "sector_gics", "sector_internal", "liquidity_proxy"])
+
+    core = universe_core.copy()
+    core["ticker"] = core["ticker"].astype(str)
+    core["sector"] = core["sector"].astype(str)
+    core["coverage"] = pd.to_numeric(core.get("coverage"), errors="coerce")
+
+    if md.empty:
+        out = core.copy()
+        out["asset_id"] = out["ticker"]
+        out["sector_gics"] = out["sector"]
+        out["sector_internal"] = out["sector"]
+        out["liquidity_proxy"] = out["coverage"]
+        return out[["asset_id", "ticker", "sector_gics", "sector_internal", "liquidity_proxy"]].copy()
+
+    out = core.merge(md, on="ticker", how="left", suffixes=("", "_md"))
+    out["asset_id"] = out["asset_id"].fillna(out["ticker"]).astype(str)
+    out["sector_gics"] = out["sector_gics"].fillna(out["sector"]).astype(str)
+    out["sector_internal"] = out["sector_internal"].fillna(out["sector_gics"]).astype(str)
+    out["liquidity_proxy"] = pd.to_numeric(out["liquidity_proxy"], errors="coerce").fillna(out["coverage"])
+    out = out[["asset_id", "ticker", "sector_gics", "sector_internal", "liquidity_proxy"]].drop_duplicates(subset=["asset_id"], keep="first")
+    return out.sort_values("asset_id").reset_index(drop=True)
+
+
+def _compute_cross_daily(global_v1: pd.DataFrame, sector_v1_map: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    cols = ["date", "sector", "loading_sector_on_global", "overlap_sector_global", "n_assets_sector"]
+    if global_v1.empty or (not sector_v1_map):
+        return pd.DataFrame(columns=cols)
+    g = global_v1.copy()
+    g["date"] = g["date"].astype(str)
+    g["asset_id"] = g["asset_id"].astype(str)
+    g["weight"] = pd.to_numeric(g["weight"], errors="coerce")
+    g = g.dropna(subset=["date", "asset_id", "weight"])
+    if g.empty:
+        return pd.DataFrame(columns=cols)
+    g_by_date = {str(d): x for d, x in g.groupby("date")}
+    rows: list[dict[str, Any]] = []
+    for sector_name, sraw in sector_v1_map.items():
+        if sraw.empty:
+            continue
+        s = sraw.copy()
+        s["date"] = s["date"].astype(str)
+        s["asset_id"] = s["asset_id"].astype(str)
+        s["weight"] = pd.to_numeric(s["weight"], errors="coerce")
+        s = s.dropna(subset=["date", "asset_id", "weight"])
+        if s.empty:
+            continue
+        for d, ss in s.groupby("date"):
+            gg = g_by_date.get(str(d))
+            if gg is None or gg.empty:
+                continue
+            g_map = gg.set_index("asset_id")["weight"].to_dict()
+            s_map = ss.set_index("asset_id")["weight"].to_dict()
+            assets = sorted(set(s_map.keys()))
+            if len(assets) < 2:
+                continue
+            gv = np.asarray([float(g_map.get(a, 0.0)) for a in assets], dtype=float)
+            sv = np.asarray([float(s_map.get(a, 0.0)) for a in assets], dtype=float)
+            loading = float(np.sum(np.square(gv)))
+            ng = float(np.linalg.norm(gv))
+            ns = float(np.linalg.norm(sv))
+            overlap = float("nan")
+            if ng > 1e-12 and ns > 1e-12:
+                overlap = float(abs(np.dot(sv / ns, gv / ng)))
+            rows.append(
+                {
+                    "date": str(d),
+                    "sector": str(sector_name),
+                    "loading_sector_on_global": loading,
+                    "overlap_sector_global": overlap,
+                    "n_assets_sector": int(len(assets)),
+                }
+            )
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    return pd.DataFrame(rows).sort_values(["date", "sector"]).reset_index(drop=True)
+
+
+def _write_hierarchical_state(
+    outdir: Path,
+    global_score_df: pd.DataFrame,
+    sector_score_map_gics: dict[str, pd.DataFrame],
+    sector_score_map_internal: dict[str, pd.DataFrame],
+    cross_gics: pd.DataFrame,
+    cross_internal: pd.DataFrame,
+) -> tuple[Path, Path]:
+    g = global_score_df.copy()
+    g["date"] = g["date"].astype(str)
+    g["score"] = pd.to_numeric(g["score"], errors="coerce")
+    g = g.dropna(subset=["date"]).sort_values("date")
+    if g.empty:
+        daily = outdir / "hierarchical_state_daily.jsonl"
+        latest = outdir / "hierarchical_state_latest.json"
+        daily.write_text("", encoding="utf-8")
+        latest.write_text(json.dumps({"status": "empty"}, ensure_ascii=False, indent=2), encoding="utf-8")
+        return daily, latest
+
+    def _stack_sector_scores(m: dict[str, pd.DataFrame], kind: str) -> pd.DataFrame:
+        rows: list[pd.DataFrame] = []
+        for sec, df in m.items():
+            if df.empty:
+                continue
+            x = df.copy()
+            x["date"] = x["date"].astype(str)
+            x["score"] = pd.to_numeric(x["score"], errors="coerce")
+            x["sector"] = str(sec)
+            x["kind"] = str(kind)
+            rows.append(x[["date", "score", "sector", "kind"]])
+        if not rows:
+            return pd.DataFrame(columns=["date", "score", "sector", "kind"])
+        return pd.concat(rows, ignore_index=True)
+
+    sec_all = pd.concat(
+        [
+            _stack_sector_scores(sector_score_map_gics, "gics"),
+            _stack_sector_scores(sector_score_map_internal, "internal"),
+        ],
+        ignore_index=True,
+    )
+    cross_all = pd.concat(
+        [
+            cross_gics.assign(kind="gics") if not cross_gics.empty else pd.DataFrame(),
+            cross_internal.assign(kind="internal") if not cross_internal.empty else pd.DataFrame(),
+        ],
+        ignore_index=True,
+    )
+    if not cross_all.empty:
+        cross_all["date"] = cross_all["date"].astype(str)
+        cross_all["loading_sector_on_global"] = pd.to_numeric(cross_all["loading_sector_on_global"], errors="coerce")
+        cross_all["overlap_sector_global"] = pd.to_numeric(cross_all["overlap_sector_global"], errors="coerce")
+
+    lines: list[str] = []
+    latest_payload: dict[str, Any] = {"status": "empty"}
+    for d in sorted(g["date"].unique().tolist()):
+        g_row = g[g["date"] == d].sort_values("date").tail(1)
+        global_score = float(g_row["score"].iloc[-1]) if (not g_row.empty) else float("nan")
+
+        sec_d = sec_all[sec_all["date"] == d].copy() if not sec_all.empty else pd.DataFrame()
+        sec_top = (
+            sec_d.sort_values("score", ascending=False)[["sector", "kind", "score"]].head(5).to_dict(orient="records")
+            if not sec_d.empty
+            else []
+        )
+        cr_d = cross_all[cross_all["date"] == d].copy() if not cross_all.empty else pd.DataFrame()
+        top_load = (
+            cr_d.sort_values("loading_sector_on_global", ascending=False)[["sector", "kind", "loading_sector_on_global"]]
+            .head(5)
+            .to_dict(orient="records")
+            if not cr_d.empty
+            else []
+        )
+        top_overlap = (
+            cr_d.sort_values("overlap_sector_global", ascending=False)[["sector", "kind", "overlap_sector_global"]]
+            .head(5)
+            .to_dict(orient="records")
+            if not cr_d.empty
+            else []
+        )
+        payload = {
+            "date": str(d),
+            "global_score": global_score,
+            "top_sectors_by_score": sec_top,
+            "top_sectors_by_loading": top_load,
+            "top_sectors_by_overlap": top_overlap,
+        }
+        lines.append(json.dumps(payload, ensure_ascii=False))
+        latest_payload = payload
+
+    daily_path = outdir / "hierarchical_state_daily.jsonl"
+    latest_path = outdir / "hierarchical_state_latest.json"
+    daily_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
+    latest_path.write_text(json.dumps(latest_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return daily_path, latest_path
+
+
+def _run_hierarchical_diagnostics(
+    *,
+    outdir: Path,
+    returns_core: pd.DataFrame,
+    universe_core: pd.DataFrame,
+    official_window: int,
+    min_assets: int,
+    coverage_window: float,
+    overlap_step: int,
+    noise_step: int,
+    bootstrap_block: int,
+    seed: int,
+    compute_forman: bool,
+    forman_topk: int,
+    csd_window: int,
+    train_end: str,
+    metadata_path: Path,
+    n_global: int,
+    n_sector: int,
+    min_coverage_global: float,
+    min_coverage_sector: float,
+    enable_internal: bool,
+    save_v1: bool,
+) -> dict[str, Any]:
+    try:
+        from engine.core.universe import select_global_universe, select_sector_universe
+    except Exception as exc:
+        return {"status": "fail", "reason": f"engine.core.universe import failed: {exc}"}
+
+    md = _load_hierarchical_metadata(universe_core=universe_core, metadata_path=metadata_path)
+    if md.empty:
+        return {"status": "fail", "reason": "metadata empty for core universe"}
+    md["coverage"] = [float(returns_core[t].notna().mean()) if t in returns_core.columns else np.nan for t in md["ticker"].astype(str)]
+
+    hier_dir = outdir / "hierarchical"
+    uni_dir = hier_dir / "universes"
+    vec_dir = hier_dir / "vectors"
+    uni_dir.mkdir(parents=True, exist_ok=True)
+    vec_dir.mkdir(parents=True, exist_ok=True)
+    md.to_csv(hier_dir / "asset_metadata_used.csv", index=False)
+
+    g_assets = select_global_universe(
+        returns_df=returns_core,
+        metadata=md,
+        n_global=int(n_global),
+        min_coverage=float(min_coverage_global),
+    )
+    if len(g_assets) < int(min_assets):
+        return {"status": "fail", "reason": f"global universe too small after selection: {len(g_assets)} < {int(min_assets)}"}
+    g_meta = md[md["asset_id"].isin(g_assets)].copy().sort_values("asset_id")
+    g_meta.to_csv(uni_dir / "global_universe.csv", index=False)
+
+    universe_score_map_gics: dict[str, pd.DataFrame] = {}
+    universe_score_map_internal: dict[str, pd.DataFrame] = {}
+    universe_v1_map_gics: dict[str, pd.DataFrame] = {}
+    universe_v1_map_internal: dict[str, pd.DataFrame] = {}
+    sector_universe_rows: list[dict[str, Any]] = []
+
+    g_returns = returns_core[g_assets].copy()
+    g_sector_map = md.set_index("asset_id")["sector_gics"].astype(str).to_dict()
+    g_ts, _, _, g_v1 = _process_window(
+        returns_wide=g_returns,
+        sector_by_ticker={t: g_sector_map.get(t, "unknown") for t in g_assets},
+        window=int(official_window),
+        cov_window=float(coverage_window),
+        min_assets=int(min_assets),
+        noise_step=int(noise_step),
+        bootstrap_block=int(bootstrap_block),
+        overlap_step=int(overlap_step),
+        seed=int(seed),
+        compute_forman=bool(compute_forman),
+        forman_topk=int(forman_topk),
+        capture_v1=bool(save_v1),
+        universe_name="global",
+    )
+    g_meta_struct = _build_structural_parallel_diagnostics(
+        ts_off=g_ts,
+        outdir=hier_dir,
+        csd_window=int(csd_window),
+        train_end=str(train_end),
+        file_prefix="diagnostics_global",
+        universe_name="global",
+    )
+    g_score = pd.read_csv(hier_dir / "diagnostics_global_score_daily.csv") if (hier_dir / "diagnostics_global_score_daily.csv").exists() else pd.DataFrame()
+    g_v1_path = ""
+    if bool(save_v1) and (not g_v1.empty):
+        g_v1_path = _write_vectors(g_v1, vec_dir / "v1_global")
+
+    for sec in sorted(md["sector_gics"].dropna().astype(str).unique().tolist()):
+        sec_assets = select_sector_universe(
+            returns_df=returns_core,
+            metadata=md,
+            sector_name=str(sec),
+            n_sector=int(n_sector),
+            min_coverage=float(min_coverage_sector),
+            sector_col="sector_gics",
+        )
+        if len(sec_assets) < int(min_assets):
+            continue
+        sec_slug = _slug_token(sec)
+        md[md["asset_id"].isin(sec_assets)].copy().sort_values("asset_id").to_csv(uni_dir / f"sector_universe_gics_{sec_slug}.csv", index=False)
+        sec_returns = returns_core[sec_assets].copy()
+        sec_ts, _, _, sec_v1 = _process_window(
+            returns_wide=sec_returns,
+            sector_by_ticker={t: str(sec) for t in sec_assets},
+            window=int(official_window),
+            cov_window=float(coverage_window),
+            min_assets=int(min_assets),
+            noise_step=int(noise_step),
+            bootstrap_block=int(bootstrap_block),
+            overlap_step=int(overlap_step),
+            seed=int(seed),
+            compute_forman=bool(compute_forman),
+            forman_topk=int(forman_topk),
+            capture_v1=bool(save_v1),
+            universe_name=f"gics:{sec}",
+        )
+        _build_structural_parallel_diagnostics(
+            ts_off=sec_ts,
+            outdir=hier_dir,
+            csd_window=int(csd_window),
+            train_end=str(train_end),
+            file_prefix=f"diagnostics_sector_gics_{sec_slug}",
+            universe_name=f"gics:{sec}",
+        )
+        score_path = hier_dir / f"diagnostics_sector_gics_{sec_slug}_score_daily.csv"
+        if score_path.exists():
+            universe_score_map_gics[str(sec)] = pd.read_csv(score_path)
+        if bool(save_v1) and (not sec_v1.empty):
+            _write_vectors(sec_v1, vec_dir / f"v1_gics_{sec_slug}")
+            universe_v1_map_gics[str(sec)] = sec_v1.copy()
+        sector_universe_rows.append({"kind": "gics", "sector": str(sec), "n_assets": int(len(sec_assets)), "slug": sec_slug})
+
+    if bool(enable_internal):
+        for sec in sorted(md["sector_internal"].dropna().astype(str).unique().tolist()):
+            sec_assets = select_sector_universe(
+                returns_df=returns_core,
+                metadata=md,
+                sector_name=str(sec),
+                n_sector=int(n_sector),
+                min_coverage=float(min_coverage_sector),
+                sector_col="sector_internal",
+            )
+            if len(sec_assets) < int(min_assets):
+                continue
+            sec_slug = _slug_token(sec)
+            md[md["asset_id"].isin(sec_assets)].copy().sort_values("asset_id").to_csv(uni_dir / f"sector_universe_internal_{sec_slug}.csv", index=False)
+            sec_returns = returns_core[sec_assets].copy()
+            sec_ts, _, _, sec_v1 = _process_window(
+                returns_wide=sec_returns,
+                sector_by_ticker={t: str(sec) for t in sec_assets},
+                window=int(official_window),
+                cov_window=float(coverage_window),
+                min_assets=int(min_assets),
+                noise_step=int(noise_step),
+                bootstrap_block=int(bootstrap_block),
+                overlap_step=int(overlap_step),
+                seed=int(seed),
+                compute_forman=bool(compute_forman),
+                forman_topk=int(forman_topk),
+                capture_v1=bool(save_v1),
+                universe_name=f"internal:{sec}",
+            )
+            _build_structural_parallel_diagnostics(
+                ts_off=sec_ts,
+                outdir=hier_dir,
+                csd_window=int(csd_window),
+                train_end=str(train_end),
+                file_prefix=f"diagnostics_sector_internal_{sec_slug}",
+                universe_name=f"internal:{sec}",
+            )
+            score_path = hier_dir / f"diagnostics_sector_internal_{sec_slug}_score_daily.csv"
+            if score_path.exists():
+                universe_score_map_internal[str(sec)] = pd.read_csv(score_path)
+            if bool(save_v1) and (not sec_v1.empty):
+                _write_vectors(sec_v1, vec_dir / f"v1_internal_{sec_slug}")
+                universe_v1_map_internal[str(sec)] = sec_v1.copy()
+            sector_universe_rows.append({"kind": "internal", "sector": str(sec), "n_assets": int(len(sec_assets)), "slug": sec_slug})
+
+    sector_universe_df = pd.DataFrame(sector_universe_rows)
+    if not sector_universe_df.empty:
+        sector_universe_df.to_csv(uni_dir / "sector_universe_index.csv", index=False)
+
+    cross_gics = _compute_cross_daily(g_v1, universe_v1_map_gics) if bool(save_v1) else pd.DataFrame()
+    cross_internal = _compute_cross_daily(g_v1, universe_v1_map_internal) if bool(save_v1) else pd.DataFrame()
+    cross_gics_path = hier_dir / "cross_sector_global_gics_daily.csv"
+    cross_internal_path = hier_dir / "cross_sector_global_internal_daily.csv"
+    cross_gics.to_csv(cross_gics_path, index=False)
+    cross_internal.to_csv(cross_internal_path, index=False)
+
+    state_daily, state_latest = _write_hierarchical_state(
+        outdir=hier_dir,
+        global_score_df=g_score,
+        sector_score_map_gics=universe_score_map_gics,
+        sector_score_map_internal=universe_score_map_internal,
+        cross_gics=cross_gics,
+        cross_internal=cross_internal,
+    )
+
+    latest_ptr = outdir / "platform" / "latest_hierarchical_state.json"
+    latest_ptr.parent.mkdir(parents=True, exist_ok=True)
+    latest_ptr.write_text(
+        json.dumps(
+            {
+                "status": "ok",
+                "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+                "hierarchical_dir": str(hier_dir),
+                "daily_jsonl": str(state_daily),
+                "latest_json": str(state_latest),
+            },
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    return {
+        "status": "ok",
+        "metadata_path": str(metadata_path),
+        "asset_metadata_used_csv": str(hier_dir / "asset_metadata_used.csv"),
+        "global_universe_size": int(len(g_assets)),
+        "sector_universes_count": int(sector_universe_df.shape[0]) if not sector_universe_df.empty else 0,
+        "gics_universes_count": int(sector_universe_df[sector_universe_df["kind"] == "gics"].shape[0]) if not sector_universe_df.empty else 0,
+        "internal_universes_count": int(sector_universe_df[sector_universe_df["kind"] == "internal"].shape[0]) if not sector_universe_df.empty else 0,
+        "save_v1": bool(save_v1),
+        "global_v1_file": str(g_v1_path),
+        "cross_gics_csv": str(cross_gics_path),
+        "cross_internal_csv": str(cross_internal_path),
+        "hierarchical_state_daily_jsonl": str(state_daily),
+        "hierarchical_state_latest_json": str(state_latest),
+        "latest_hierarchical_state_json": str(latest_ptr),
+        "diagnostics_global_score_csv": str(hier_dir / "diagnostics_global_score_daily.csv"),
+    }
 
 
 def main() -> None:
@@ -2546,6 +3061,8 @@ def main() -> None:
     ap.add_argument("--coverage-core", type=float, default=0.95)
     ap.add_argument("--coverage-window", type=float, default=0.98)
     ap.add_argument("--min-assets", type=int, default=25)
+    ap.add_argument("--max-core-assets", type=int, default=0, help="Cap core universe size after coverage filter (0 = no cap).")
+    ap.add_argument("--windows", type=str, default="60,120,252", help="Rolling windows to run, comma-separated.")
     ap.add_argument(
         "--business-days-only",
         type=int,
@@ -2560,6 +3077,14 @@ def main() -> None:
     ap.add_argument("--structural-topk", type=int, default=10)
     ap.add_argument("--structural-csd-window", type=int, default=60)
     ap.add_argument("--structural-train-end", type=str, default="2019-12-31")
+    ap.add_argument("--enable-hierarchical", type=int, default=0, help="Run global + sector structural diagnostics blocks.")
+    ap.add_argument("--asset-metadata-path", type=str, default="data/asset_metadata.csv")
+    ap.add_argument("--n-global", type=int, default=250)
+    ap.add_argument("--n-sector", type=int, default=60)
+    ap.add_argument("--min-coverage-global", type=float, default=0.98)
+    ap.add_argument("--min-coverage-sector", type=float, default=0.95)
+    ap.add_argument("--enable-internal-sectors", type=int, default=1)
+    ap.add_argument("--save-v1", type=int, default=0, help="Persist dominant eigenvector weights by universe/day for cross metrics.")
     ap.add_argument("--official-window", type=int, default=120)
     ap.add_argument("--freeze-baseline", type=int, default=1)
     ap.add_argument("--strict-checks", type=int, default=1)
@@ -2637,12 +3162,22 @@ def main() -> None:
         "end": args.end,
         "coverage_core": float(args.coverage_core),
         "coverage_window": float(args.coverage_window),
+        "max_core_assets": int(args.max_core_assets),
+        "windows": sorted(set([int(args.official_window)] + [int(x) for x in _parse_windows(args.windows)])),
         "overlap_step": int(args.overlap_step),
         "business_days_only": bool(int(args.business_days_only)),
         "enable_structural_v1": bool(int(args.enable_structural_v1)),
         "structural_topk": int(args.structural_topk),
         "structural_csd_window": int(args.structural_csd_window),
         "structural_train_end": str(args.structural_train_end),
+        "enable_hierarchical": bool(int(args.enable_hierarchical)),
+        "asset_metadata_path": str(args.asset_metadata_path),
+        "n_global": int(args.n_global),
+        "n_sector": int(args.n_sector),
+        "min_coverage_global": float(args.min_coverage_global),
+        "min_coverage_sector": float(args.min_coverage_sector),
+        "enable_internal_sectors": bool(int(args.enable_internal_sectors)),
+        "save_v1": bool(int(args.save_v1)),
         "official_window": int(args.official_window),
         "hysteresis_days": int(args.hysteresis_days),
         "regime_threshold_mode": str(args.regime_threshold_mode),
@@ -2715,30 +3250,43 @@ def main() -> None:
     sector_map = panel[["ticker", "sector"]].drop_duplicates(subset=["ticker"], keep="last").set_index("ticker")["sector"].to_dict()
 
     coverage = returns_wide.notna().mean(axis=0)
-    core = sorted(coverage[coverage >= float(args.coverage_core)].index.to_list())
+    core_candidates = coverage[coverage >= float(args.coverage_core)].index.astype(str).tolist()
+    core_df = pd.DataFrame(
+        {
+            "ticker": core_candidates,
+            "sector": [sector_map.get(t, "unknown") for t in core_candidates],
+            "coverage": [float(coverage.loc[t]) for t in core_candidates],
+        }
+    )
+    core_df = core_df.sort_values(["coverage", "ticker"], ascending=[False, True]).reset_index(drop=True)
+    max_core_assets = int(max(0, int(args.max_core_assets)))
+    if max_core_assets > 0:
+        core_df = core_df.head(max_core_assets).copy()
+    core = sorted(core_df["ticker"].astype(str).tolist())
     if len(core) < int(args.min_assets):
         raise SystemExit(f"core universe too small: {len(core)} < min_assets={int(args.min_assets)}")
 
-    universe_core = (
-        pd.DataFrame({"ticker": core, "sector": [sector_map.get(t, "unknown") for t in core], "coverage": [float(coverage.loc[t]) for t in core]})
-        .sort_values(["sector", "ticker"])
-        .reset_index(drop=True)
-    )
+    universe_core = core_df.sort_values(["sector", "ticker"]).reset_index(drop=True)
     universe_core.to_csv(outdir / "universe_core.csv", index=False)
     core_counts = universe_core.groupby("sector", as_index=False).agg(n_tickers=("ticker", "count"))
     core_counts.to_csv(outdir / "universe_core_by_sector.csv", index=False)
 
     R = returns_wide[core].copy()
     R.to_csv(outdir / "returns_wide_core.csv", index=True, index_label="date")
+    windows = _parse_windows(args.windows)
+    if int(args.official_window) not in windows:
+        windows = sorted(set(windows + [int(args.official_window)]))
 
     summary = [
         "Macro Correlation Offline Lab",
         f"run_dir: {outdir}",
         f"panel_path: {panel_path}",
         f"period: {args.start} -> {args.end}",
+        f"windows: {windows}",
         f"coverage_core_threshold: {args.coverage_core}",
         f"coverage_window_threshold: {args.coverage_window}",
         f"business_days_only: {bool(int(args.business_days_only))}",
+        f"max_core_assets: {int(max(0, int(args.max_core_assets)))}",
         f"N_core: {len(core)}",
         "N_core_by_sector:",
     ]
@@ -2747,8 +3295,8 @@ def main() -> None:
     summary.append(f"scipy_enabled_for_clustering: {SCIPY_OK}")
 
     ts_map: dict[int, pd.DataFrame] = {}
-    for w in (60, 120, 252):
-        ts, snap, sec = _process_window(
+    for w in windows:
+        ts, snap, sec, _ = _process_window(
             returns_wide=R,
             sector_by_ticker={t: sector_map.get(t, "unknown") for t in core},
             window=w,
@@ -2760,11 +3308,15 @@ def main() -> None:
             seed=int(args.seed),
             compute_forman=bool(int(args.enable_structural_v1)),
             forman_topk=int(args.structural_topk),
+            capture_v1=False,
+            universe_name="official",
         )
         ts_map[w] = ts.copy()
         cols = [
             "date",
+            "T_window",
             "N_used",
+            "Q",
             "p1",
             "deff",
             "lambda1",
@@ -2999,6 +3551,46 @@ def main() -> None:
                 "[STRUCTURAL_V1]",
                 f"status={str(structural_meta.get('status', 'unknown'))}; reason={str(structural_meta.get('reason', 'n/a'))}",
             ]
+    hierarchical_meta: dict[str, Any] = {}
+    if bool(int(args.enable_hierarchical)):
+        metadata_path = Path(str(args.asset_metadata_path))
+        if not metadata_path.is_absolute():
+            metadata_path = ROOT / str(args.asset_metadata_path)
+        hierarchical_meta = _run_hierarchical_diagnostics(
+            outdir=outdir,
+            returns_core=R,
+            universe_core=universe_core,
+            official_window=int(args.official_window),
+            min_assets=int(args.min_assets),
+            coverage_window=float(args.coverage_window),
+            overlap_step=int(args.overlap_step),
+            noise_step=int(args.noise_step),
+            bootstrap_block=int(args.bootstrap_block),
+            seed=int(args.seed),
+            compute_forman=bool(int(args.enable_structural_v1)),
+            forman_topk=int(args.structural_topk),
+            csd_window=int(args.structural_csd_window),
+            train_end=str(args.structural_train_end),
+            metadata_path=metadata_path,
+            n_global=int(args.n_global),
+            n_sector=int(args.n_sector),
+            min_coverage_global=float(args.min_coverage_global),
+            min_coverage_sector=float(args.min_coverage_sector),
+            enable_internal=bool(int(args.enable_internal_sectors)),
+            save_v1=bool(int(args.save_v1)),
+        )
+        if str(hierarchical_meta.get("status", "")).lower() == "ok":
+            summary += [
+                "",
+                "[HIERARCHICAL]",
+                f"global_universe={int(hierarchical_meta.get('global_universe_size', 0))}; sector_universes={int(hierarchical_meta.get('sector_universes_count', 0))}; save_v1={bool(hierarchical_meta.get('save_v1', False))}",
+            ]
+        else:
+            summary += [
+                "",
+                "[HIERARCHICAL]",
+                f"status={str(hierarchical_meta.get('status', 'fail'))}; reason={str(hierarchical_meta.get('reason', 'n/a'))}",
+            ]
     summary += ["", f"[OFFICIAL_T{int(args.official_window)}]"]
     if bt_df.empty:
         summary += ["backtest: unavailable"]
@@ -3159,6 +3751,8 @@ def main() -> None:
 
     (outdir / "summary.txt").write_text("\n".join(summary) + "\n", encoding="utf-8")
 
+    structural_files = structural_meta.get("files", {}) if isinstance(structural_meta, dict) else {}
+    hierarchical_enabled = bool(int(args.enable_hierarchical))
     summary_json = {
         "status": "ok" if (not gate["blocked"]) else "fail",
         "run_id": outdir.name,
@@ -3187,9 +3781,27 @@ def main() -> None:
         "structural_v1": {
             "enabled": bool(int(args.enable_structural_v1)),
             "status": str(structural_meta.get("status", "disabled")) if bool(int(args.enable_structural_v1)) else "disabled",
-            "file_csv": str(outdir / "diagnostics_structural_daily.csv"),
-            "file_score_csv": str(outdir / "diagnostics_structural_score_daily.csv"),
-            "file_meta_json": str(outdir / "diagnostics_structural_meta.json"),
+            "file_csv": str(structural_files.get("diagnostics_daily_csv", outdir / "diagnostics_structural_daily.csv")),
+            "file_score_csv": str(structural_files.get("diagnostics_score_daily_csv", outdir / "diagnostics_structural_score_daily.csv")),
+            "file_meta_json": str(structural_files.get("diagnostics_meta_json", outdir / "diagnostics_structural_meta.json")),
+        },
+        "hierarchical": {
+            "enabled": hierarchical_enabled,
+            "status": str(hierarchical_meta.get("status", "disabled")) if hierarchical_enabled else "disabled",
+            "global_universe_size": int(hierarchical_meta.get("global_universe_size", 0)) if hierarchical_enabled else 0,
+            "sector_universes_count": int(hierarchical_meta.get("sector_universes_count", 0)) if hierarchical_enabled else 0,
+            "gics_universes_count": int(hierarchical_meta.get("gics_universes_count", 0)) if hierarchical_enabled else 0,
+            "internal_universes_count": int(hierarchical_meta.get("internal_universes_count", 0)) if hierarchical_enabled else 0,
+            "save_v1": bool(hierarchical_meta.get("save_v1", False)) if hierarchical_enabled else False,
+            "files": {
+                "asset_metadata_used_csv": str(hierarchical_meta.get("asset_metadata_used_csv", "")),
+                "cross_gics_csv": str(hierarchical_meta.get("cross_gics_csv", "")),
+                "cross_internal_csv": str(hierarchical_meta.get("cross_internal_csv", "")),
+                "hierarchical_state_daily_jsonl": str(hierarchical_meta.get("hierarchical_state_daily_jsonl", "")),
+                "hierarchical_state_latest_json": str(hierarchical_meta.get("hierarchical_state_latest_json", "")),
+                "latest_hierarchical_state_json": str(hierarchical_meta.get("latest_hierarchical_state_json", "")),
+                "diagnostics_global_score_csv": str(hierarchical_meta.get("diagnostics_global_score_csv", "")),
+            },
         },
         "era_evaluation": {
             "count": int(era_df.shape[0]) if not era_df.empty else 0,
@@ -3268,7 +3880,9 @@ def main() -> None:
         "period_start": str(args.start),
         "period_end": str(args.end),
         "N_core": int(len(core)),
-        "windows": [60, 120, 252],
+        "max_core_assets": int(max(0, int(args.max_core_assets))),
+        "coverage_core": float(args.coverage_core),
+        "windows": [int(x) for x in windows],
         "official_window": int(args.official_window),
         "policy_path": str(policy_path),
         "policy_loaded": bool(policy),
@@ -3290,6 +3904,13 @@ def main() -> None:
         "structural_v1_enabled": bool(int(args.enable_structural_v1)),
         "structural_v1_status": str(structural_meta.get("status", "disabled")) if bool(int(args.enable_structural_v1)) else "disabled",
         "structural_v1_rows": int(structural_meta.get("rows", 0)) if bool(int(args.enable_structural_v1)) else 0,
+        "hierarchical_enabled": bool(int(args.enable_hierarchical)),
+        "hierarchical_status": str(hierarchical_meta.get("status", "disabled")) if bool(int(args.enable_hierarchical)) else "disabled",
+        "hierarchical_global_universe_size": int(hierarchical_meta.get("global_universe_size", 0)) if bool(int(args.enable_hierarchical)) else 0,
+        "hierarchical_sector_universes_count": int(hierarchical_meta.get("sector_universes_count", 0)) if bool(int(args.enable_hierarchical)) else 0,
+        "hierarchical_state_latest_json": str(hierarchical_meta.get("hierarchical_state_latest_json", "")) if bool(int(args.enable_hierarchical)) else "",
+        "hierarchical_cross_gics_csv": str(hierarchical_meta.get("cross_gics_csv", "")) if bool(int(args.enable_hierarchical)) else "",
+        "hierarchical_cross_internal_csv": str(hierarchical_meta.get("cross_internal_csv", "")) if bool(int(args.enable_hierarchical)) else "",
     }
 
     release_decision = {"updated": False}

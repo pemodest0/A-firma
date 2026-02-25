@@ -8,6 +8,12 @@ from .ground_truth import (
     forward_max_drawdown_from_equity,
     threshold_from_train,
 )
+from .impact import (
+    compute_asset_global_impact,
+    compute_asset_sector_impact,
+    compute_sector_pair_overlap,
+    merge_asset_sector_global_impacts,
+)
 from .rmt import mp_bounds, rmt_report, significant_eigs
 from .run_manifest import write_run_manifest
 from .score import fit_normalizer, structural_score, transform
@@ -33,6 +39,10 @@ __all__ = [
     "build_regime_future_event_label",
     "classification_report_binary",
     "threshold_from_train",
+    "compute_asset_global_impact",
+    "compute_asset_sector_impact",
+    "compute_sector_pair_overlap",
+    "merge_asset_sector_global_impacts",
     "fit_normalizer",
     "transform",
     "structural_score",

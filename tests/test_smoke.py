@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -19,7 +20,7 @@ def test_pipeline_smoke(tmp_path: Path) -> None:
     outdir = tmp_path / "out"
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "-m",
             "engine.run",
             "--input",

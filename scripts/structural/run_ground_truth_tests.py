@@ -34,7 +34,7 @@ def _latest_lab_run() -> Path:
         raise FileNotFoundError(f"missing base dir: {base}")
     runs = sorted([p for p in base.iterdir() if p.is_dir()], key=lambda p: p.name, reverse=True)
     for d in runs:
-        if (d / "diagnostics_structural_score_daily.csv").exists() and (d / "backtest_regime_T120.csv").exists():
+        if (d / "diagnostics_structural_score_daily.csv").exists() and _resolve_backtest_path(d).exists():
             return d
     raise FileNotFoundError("no run with structural score + backtest file found")
 
@@ -48,6 +48,27 @@ def _parse_horizons(text: str) -> list[int]:
         out.append(int(t))
     out = sorted(set(int(max(1, x)) for x in out))
     return out or [5, 10, 20]
+
+
+def _resolve_backtest_path(run_dir: Path) -> Path:
+    summary_path = run_dir / "summary.json"
+    if summary_path.exists():
+        try:
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            summary = {}
+        official_window = int(float(summary.get("official_window", 0) or 0))
+        if official_window > 0:
+            p = run_dir / f"backtest_regime_T{official_window}.csv"
+            if p.exists():
+                return p
+    p120 = run_dir / "backtest_regime_T120.csv"
+    if p120.exists():
+        return p120
+    candidates = sorted(run_dir.glob("backtest_regime_T*.csv"))
+    if candidates:
+        return candidates[-1]
+    return run_dir / "backtest_regime_T120.csv"
 
 
 def _resolve_train_mask(dates: pd.Series, train_end: str) -> pd.Series:
@@ -127,7 +148,7 @@ def main() -> None:
     outdir.mkdir(parents=True, exist_ok=True)
 
     score_path = run_dir / "diagnostics_structural_score_daily.csv"
-    bt_path = run_dir / "backtest_regime_T120.csv"
+    bt_path = _resolve_backtest_path(run_dir)
     if not score_path.exists():
         raise SystemExit(f"missing: {score_path}")
     if not bt_path.exists():
