@@ -183,6 +183,29 @@ export async function readRiskTruthPanel() {
   }
 }
 
+export async function readLatestValidationSummary() {
+  const { results } = dataDirs();
+  const target = path.join(results, "validation", "latest_validation.json");
+  try {
+    const raw = await fs.readFile(target, "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    return {
+      schema_version: "latest_validation_v1",
+      status: "missing",
+      as_of_date: "",
+      evidence: {
+        event_rate: null,
+        alert_rate: null,
+        lift: null,
+      },
+      validation_gate: {
+        status: "unknown",
+      },
+    };
+  }
+}
+
 export async function readGlobalStatus() {
   const run = await findLatestValidRun();
   if (run) {

@@ -39,6 +39,7 @@ run_check "anti_leakage_guard" "python3 tools/anti_leakage_guard.py"
 run_check "frontend_payload_audit" "python3 scripts/ops/audit_frontend_payloads.py"
 run_check "daily_master_dry_run" "python3 scripts/ops/run_daily_master.py --dry-run --run-id HEALTH_${RUN_ID}"
 run_check "frontend_lint" "cd website-ui && npm run lint"
+run_check "frontend_clean_next_types" "rm -rf website-ui/.next/types"
 run_check "frontend_typecheck" "cd website-ui && npm run typecheck"
 run_check "frontend_build" "cd website-ui && npm run build -- --webpack"
 
