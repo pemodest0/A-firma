@@ -1,10 +1,10 @@
 name: Repo Healthcheck
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  # Temporariamente manual para evitar falhas em cascata quando a conta estiver
+  # com bloqueio de billing no GitHub Actions. Reativar push/pr apenas quando
+  # billing estiver regularizado.
+  workflow_dispatch:
 
 jobs:
   python-ops-checks:

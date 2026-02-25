@@ -60,3 +60,18 @@ git status -sb
 git rev-parse --short HEAD
 git rev-parse --short origin/main
 ```
+
+## GitHub Actions e notificacoes
+
+Se o GitHub Actions estiver bloqueado por billing, cada push em `main` gera notificacao de falha.
+
+Politica atual (2026-02-25):
+
+- workflow `Repo Healthcheck` em modo **manual** (`workflow_dispatch`).
+- sem trigger automatico em `push/pull_request` ate regularizacao de billing.
+
+Quando billing normalizar:
+
+1. Reativar triggers de `push/pull_request` em `.github/workflows/repo-healthcheck.yml`.
+2. Fazer um commit unico de reativacao.
+3. Confirmar uma execucao verde.

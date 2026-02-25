@@ -18,6 +18,14 @@ dados/brutos/yf/
 dados/brutos/metrics/
 data/yfinance_cache/
 data/external/
+data/download/**
+!data/download/.gitkeep
+data/clean/**
+!data/clean/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
+data/validated/**
+!data/validated/.gitkeep
 results/
 results/_tmp/
 results/_figs/
@@ -36,4 +44,3 @@ logs/
 
 # Local configs
 *.local.json
-

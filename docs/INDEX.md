@@ -25,6 +25,8 @@ Mapa unico dos guias ativos do projeto.
 - `docs/operacao/STRUCTURAL_V1_WORKFLOW.md`: comando a comando das etapas 0-6 do bloco estrutural v1.
 - `docs/operacao/MAC_TEST_ENV_PYTEST_DNS.md`: setup de pytest e DNS no Mac para destravar testes.
 - `docs/operacao/NOMENCLATURA_OFICIAL_ASSYNTRAX_EIGEN_ENGINE.md`: regra canonica de naming (empresa vs motor).
+- `docs/operacao/DATA_LAYOUT_CANONICO.md`: contrato de camadas de dados (download/clean/processed/validated).
+- `docs/operacao/PLANO_LIMPEZA_REPO_20260225.md`: plano enxuto de limpeza e remocao de dead-ends.
 - `docs/operacao/RELATORIO_ALTERACOES_EIGEN_ENGINE_20260225.md`: consolidado de alteracoes recentes para lancamento.
 - `docs/COPILOT_CORE_INSTRUCTIONS.md`: nucleo de instrucoes e gate do copiloto.
 - `results/ops/ai_knowledge/latest_ground_truth.json`: ponteiro para ultimo ground truth estrutural.
