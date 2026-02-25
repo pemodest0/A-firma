@@ -2,7 +2,8 @@
 
 Data: 2026-02-25  
 Base remota: `origin/main`  
-HEAD de referencia: `4944a95`
+HEAD de referencia (inicio da rodada): `4944a95`  
+HEAD de formalizacao (fim da rodada): `88afea3`
 
 ## 1. Objetivo
 
