@@ -40,7 +40,7 @@ def _chunked_year_ranges(start: int, end: int, span: int = 10) -> Iterable[Tuple
         year += span
 
 
-def _fetch_bcb_series(series_id: int, start: int, end: int) -> List[dict]:
+def _fetch_bcb_series(series_id: int, start: int, end: int, timeout_sec: float) -> List[dict]:
     rows: List[dict] = []
     for s, e in _chunked_year_ranges(start, end, span=10):
         query = urlencode(
@@ -53,13 +53,13 @@ def _fetch_bcb_series(series_id: int, start: int, end: int) -> List[dict]:
         url = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{series_id}/dados?{query}"
         req = Request(url, headers={"User-Agent": "Mozilla/5.0 (Assyntrax)"})
         try:
-            with urlopen(req) as resp:
+            with urlopen(req, timeout=timeout_sec) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
         except Exception:
             # fallback without date range
             fallback = f"https://api.bcb.gov.br/dados/serie/bcdata.sgs.{series_id}/dados?formato=json"
             req_fb = Request(fallback, headers={"User-Agent": "Mozilla/5.0 (Assyntrax)"})
-            with urlopen(req_fb) as resp:
+            with urlopen(req_fb, timeout=timeout_sec) as resp:
                 payload = json.loads(resp.read().decode("utf-8"))
         rows.extend(payload)
 
@@ -97,10 +97,10 @@ def _extract_excel_sheets(xlsx_path: Path, outdir: Path) -> None:
         df.to_csv(outdir / f"{safe}.csv", index=False)
 
 
-def _download_file(url: str, dest: Path) -> None:
+def _download_file(url: str, dest: Path, timeout_sec: float) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     req = Request(url, headers={"User-Agent": "Mozilla/5.0 (Assyntrax)"})
-    with urlopen(req) as resp, dest.open("wb") as f:
+    with urlopen(req, timeout=timeout_sec) as resp, dest.open("wb") as f:
         f.write(resp.read())
 
 
@@ -109,6 +109,7 @@ def main() -> None:
     parser.add_argument("--outdir", default="data/raw/realestate", help="Base output dir for downloads")
     parser.add_argument("--bcb-start-year", type=int, default=2000)
     parser.add_argument("--bcb-end-year", type=int, default=date.today().year)
+    parser.add_argument("--timeout-sec", type=float, default=5.0, help="Timeout por request HTTP em segundos")
     parser.add_argument("--bcb-ids", default="", help="Comma-separated list of id:name or id (e.g. 11:SELIC_D,433:IPCA_M)")
     parser.add_argument(
         "--abrainc-urls",
@@ -133,7 +134,7 @@ def main() -> None:
         dest = fipezap_dir / fname
         try:
             if not dest.exists():
-                _download_file(url, dest)
+                _download_file(url, dest, float(args.timeout_sec))
             _extract_excel_sheets(dest, fipezap_dir / "sheets")
             manifest["fipezap"].append({"file": str(dest), "status": "ok"})
         except Exception as exc:
@@ -158,7 +159,7 @@ def main() -> None:
     for name, sid in series:
         target = bcb_dir / f"{name}_{sid}.csv"
         try:
-            rows = _fetch_bcb_series(sid, args.bcb_start_year, args.bcb_end_year)
+            rows = _fetch_bcb_series(sid, args.bcb_start_year, args.bcb_end_year, float(args.timeout_sec))
             _write_csv(target, rows)
             manifest["bcb"].append({"series_id": sid, "name": name, "rows": len(rows), "status": "ok"})
         except Exception as exc:
@@ -173,7 +174,7 @@ def main() -> None:
             fname = url.split("/")[-1].split("?")[0] or f"abrainc_{idx}.bin"
             dest = abrainc_dir / fname
             try:
-                _download_file(url, dest)
+                _download_file(url, dest, float(args.timeout_sec))
                 if dest.suffix.lower() in {".xlsx", ".xls"}:
                     _extract_excel_sheets(dest, abrainc_dir / "sheets")
                 manifest["abrainc"].append({"url": url, "file": str(dest), "status": "ok"})

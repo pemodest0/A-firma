@@ -32,6 +32,13 @@ FEATURE_NAMES = (
 LEVEL_RISK = {"verde": 0.1, "amarelo": 0.55, "vermelho": 0.9}
 
 
+def _rel_path(value: Path) -> str:
+    try:
+        return str(value.resolve().relative_to(ROOT.resolve()))
+    except ValueError:
+        return str(value)
+
+
 def _read_json(path: Path, fallback: Any) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -546,7 +553,7 @@ def main() -> None:
         for path in sorted(ROOT.glob(args.extra_master_pattern)):
             master_rows = _extract_master_summary_samples(path, asset_groups=group_map)
             if master_rows:
-                master_paths.append(str(path))
+                master_paths.append(_rel_path(path))
                 extra_samples.extend(master_rows)
         extra_samples.extend(_extract_sector_db_samples(sector_db_path))
 
@@ -634,13 +641,13 @@ def main() -> None:
     payload = {
         "version": "model_c_gnn_v1",
         "trained_at_utc": trained_at.isoformat(),
-        "source_panel": str(panel_path),
+        "source_panel": _rel_path(panel_path),
         "extra_sources": {
             "enabled": not bool(args.disable_extra_panel),
             "extra_master_pattern": str(args.extra_master_pattern),
             "master_summary_paths": master_paths,
-            "sector_db": str(sector_db_path),
-            "asset_groups_csv": str(ROOT / args.asset_groups_csv),
+            "sector_db": _rel_path(sector_db_path),
+            "asset_groups_csv": _rel_path(ROOT / args.asset_groups_csv),
             "max_extra_samples": int(max_extra),
             "n_panel_samples": int(len(panel_samples)),
             "n_extra_samples": int(len(extra_samples)),
