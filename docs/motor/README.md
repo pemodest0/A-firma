@@ -24,8 +24,7 @@ Documentos de referencia do nucleo tecnico do Eigen Engine.
 - `docs/REGIME_METHODS_STUDY.md`
 
 ## Links de produto
-- App oficial (Vercel): `https://website-ui-woad.vercel.app`
-- Alias em uso: `https://assyntrax.vercel.app`
+- App oficial (Vercel): `https://assyntrax.vercel.app`
 - Licenca: MIT (`LICENSE`)
 
 Nota:

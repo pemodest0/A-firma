@@ -7,6 +7,7 @@ Status: ativo
 
 - `Assyntrax`: nome da empresa, marca e plataforma/site.
 - `Eigen Engine`: nome oficial do motor estrutural.
+- Site oficial unico em producao: `https://assyntrax.vercel.app`.
 
 ## 2. Regra de escrita
 
@@ -38,6 +39,7 @@ Status: ativo
 
 - Nome do repositorio GitHub e URLs existentes.
 - Nomes de arquivos legados ainda referenciados por scripts.
+- Nome de pasta tecnica local `website-ui/` (nao representa marca/produto).
 - Dados historicos em `results/` ja gerados.
 
 ## 7. Gate de consistencia recomendado

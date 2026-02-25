@@ -5,8 +5,7 @@ Repositorio canonico da plataforma Assyntrax e do motor estrutural Eigen Engine.
 ## Links oficiais
 - Repositorio: `https://github.com/pemodest0/Assyntrax`
 - Branch oficial: `main`
-- App (Vercel, producao): `https://website-ui-woad.vercel.app`
-- App (alias legado em uso): `https://assyntrax.vercel.app`
+- App oficial (Vercel): `https://assyntrax.vercel.app`
 - Licenca: MIT (`LICENSE`)
 
 ## Nomenclatura oficial
@@ -26,7 +25,7 @@ Repositorio canonico da plataforma Assyntrax e do motor estrutural Eigen Engine.
 - `engine/structural/`: modulos estruturais reutilizaveis (RMT, espectro, CSD, score, impacto).
 - `engine/core/universe.py`: selecao deterministica de universo global/setorial.
 - `engine/ops/metadata.py`: contrato de metadata de ativos.
-- `website-ui/`: frontend e APIs do produto.
+- `website-ui/`: diretorio tecnico local do site Assyntrax (nome de pasta legado).
 - `results/`: artefatos de execucao e validacao.
 
 ## Fluxo canonico por sessao

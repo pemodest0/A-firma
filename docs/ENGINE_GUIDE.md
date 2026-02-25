@@ -7,8 +7,7 @@ Guia curto da API/contrato oficial do motor para desenvolvimento e operacao.
 - Motor: `Eigen Engine`
 
 ## Links
-- App (Vercel): `https://website-ui-woad.vercel.app`
-- Alias legado: `https://assyntrax.vercel.app`
+- App oficial (Vercel): `https://assyntrax.vercel.app`
 - Licenca: MIT (`LICENSE`)
 
 ## Pacote oficial de codigo
@@ -27,7 +26,7 @@ Use `engine/` e `scripts/lab/run_corr_macro_offline.py` para novos desenvolvimen
 
 ## Consumo esperado
 - Scripts de operacao escrevem snapshots em `results/`.
-- API em `website-ui/app/api/**` consome ultimo run valido.
+- API do site (no diretorio tecnico `website-ui/app/api/**`) consome ultimo run valido.
 - UI mostra estados operacionais sem prometer retorno.
 
 ## Mapa tecnico por arquivo/funcoes

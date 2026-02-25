@@ -1,10 +1,9 @@
-# Assyntrax Website UI
+# Assyntrax Site (Diretorio Tecnico)
 
 Frontend operacional e APIs web da plataforma Assyntrax.
 
 ## Links
-- Producao (Vercel): `https://website-ui-woad.vercel.app`
-- Alias legado: `https://assyntrax.vercel.app`
+- Site oficial (Vercel): `https://assyntrax.vercel.app`
 - Repositorio: `https://github.com/pemodest0/Assyntrax`
 - Licenca: MIT (`../LICENSE`)
 
@@ -48,5 +47,6 @@ npx vercel --prod --yes
 ```
 
 ## Observacoes
+- O nome da pasta local `website-ui/` e apenas tecnico; a marca e o deploy oficial sao `Assyntrax`.
 - O frontend depende de artefatos gerados pelo pipeline do Eigen Engine.
 - Se a API retornar estado inconclusivo/sem dados, a UI exibe fallback operacional (sem quebrar rota).
