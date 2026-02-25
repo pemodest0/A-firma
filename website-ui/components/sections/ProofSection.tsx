@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import ProofMatrix from "@/components/visuals/ProofMatrix";
 
 const limits = [

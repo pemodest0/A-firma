@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 const blocks = [
   {
     icon: "1",
@@ -31,23 +29,21 @@ export default function HowItWorksSection() {
         <p className="text-zinc-300 max-w-3xl text-base lg:text-lg">
           Fluxo simplificado para operacao: tratamento de dados, leitura estrutural e publicacao com governanca.
         </p>
-      </motion.div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {blocks.map((block, index) => (
-          <motion.div
+          <div
             key={block.title}
             className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5"
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: index * 0.08 }}
+            style={{ animationDelay: `${index * 80}ms` }}
           >
             <div className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-cyan-600/60 text-xs text-cyan-300">
               {block.icon}
             </div>
             <h3 className="mt-3 text-lg font-semibold text-zinc-100">{block.title}</h3>
             <p className="mt-2 text-sm text-zinc-300">{block.text}</p>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

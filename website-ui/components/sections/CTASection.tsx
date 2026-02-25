@@ -18,13 +18,13 @@ export default function CTASection() {
           href="/contact"
         >
           Solicitar demonstracao
-        </a>
-        <a
+        </Link>
+        <Link
           className="rounded-xl border border-zinc-800 px-6 py-3 text-zinc-200 hover:border-zinc-600 transition"
           href="/app/dashboard"
         >
           Abrir painel
-        </a>
+        </Link>
       </div>
     </section>
   );

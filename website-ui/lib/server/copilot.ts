@@ -94,6 +94,32 @@ async function readInstructionCoreVersion() {
   };
 }
 
+async function readOperationalBrief() {
+  const { results } = dataDirs();
+  const root = path.join(results, "ops", "ai_knowledge");
+  const latest = await readJsonFile<GenericRow | null>(path.join(root, "latest_operational_brief.json"), null);
+
+  const fromPointer = toText(latest?.operational_brief_path, "");
+  if (fromPointer) {
+    const payload = await readJsonFile<GenericRow | null>(fromPointer, null);
+    if (payload) return { latest, payload, path: fromPointer };
+  }
+
+  try {
+    const files = (await fs.readdir(root))
+      .filter((name) => name.startsWith("operational_brief_") && name.endsWith(".json"))
+      .sort()
+      .reverse();
+    if (!files.length) return null;
+    const candidate = path.join(root, files[0]);
+    const payload = await readJsonFile<GenericRow | null>(candidate, null);
+    if (!payload) return null;
+    return { latest, payload, path: candidate };
+  } catch {
+    return null;
+  }
+}
+
 type CopilotContext = {
   generated_at_utc: string;
   run: {
@@ -156,13 +182,27 @@ type CopilotContext = {
     db_path: string;
     copilot_row_exists: boolean;
   };
+  operational_brief: {
+    brief_available: boolean;
+    brief_path: string;
+    data_last_date: string;
+    freshness_status: string;
+    freshness_days_lag: number | null;
+    risk_level_next_month: string;
+    operational_state: string;
+    action_hint: string;
+    confidence_score: number | null;
+    top_sector_global: string;
+    top_asset_global: string;
+    insight_headlines: string[];
+  };
   watch_assets: Array<{ asset: string; confidence: number; quality: number }>;
   inconclusive_assets: Array<{ asset: string; confidence: number; quality: number }>;
   sources: string[];
 };
 
 export async function buildCopilotContext(): Promise<CopilotContext> {
-  const [run, snap, panel, labRun, labTs, playbook, alerts, instruction, platformSnapshot] = await Promise.all([
+  const [run, snap, panel, labRun, labTs, playbook, alerts, instruction, platformSnapshot, opBrief] = await Promise.all([
     findLatestValidRun(),
     readLatestSnapshot(),
     readRiskTruthPanel(),
@@ -172,6 +212,7 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
     readLatestLabCorrOperationalAlerts(120),
     readInstructionCoreVersion(),
     readPlatformDbSnapshot(),
+    readOperationalBrief(),
   ]);
 
   const shadow = await readCopilotShadow(run?.runId || null);
@@ -199,6 +240,25 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
   const shadowModelC = asObj(shadow?.model_c);
   const shadowFusion = asObj(shadow?.fusion);
   const shadowRun = asObj(shadow?.run);
+  const opPayload = asObj(opBrief?.payload);
+  const opFreshness = asObj(opPayload.freshness);
+  const opSignal = asObj(opPayload.operational_signal);
+  const opSnapshot = asObj(opPayload.state_snapshot);
+  const opTopSectors = Array.isArray(opSnapshot.top_sectors_global_mode)
+    ? (opSnapshot.top_sectors_global_mode as GenericRow[])
+    : [];
+  const opTopAssets = Array.isArray(opSnapshot.top_assets_global_mode)
+    ? (opSnapshot.top_assets_global_mode as GenericRow[])
+    : [];
+  const opTopSector = opTopSectors.length ? toText(asObj(opTopSectors[0]).sector, "--") : "--";
+  const opTopAsset = opTopAssets.length
+    ? toText(asObj(opTopAssets[0]).ticker || asObj(opTopAssets[0]).asset_id, "--")
+    : "--";
+  const opInsights = Array.isArray(opPayload.insights) ? (opPayload.insights as GenericRow[]) : [];
+  const opInsightHeadlines = opInsights
+    .map((row) => toText(asObj(row).message, "").trim())
+    .filter((txt) => txt.length > 0)
+    .slice(0, 4);
 
   const publishBlockers = Array.isArray(shadowFusion.publish_blockers)
     ? shadowFusion.publish_blockers.map((v) => String(v))
@@ -264,15 +324,33 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       db_path: toText(asObj(platformSnapshot).db_path, ""),
       copilot_row_exists: asObj(asObj(platformSnapshot).copilot).row_exists === true,
     },
+    operational_brief: {
+      brief_available: !!opBrief,
+      brief_path: toText(opBrief?.path, ""),
+      data_last_date: toText(opPayload.data_last_date, ""),
+      freshness_status: toText(opFreshness.status, "unknown"),
+      freshness_days_lag: toNum(opFreshness.days_lag),
+      risk_level_next_month: toText(opSignal.risk_level_next_month, "unknown"),
+      operational_state: toText(opSignal.operational_state, "monitoramento_normal"),
+      action_hint: toText(opSignal.action_hint, "manter monitoramento estrutural"),
+      confidence_score: toNum(opSignal.confidence_score),
+      top_sector_global: opTopSector,
+      top_asset_global: opTopAsset,
+      insight_headlines: opInsightHeadlines,
+    },
     watch_assets: sampleAssets(rows, "watch", 6),
     inconclusive_assets: sampleAssets(rows, "inconclusive", 6),
     sources: shadow
-      ? (Array.isArray(shadow.sources) ? shadow.sources.map((v) => String(v)) : [])
+      ? [
+          ...(Array.isArray(shadow.sources) ? shadow.sources.map((v) => String(v)) : []),
+          ...(opBrief?.path ? [String(opBrief.path)] : []),
+        ]
       : [
           `results/ops/snapshots/${run?.runId || "N_A"}/summary.json`,
           `results/ops/snapshots/${run?.runId || "N_A"}/api_snapshot.jsonl`,
           "results/validation/risk_truth_panel.json",
           `results/lab_corr_macro/${labRun?.runId || "N_A"}/summary.json`,
+          ...(opBrief?.path ? [String(opBrief.path)] : []),
         ],
   };
 
@@ -288,10 +366,15 @@ function withPublishGuard(message: string, ctx: CopilotContext): string {
 }
 
 function renderResumo(ctx: CopilotContext): string {
+  const opFresh =
+    ctx.operational_brief.freshness_days_lag == null
+      ? ctx.operational_brief.freshness_status
+      : `${ctx.operational_brief.freshness_status} (${ctx.operational_brief.freshness_days_lag}d)`;
   const lines = [
     "Leitura estrutural (fisica matematica) do run atual:",
     `- Run: ${ctx.run.id} | gate bloqueado: ${yesNo(ctx.run.gate_blocked)} | politica: ${ctx.run.policy}.`,
     `- Universo: ${ctx.universe.assets} ativos (${ctx.universe.validated} validated, ${ctx.universe.watch} watch, ${ctx.universe.inconclusive} inconclusive).`,
+    `- IA operacional: estado=${ctx.operational_brief.operational_state}, risco_mes=${ctx.operational_brief.risk_level_next_month}, data_base=${ctx.operational_brief.data_last_date || "--"}, freshness=${opFresh}.`,
     `- Macro estrutural: regime=${ctx.lab.regime}, tier=${ctx.lab.signal_tier}, confianca=${ctx.lab.signal_reliability ?? "--"}.`,
     `- B: regime=${ctx.model_b.regime}, risco=${ctx.model_b.risk_score ?? "--"}, conf=${ctx.model_b.confidence ?? "--"} (${ctx.model_b.mode}).`,
     `- C: regime=${ctx.model_c.regime}, risco=${ctx.model_c.risk_score ?? "--"}, conf=${ctx.model_c.confidence ?? "--"} (${ctx.model_c.mode}).`,
@@ -317,11 +400,33 @@ function renderGate(ctx: CopilotContext): string {
   );
 }
 
+function renderOperationalBrief(ctx: CopilotContext): string {
+  const lag =
+    ctx.operational_brief.freshness_days_lag == null ? "--" : String(ctx.operational_brief.freshness_days_lag);
+  const insights = ctx.operational_brief.insight_headlines.length
+    ? ctx.operational_brief.insight_headlines.map((line) => `  - ${line}`).join("\n")
+    : "  - sem insights sintetizados no brief atual";
+  return withPublishGuard(
+    [
+      "Brief operacional unificado (IA):",
+      `- data_last_date=${ctx.operational_brief.data_last_date || "--"} | freshness=${ctx.operational_brief.freshness_status} | lag_dias=${lag}.`,
+      `- estado=${ctx.operational_brief.operational_state} | risco_proximo_mes=${ctx.operational_brief.risk_level_next_month} | confianca=${ctx.operational_brief.confidence_score ?? "--"}.`,
+      `- acao sugerida: ${ctx.operational_brief.action_hint}.`,
+      `- top setor global=${ctx.operational_brief.top_sector_global} | top ativo global=${ctx.operational_brief.top_asset_global}.`,
+      "- insights chave:",
+      insights,
+      "- Limite formal: estado estrutural e dependencia/relacao; nao e promessa direcional de preco.",
+    ].join("\n"),
+    ctx
+  );
+}
+
 function renderCausal(ctx: CopilotContext): string {
   return withPublishGuard(
     [
       "Checagem causal e integridade:",
       "- O copiloto le artefatos do run e do painel de validacao, sem recalibrar historico durante resposta.",
+      `- O brief operacional e lido de results/ops/ai_knowledge/latest_operational_brief.json (quando disponivel).`,
       `- Politica declarada no run: ${ctx.run.policy}.`,
       `- Nucleo de instrucoes ativo: ${ctx.instruction_core.version}.`,
       "- Se houver falha de gate/integridade, status vira NAO PUBLICAVEL.",
@@ -366,6 +471,14 @@ export function buildCopilotReply(question: string, ctx: CopilotContext): string
   const q = question.trim().toLowerCase();
   if (!q) return renderResumo(ctx);
 
+  if (
+    q.includes("estado") ||
+    q.includes("operac") ||
+    q.includes("acao") ||
+    q.includes("brief") ||
+    q.includes("insight")
+  )
+    return renderOperationalBrief(ctx);
   if (q.includes("gate") || q.includes("public") || q.includes("bloque")) return renderGate(ctx);
   if (q.includes("causal") || q.includes("look") || q.includes("futuro") || q.includes("leak")) return renderCausal(ctx);
   if (q.includes("ativo") || q.includes("watch") || q.includes("inconclusive") || q.includes("setor")) return renderAssets(ctx);

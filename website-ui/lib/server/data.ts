@@ -614,6 +614,164 @@ export async function readLatestLabCorrBacktestSummary(window = 120) {
   }
 }
 
+export async function readLatestLabCorrQaChecks() {
+  const run = await findLatestLabCorrRun();
+  if (!run) return null;
+  const filePath = path.join(run.runDir, "qa_checks.json");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+export async function readLatestLabCorrRegimeSeries(window = 120, limit = 365) {
+  const run = await findLatestLabCorrRun();
+  if (!run) return [];
+  const win = Number(window);
+  if (!Number.isFinite(win) || win <= 0) return [];
+  const filePath = path.join(run.runDir, `regime_series_T${Math.trunc(win)}.csv`);
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    const rows = parseCsvRecords(raw)
+      .map((row) => {
+        const date = String(row.date || "").trim();
+        const regime = String(row.regime || "").trim();
+        if (!date || !regime) return null;
+        return {
+          date,
+          regime,
+          regime_raw: String(row.regime_raw || "").trim(),
+          exposure: toFiniteNumber(row.exposure),
+          p1: toFiniteNumber(row.p1),
+          deff: toFiniteNumber(row.deff),
+          dp1_5: toFiniteNumber(row.dp1_5),
+          ddeff_5: toFiniteNumber(row.ddeff_5),
+          transition_score: toFiniteNumber(row.transition_score),
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row != null);
+    const k = Math.max(1, Math.trunc(limit));
+    return rows.slice(-k);
+  } catch {
+    return [];
+  }
+}
+
+export async function readLatestLabCorrAlertLevels(window = 120, limit = 365) {
+  const run = await findLatestLabCorrRun();
+  if (!run) return [];
+  const win = Number(window);
+  if (!Number.isFinite(win) || win <= 0) return [];
+  const filePath = path.join(run.runDir, `alert_levels_T${Math.trunc(win)}.csv`);
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    const rows = parseCsvRecords(raw)
+      .map((row) => {
+        const date = String(row.date || "").trim();
+        const level = String(row.alert_level || "").trim().toLowerCase();
+        if (!date || !level) return null;
+        return {
+          date,
+          alert_level: level,
+          alert_level_raw: String(row.alert_level_raw || "").trim().toLowerCase(),
+          regime: String(row.regime || "").trim(),
+          regime_raw: String(row.regime_raw || "").trim(),
+          risk_score: toFiniteNumber(row.risk_score),
+          signal_confidence: toFiniteNumber(row.signal_confidence),
+          transition_score: toFiniteNumber(row.transition_score),
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row != null);
+    return rows.slice(-Math.max(1, Math.trunc(limit)));
+  } catch {
+    return [];
+  }
+}
+
+export async function readLatestLabCorrSignificanceSummary() {
+  const run = await findLatestLabCorrRun();
+  if (!run) return [];
+  const filePath = path.join(run.runDir, "significance_summary_by_window.csv");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    return parseCsvRecords(raw).map((row) => ({
+      window: toFiniteNumber(row.window),
+      metric: String(row.metric || "").trim(),
+      n: toFiniteNumber(row.n),
+      mean_delta: toFiniteNumber(row.mean_delta),
+      std_delta: toFiniteNumber(row.std_delta),
+      significant_share_p_lt_0_05: toFiniteNumber(row.significant_share_p_lt_0_05),
+      mean_pvalue_vs_zero: toFiniteNumber(row.mean_pvalue_vs_zero),
+      latest_pvalue: toFiniteNumber(row.latest_pvalue),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function readLatestLabCorrAssetDiagnostics(limit = 500) {
+  const run = await findLatestLabCorrRun();
+  if (!run) return [];
+  const filePath = path.join(run.runDir, "asset_regime_diagnostics.csv");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    const rows = parseCsvRecords(raw).map((row) => ({
+      ticker: String(row.ticker || "").trim(),
+      sector: String(row.sector || "").trim(),
+      risk_score: toFiniteNumber(row.risk_score),
+      confidence_score: toFiniteNumber(row.confidence_score),
+      regime_asset: String(row.regime_asset || "").trim(),
+      switches_30d: toFiniteNumber(row.switches_30d),
+      switches_90d: toFiniteNumber(row.switches_90d),
+      switches_180d: toFiniteNumber(row.switches_180d),
+      vol60_latest: toFiniteNumber(row.vol60_latest),
+      corr120_latest: toFiniteNumber(row.corr120_latest),
+      sensitivity_score: toFiniteNumber(row.sensitivity_score),
+      stability_score: toFiniteNumber(row.stability_score),
+    }));
+    return rows
+      .filter((row) => row.ticker.length > 0)
+      .slice(0, Math.max(1, Math.trunc(limit)));
+  } catch {
+    return [];
+  }
+}
+
+export async function readLatestLabCorrSectorDiagnostics() {
+  const run = await findLatestLabCorrRun();
+  if (!run) return [];
+  const filePath = path.join(run.runDir, "sector_regime_diagnostics.csv");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    return parseCsvRecords(raw).map((row) => ({
+      sector: String(row.sector || "").trim(),
+      n_assets: toFiniteNumber(row.n_assets),
+      risk_mean: toFiniteNumber(row.risk_mean),
+      confidence_mean: toFiniteNumber(row.confidence_mean),
+      pct_instavel: toFiniteNumber(row.pct_instavel),
+      pct_transicao: toFiniteNumber(row.pct_transicao),
+      alerta_setor: String(row.alerta_setor || "").trim().toLowerCase(),
+      plano_acao: String(row.plano_acao || "").trim(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function readLatestLabCorrAssetSectorSummary() {
+  const run = await findLatestLabCorrRun();
+  if (!run) return {};
+  const filePath = path.join(run.runDir, "asset_sector_summary.json");
+  try {
+    const raw = await fs.readFile(filePath, "utf-8");
+    return JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
 export async function readPlatformDbSnapshot() {
   const { results } = dataDirs();
   const target = path.join(results, "platform", "latest_db_snapshot.json");
@@ -668,4 +826,3 @@ export async function readPlatformDbRelease() {
     };
   }
 }
-

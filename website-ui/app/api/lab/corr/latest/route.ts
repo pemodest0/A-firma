@@ -120,12 +120,25 @@ export async function GET(request: Request) {
 
   // Mantemos o histórico completo de regime para evitar truncamento inesperado na timeline da UI.
   // O recorte visual por período é feito no front.
-  const regimeHistory = regimeHistoryRaw;
-  const alertLevels = alertLevelsRaw.filter((row) => new Date(`${String(row.date)}T00:00:00Z`) >= cutoff);
-  const sectorDiag = sectorDiagRaw.filter((row) =>
+  const regimeHistory = Array.isArray(regimeHistoryRaw)
+    ? (regimeHistoryRaw as Record<string, unknown>[])
+    : [];
+  const alertLevelsBase = Array.isArray(alertLevelsRaw)
+    ? (alertLevelsRaw as Record<string, unknown>[])
+    : [];
+  const sectorDiagBase = Array.isArray(sectorDiagRaw)
+    ? (sectorDiagRaw as Record<string, unknown>[])
+    : [];
+  const assetDiagBase = Array.isArray(assetDiagRaw)
+    ? (assetDiagRaw as Record<string, unknown>[])
+    : [];
+  const alertLevels = alertLevelsBase.filter(
+    (row: Record<string, unknown>) => new Date(`${String(row.date)}T00:00:00Z`) >= cutoff
+  );
+  const sectorDiag = sectorDiagBase.filter((row: Record<string, unknown>) =>
     sectorFilter ? String(row.sector || "").toLowerCase().includes(sectorFilter) : true
   );
-  const assetDiag = assetDiagRaw.filter((row) => {
+  const assetDiag = assetDiagBase.filter((row: Record<string, unknown>) => {
     const t = String(row.ticker || "");
     const sec = String(row.sector || "").toLowerCase();
     if (assetFilter && !t.includes(assetFilter)) return false;
