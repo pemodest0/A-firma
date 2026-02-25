@@ -18,6 +18,7 @@ dados/brutos/yf/
 dados/brutos/metrics/
 data/yfinance_cache/
 data/external/
+data/raw/realestate/manifest.json
 data/download/**
 !data/download/.gitkeep
 data/clean/**
