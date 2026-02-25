@@ -1222,8 +1222,8 @@ export default function MotorControlCenter() {
           Pacotes prontos: básico, completo e sob medida, com relatório executivo e estudo de caso.
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          <Link className="rounded-md border border-zinc-700 px-2 py-1 text-zinc-200 hover:border-zinc-500" href="/proposta">
-            Proposta curta
+          <Link className="rounded-md border border-zinc-700 px-2 py-1 text-zinc-200 hover:border-zinc-500" href="/methods">
+            Eigen Engine
           </Link>
           <Link className="rounded-md border border-zinc-700 px-2 py-1 text-zinc-200 hover:border-zinc-500" href="/app/casos">
             Estudo de caso

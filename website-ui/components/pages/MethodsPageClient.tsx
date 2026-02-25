@@ -1,3 +1,4 @@
+import Link from "next/link";
 import MethodLattice from "@/components/visuals/MethodLattice";
 import PipelineFlow from "@/components/visuals/PipelineFlow";
 
@@ -25,7 +26,7 @@ const pilares = [
   {
     titulo: "Robustez Quantitativa",
     texto:
-      "O motor roda testes de subamostragem de 10%, sensibilidade de parâmetros e bootstrap em blocos para intervalos de confiança das métricas.",
+      "O Eigen Engine roda testes de subamostragem de 10%, sensibilidade de parâmetros e bootstrap em blocos para intervalos de confiança das métricas.",
   },
   {
     titulo: "Modo Mínimo Vendável",
@@ -51,7 +52,7 @@ const roadmap = [
     etapa: "Fase 1 (já ativo)",
     foco: "Causalidade, gate e trilha auditável",
     entrega:
-      "Motor com classificação de regime causal, bloqueio de publicação automático e artefatos versionados por run.",
+      "Eigen Engine com classificação de regime causal, bloqueio de publicação automático e artefatos versionados por run.",
   },
   {
     etapa: "Fase 2 (em andamento)",
@@ -85,7 +86,7 @@ const dataSources = [
       "Arquivos de universo fixo e classificação setorial para manter consistência de cobertura e comparação histórica.",
   },
   {
-    nome: "Artefatos do motor",
+    nome: "Artefatos do Eigen Engine",
     detalhe:
       "Saídas versionadas em cada run (timeseries, regime series, playbook, QA, gate e diagnósticos por ativo/setor).",
   },
@@ -139,17 +140,40 @@ const methodReferences = [
   },
 ];
 
+const guides = [
+  {
+    titulo: "Guia operacional diário",
+    detalhe: "Checklist único de execução, gate e publicação para o Eigen Engine.",
+    href: "https://github.com/pemodest0/Assyntrax/blob/main/docs/operacao/CHECKLIST_OPERACAO_EIGEN_ENGINE.md",
+  },
+  {
+    titulo: "API externa de piloto",
+    detalhe: "Contrato de integração técnica para clientes em piloto (chave + payload v1).",
+    href: "https://github.com/pemodest0/Assyntrax/blob/main/docs/venda/API_PILOTO_EXTERNA.md",
+  },
+  {
+    titulo: "Pacote de piloto",
+    detalhe: "Material executivo/técnico consolidado para piloto de 30 dias.",
+    href: "https://github.com/pemodest0/Assyntrax/blob/main/docs/venda/PACOTE_PILOTO_ASSYNTRAX_EIGEN_ENGINE.md",
+  },
+  {
+    titulo: "Guia Leonardo",
+    detalhe: "Assistente no site para tirar dúvidas sobre empresa, motor e evidências.",
+    href: "/guia",
+  },
+];
+
 export default function MethodsPageClient() {
   return (
     <div className="space-y-10">
       <section className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 items-center">
         <div className="space-y-3">
-          <div className="text-xs uppercase tracking-[0.3em] text-zinc-400">Metodologia</div>
+          <div className="text-xs uppercase tracking-[0.3em] text-zinc-400">Eigen Engine</div>
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
-            Núcleo matemático auditável para diagnóstico de regime
+            Eigen Engine: metodologia, operação e guias
           </h1>
           <p className="text-zinc-300 max-w-3xl text-lg">
-            O Assyntrax aplica análise espectral de correlações para identificar mudança estrutural do mercado.
+            O Eigen Engine da Assyntrax aplica análise espectral de correlações para identificar mudança estrutural do mercado.
             A arquitetura prioriza causalidade, robustez estatística e controle de publicação.
           </p>
         </div>
@@ -159,6 +183,35 @@ export default function MethodsPageClient() {
       </section>
 
       <PipelineFlow />
+
+      <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+        <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">Guias ativos</div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {guides.map((item) => {
+            const isInternal = item.href.startsWith("/");
+            if (isInternal) {
+              return (
+                <Link key={item.titulo} href={item.href} className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-600 transition">
+                  <h2 className="text-sm font-semibold tracking-wide text-zinc-100">{item.titulo}</h2>
+                  <p className="mt-2 text-sm text-zinc-300 leading-relaxed">{item.detalhe}</p>
+                </Link>
+              );
+            }
+            return (
+              <a
+                key={item.titulo}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-600 transition"
+              >
+                <h2 className="text-sm font-semibold tracking-wide text-zinc-100">{item.titulo}</h2>
+                <p className="mt-2 text-sm text-zinc-300 leading-relaxed">{item.detalhe}</p>
+              </a>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
         <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">Pontos auditados</div>

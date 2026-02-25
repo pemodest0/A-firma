@@ -9,14 +9,11 @@ export default function SiteHeader() {
         Assyntrax
       </Link>
       <nav className="flex items-center gap-4 text-sm text-zinc-300">
-        <Link className="hover:text-white transition" href="/product">
-          Produto
-        </Link>
-        <Link className="hover:text-white transition" href="/proposta">
-          Proposta
-        </Link>
         <Link className="hover:text-white transition" href="/methods">
-          Métodos
+          Eigen Engine
+        </Link>
+        <Link className="hover:text-white transition" href="/guia">
+          Leonardo
         </Link>
         <Link className="hover:text-white transition" href="/about">
           Sobre

@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
       { source: "/real-estate", destination: "/app/finance", permanent: false },
       { source: "/macro", destination: "/app/finance", permanent: false },
       { source: "/metodologia", destination: "/methods", permanent: false },
+      { source: "/product", destination: "/methods", permanent: false },
+      { source: "/proposta", destination: "/methods", permanent: false },
       { source: "/operacao", destination: "/app/dashboard", permanent: false },
       { source: "/app/imoveis", destination: "/app/finance", permanent: false },
       { source: "/app/real-estate", destination: "/app/finance", permanent: false },
@@ -32,8 +34,8 @@ const nextConfig: NextConfig = {
       { source: "/pt/about", destination: "/about", permanent: false },
       { source: "/pt/contact", destination: "/contact", permanent: false },
       { source: "/pt/methods", destination: "/methods", permanent: false },
-      { source: "/pt/product", destination: "/product", permanent: false },
-      { source: "/pt/proposta", destination: "/proposta", permanent: false },
+      { source: "/pt/product", destination: "/methods", permanent: false },
+      { source: "/pt/proposta", destination: "/methods", permanent: false },
     ];
   },
 };
