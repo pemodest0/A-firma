@@ -1,7 +1,18 @@
-﻿# Guia do Engine
+# Guia do Eigen Engine
 
-## Pacote oficial
-Use `engine/` para novos codigos.
+Guia curto da API/contrato oficial do motor para desenvolvimento e operacao.
+
+## Nome oficial
+- Empresa/plataforma: `Assyntrax`
+- Motor: `Eigen Engine`
+
+## Links
+- App (Vercel): `https://website-ui-woad.vercel.app`
+- Alias legado: `https://assyntrax.vercel.app`
+- Licenca: MIT (`LICENSE`)
+
+## Pacote oficial de codigo
+Use `engine/` e `scripts/lab/run_corr_macro_offline.py` para novos desenvolvimentos.
 
 ## Contrato minimo por ativo
 - `run_id`
@@ -15,10 +26,13 @@ Use `engine/` para novos codigos.
 - `data_adequacy`
 
 ## Consumo esperado
-- Scripts de ops escrevem snapshots.
-- API do `website-ui` le ultimo run valido.
-- UI mostra acao apenas para `validated/watch`.
+- Scripts de operacao escrevem snapshots em `results/`.
+- API em `website-ui/app/api/**` consome ultimo run valido.
+- UI mostra estados operacionais sem prometer retorno.
+
+## Mapa tecnico por arquivo/funcoes
+- `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
+- `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
 
 ## Compatibilidade
-- `spa/` e `graph_engine/` continuam disponiveis como wrappers.
-- Migracao de codigo novo deve ser feita somente para `engine.*`.
+Paths legados com `ASSYNTRAX` podem permanecer por compatibilidade historica.

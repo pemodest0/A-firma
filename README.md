@@ -1,78 +1,65 @@
-﻿# Assyntrax Platform + Eigen Engine
+# Assyntrax Platform + Eigen Engine
 
-Este repositorio contem a plataforma Assyntrax, o Eigen Engine (motor de deteccao de regimes e risco), os pipelines de validacao/auditoria e o frontend operacional.
+Repositorio canonico da plataforma Assyntrax e do motor estrutural Eigen Engine.
 
-## Estado atual
-- Motor unificado em `engine/` com wrappers de compatibilidade em `spa/` e `graph_engine/`.
-- Pipelines operacionais em `scripts/ops/`.
-- Validacoes cientificas e operacionais em `scripts/bench/validation/`.
-- Site/API em `website-ui/` consumindo snapshots validados.
-- Banco operacional SQLite em `results/platform/assyntrax_platform.db`.
-- Artefatos canonicos em `results/ops/snapshots/<run_id>/` e `results/validation/`.
+## Links oficiais
+- Repositorio: `https://github.com/pemodest0/Assyntrax`
+- Branch oficial: `main`
+- App (Vercel, producao): `https://website-ui-woad.vercel.app`
+- App (alias legado em uso): `https://assyntrax.vercel.app`
+- Licenca: MIT (`LICENSE`)
+
+## Nomenclatura oficial
+- `Assyntrax`: empresa/plataforma/site.
+- `Eigen Engine`: motor estrutural.
+
+## Escopo atual
+- Motor estrutural causal (correlacao rolling + espectro + regime + gate).
+- Pipeline diario auditavel com publicacao condicionada ao gate.
+- API/site operacional em Next.js para consumo dos artefatos.
 
 ## Estrutura principal
-- `engine/`: API estavel do motor (camada oficial para novos imports).
-- `scripts/ops/`: rotina diaria, snapshot, contrato, drift e auditoria.
-- `scripts/bench/validation/`: testes de robustez, placebo, adequacao e utilidade.
-- `config/`: contrato de saida e gates versionados.
-- `website-ui/`: frontend e rotas API para consumo dos artefatos.
-- `results/platform/`: banco SQLite + snapshot consolidado da plataforma.
-- `legacy/`: arquivos antigos ou fora do fluxo atual.
+- `scripts/lab/run_corr_macro_offline.py`: nucleo do motor estrutural (gera regime, diagnosticos e gate).
+- `config/lab_corr_policy.json`: politica oficial de parametros.
+- `scripts/ops/run_daily_master.py`: pipeline diario principal.
+- `scripts/ops/publish_latest_if_gate_ok.py`: publicacao condicionada ao gate.
+- `engine/structural/`: modulos estruturais reutilizaveis (RMT, espectro, CSD, score, impacto).
+- `engine/core/universe.py`: selecao deterministica de universo global/setorial.
+- `engine/ops/metadata.py`: contrato de metadata de ativos.
+- `website-ui/`: frontend e APIs do produto.
+- `results/`: artefatos de execucao e validacao.
 
-## Fluxo oficial (alto nivel)
-1. Rodar jobs diarios (`scripts/ops/run_daily_jobs.ps1` no Windows, `scripts/ops/run_daily_jobs.sh` no Linux/Mac).
-2. Validar contrato e gates.
-3. Gerar shadow do copiloto B+C com gate (`scripts/ops/build_copilot_shadow.py`).
-4. Indexar run no banco SQLite (`scripts/ops/build_platform_db.py`).
-5. Publicar snapshot com `api_snapshot.jsonl` + `summary.json` + `audit_pack.json`.
-6. Frontend consome ultimo run valido + status do banco.
+## Fluxo canonico por sessao
+1. `git fetch origin --prune`
+2. `git pull --ff-only origin main`
+3. `./scripts/ops/run_repo_healthcheck.sh`
+4. Implementar escopo
+5. `cd website-ui && npm run build` (quando mexer no site)
+6. Commit pequeno e objetivo
+7. `git push origin main`
 
-## Criterio de pronto para producao
-- Contrato de saida valido.
-- Data adequacy gate aprovado.
-- Drift diario sem bloqueio de deployment.
-- Global status em estado aceitavel para publicacao.
+## Comandos essenciais
+- Sincronizar local com remoto (remoto vence):
+  - Mac/Linux: `./scripts/ops/git_sync_canonical.sh`
+  - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\git_sync_canonical.ps1`
+- Rodar pipeline diario local:
+  - Mac/Linux: `bash ./scripts/ops/run_daily_jobs.sh 23 80`
+  - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\run_daily_jobs.ps1 -Seed 23 -MaxAssets 80`
 
-## Comandos uteis
-- Sincronizacao canonica (forca remoto sobre local):
-  - `./scripts/ops/git_sync_canonical.sh`
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\git_sync_canonical.ps1`
-- Pipeline diario:
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\run_daily_jobs.ps1 -Seed 17 -MaxAssets 80`
-  - `bash ./scripts/ops/run_daily_jobs.sh 23 80 "" 1`
-- Copiloto shadow manual (B+C):
-  - `python scripts/ops/build_copilot_shadow.py --run-id 20260210_contractfix`
-- Banco SQLite manual:
-  - `python scripts/ops/build_platform_db.py --run-id 20260210_contractfix`
-- Launcher unico (executavel local):
-  - `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\start_platform_local.ps1 -RunPipeline`
-  - `bash ./scripts/ops/start_platform_local.sh --run-pipeline`
-  - `bash ./scripts/ops/start_platform_local.sh --run-pipeline --threads 1`
-- Frontend local:
-  - `cd website-ui`
-  - `npm run dev`
-  - abrir `http://localhost:3000/app/copiloto`
-  - abrir `http://localhost:3000/app/plataforma`
+## Dados e artefatos
+- Layout canonico de dados: `docs/operacao/DATA_LAYOUT_CANONICO.md`
+- Snapshot de validacao: `results/validation/latest_validation.json`
+- Snapshot de plataforma: `results/platform/latest_db_snapshot.json`
 
-## Nucleo de instrucoes (motor + copiloto)
-- Arquivo canonico: `config/copilot_instruction_core.v1.json`.
-- Regra fixa: sem promessa de retorno, sem recomendacao de compra/venda, risco separado de confianca.
-- Publicacao do copiloto depende de gate + integridade (`publishable=true` no shadow).
-- Artefato de shadow por run: `results/ops/copilot/<run_id>/shadow_summary.json`.
-- Snapshot do banco para o site: `results/platform/latest_db_snapshot.json`.
+## Mapa tecnico (arquivos e funcoes)
+- Mapa detalhado do motor: `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
+- Manual mestre: `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
+- Teoria: `docs/motor/THEORY_ASSYNTRAX.md`
 
-## Telas operacionais principais
-- `website-ui/app/app/dashboard/page.tsx`: painel central do motor com filtros de ativo/setor/janela/periodo.
-- `website-ui/app/app/setores/page.tsx`: leitura setorial, ranking e historico de niveis.
-- `website-ui/app/app/operacao/page.tsx`: rotina diaria, gate de publicacao e relatorio.
-- `website-ui/app/app/venda/page.tsx`: proposta comercial, pacotes e material de reuniao.
+## Operacao e qualidade
+- Healthcheck: `docs/operacao/REPO_HEALTHCHECK.md`
+- Checklist diario: `docs/operacao/CHECKLIST_OPERACAO_EIGEN_ENGINE.md`
+- Governanca GitHub canonico: `docs/operacao/GITHUB_CANONICO.md`
 
-## Documentacao recomendada
-- `docs/OPS_EXECUTION_FLOW.md`
-- `docs/ENGINE_GUIDE.md`
-- `docs/DAILY_PIPELINE.md`
-- `docs/COPILOT_CORE_INSTRUCTIONS.md`
-- `docs/REPO_REFACTOR_PLAN.md`
-- `docs/notes/MAC_HANDOFF.md`
-- `docs/operacao/REPO_HEALTHCHECK.md`
-- `docs/operacao/GITHUB_CANONICO.md`
+## Licenca
+Este projeto esta licenciado sob MIT. Veja `LICENSE`.

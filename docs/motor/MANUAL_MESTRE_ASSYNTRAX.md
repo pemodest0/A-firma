@@ -30,6 +30,16 @@ Este manual não é material de marketing. É documento técnico-operacional par
 
 ---
 
+## 1.1 Mapa de arquivos e funcoes
+
+Inventario tecnico vivo (arquivo por arquivo + funcao por funcao):
+
+- `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
+
+Regra: sempre que o motor ganhar/remover funcao no fluxo oficial, esse mapa deve ser atualizado no mesmo ciclo de commit.
+
+---
+
 ## 2. O que o Eigen Engine e (e o que nao e)
 
 ### 2.1 O que é
