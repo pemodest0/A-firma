@@ -1,6 +1,5 @@
-import CopilotChat from "@/components/CopilotChat";
+import { redirect } from "next/navigation";
 
 export default function CopilotoPage() {
-  return <CopilotChat />;
+  redirect("/app/dashboard");
 }
-

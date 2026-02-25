@@ -24,12 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <nav className="mt-6 space-y-1 text-sm">
                 <NavItem href="/app/dashboard" label="Dashboard" />
                 <NavItem href="/app/universo-observavel" label="Universo observável" />
-                <NavItem href="/app/copiloto" label="Leonardo" />
                 <NavItem href="/app/plataforma" label="Plataforma" />
-                <NavItem href="/app/aplicacoes" label="Aplicacoes" />
-                <NavItem href="/app/finance" label="Finanças" />
-                <NavItem href="/app/setores" label="Setores" />
-                <NavItem href="/app/real-estate" label="Imobiliário" />
                 <NavItem href="/app/venda" label="Venda" />
                 <NavItem href="/app/teoria" label="Teoria" />
                 <NavItem href="/app/metodologia" label="Metodologia" />

@@ -12,9 +12,6 @@ export default function SiteHeader() {
         <Link className="hover:text-white transition" href="/methods">
           Eigen Engine
         </Link>
-        <Link className="hover:text-white transition" href="/guia">
-          Leonardo
-        </Link>
         <Link className="hover:text-white transition" href="/about">
           Sobre
         </Link>

@@ -156,11 +156,6 @@ const guides = [
     detalhe: "Material executivo/técnico consolidado para piloto de 30 dias.",
     href: "https://github.com/pemodest0/Assyntrax/blob/main/docs/venda/PACOTE_PILOTO_ASSYNTRAX_EIGEN_ENGINE.md",
   },
-  {
-    titulo: "Guia Leonardo",
-    detalhe: "Assistente no site para tirar dúvidas sobre empresa, motor e evidências.",
-    href: "/guia",
-  },
 ];
 
 export default function MethodsPageClient() {

@@ -1,5 +1,6 @@
 ﻿import "@/app/globals.css";
 import SiteHeader from "@/components/SiteHeader";
+import LeonardoFloatingChat from "@/components/LeonardoFloatingChat";
 import Link from "next/link";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -23,7 +24,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <div className="space-y-2">
               <div className="text-zinc-200 text-xs uppercase tracking-[0.2em]">Produto</div>
               <Link className="block text-zinc-400 hover:text-zinc-200" href="/methods">Eigen Engine</Link>
-              <Link className="block text-zinc-400 hover:text-zinc-200" href="/guia">Leonardo (guia)</Link>
               <Link className="block text-zinc-400 hover:text-zinc-200" href="/app/dashboard">Dashboard</Link>
             </div>
             <div className="space-y-2">
@@ -49,6 +49,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </footer>
+        <LeonardoFloatingChat />
       </div>
     </div>
   );
