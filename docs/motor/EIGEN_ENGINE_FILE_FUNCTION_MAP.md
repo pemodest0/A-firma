@@ -172,8 +172,8 @@ Responsabilidade: orchestrator oficial do dia (chama motor, valida, gera snapsho
 ### `scripts/ops/publish_latest_if_gate_ok.py`
 Responsabilidade: publica apenas quando `deployment_gate` aprova.
 
-### `scripts/ops/build_latest_validation_summary.py`
-Responsabilidade: sintetiza evidencias de validacao para consumo de UI/API e copiloto.
+### `scripts/ops/run_daily_validation.py`
+Responsabilidade: executa o bloco oficial de validacao diaria e consolida `results/ops/daily/<run_id>/summary.json`.
 
 ## 5) Regras de governanca para atualizacao deste mapa
 

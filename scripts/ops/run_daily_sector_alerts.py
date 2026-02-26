@@ -20,6 +20,379 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def _ts_id() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _read_json(path: Path) -> dict[str, object]:
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _safe_float(value: object, default: float = 0.0) -> float:
+    try:
+        num = float(value)
+    except (TypeError, ValueError):
+        return float(default)
+    return float(num) if math.isfinite(num) else float(default)
+
+
+def _latest_lab_corr_run_dir() -> Path:
+    base = ROOT / "results" / "lab_corr_macro"
+    pointer = _read_json(base / "latest_release.json")
+    run_dir_raw = str(pointer.get("run_dir", "")).strip()
+    if run_dir_raw:
+        run_dir = Path(run_dir_raw)
+        if run_dir.exists():
+            return run_dir
+    run_id = str(pointer.get("run_id", "")).strip()
+    if run_id:
+        run_dir = base / run_id
+        if run_dir.exists():
+            return run_dir
+    candidates = sorted([p for p in base.iterdir() if p.is_dir() and p.name[:4].isdigit()], key=lambda p: p.name, reverse=True)
+    for cand in candidates:
+        if (cand / "sector_regime_diagnostics.csv").exists():
+            return cand
+    raise FileNotFoundError("no lab_corr_macro run dir with sector_regime_diagnostics.csv")
+
+
+def _map_alert_level(raw_level: str, *, risk: float, share_unstable: float, share_transition: float) -> str:
+    lvl = str(raw_level).strip().lower()
+    if lvl in {"verde", "amarelo", "vermelho"}:
+        return lvl
+    if risk >= 0.62 or share_unstable >= 0.30:
+        return "vermelho"
+    if risk >= 0.48 or share_transition >= 0.45:
+        return "amarelo"
+    return "verde"
+
+
+def _map_regime(raw: str) -> tuple[str, str]:
+    txt = str(raw or "").strip().lower()
+    if ("estav" in txt) or ("stable" in txt):
+        return "STABLE", "estavel"
+    if ("trans" in txt) or ("transition" in txt):
+        return "TRANSITION", "transicao"
+    if ("nois" in txt) or ("ruido" in txt):
+        return "NOISY", "fragil"
+    if ("instav" in txt) or ("stress" in txt) or ("frag" in txt) or ("unstable" in txt):
+        return "UNSTABLE", "fragil"
+    return "TRANSITION", "transicao"
+
+
+def _build_diagnostics_from_asset_diag(asset_diag_csv: Path, out_csv: Path) -> bool:
+    if not asset_diag_csv.exists():
+        return False
+    rows: list[dict[str, object]] = []
+    with asset_diag_csv.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for raw in reader:
+            asset = str(raw.get("ticker", "")).strip()
+            sector = str(raw.get("sector", "unknown")).strip() or "unknown"
+            if not asset:
+                continue
+            regime_label, behavior = _map_regime(str(raw.get("regime_asset", "")))
+            confidence = max(0.0, min(1.0, _safe_float(raw.get("confidence_score"), default=0.5)))
+            quality = max(0.0, min(1.0, _safe_float(raw.get("stability_score"), default=0.5)))
+            risk_score = max(0.0, min(1.0, _safe_float(raw.get("risk_score"), default=0.5)))
+            stay_prob = quality
+            escape_prob = risk_score
+            alerts_n = int(max(0, round(_safe_float(raw.get("switches_30d"), default=0.0))))
+            rows.append(
+                {
+                    "asset": asset,
+                    "sector": sector,
+                    "regime": regime_label,
+                    "behavior": behavior,
+                    "confidence": confidence,
+                    "quality": quality,
+                    "risk_score": risk_score,
+                    "stay_prob": stay_prob,
+                    "escape_prob": escape_prob,
+                    "alerts_n": alerts_n,
+                }
+            )
+    if not rows:
+        return False
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    fields = ["asset", "sector", "regime", "behavior", "confidence", "quality", "risk_score", "stay_prob", "escape_prob", "alerts_n"]
+    with out_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+    return True
+
+
+def _build_sector_run_fallback(out_root: Path, step_log: list[dict[str, object]]) -> dict[str, object]:
+    run_id = _ts_id()
+    outdir = out_root / run_id
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    run_dir = _latest_lab_corr_run_dir()
+    sector_csv = run_dir / "sector_regime_diagnostics.csv"
+    asset_csv = run_dir / "asset_regime_diagnostics.csv"
+    macro_csv = run_dir / "macro_timeseries_T120.csv"
+    if not sector_csv.exists():
+        raise FileNotFoundError(f"missing sector diagnostics in fallback source: {sector_csv}")
+
+    latest_date = ""
+    if macro_csv.exists():
+        with macro_csv.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                date = str(row.get("date", "")).strip()
+                if date:
+                    latest_date = date
+    if not latest_date:
+        summary = _read_json(run_dir / "summary.json")
+        latest_state = summary.get("latest_state", {}) if isinstance(summary.get("latest_state"), dict) else {}
+        latest_date = str(latest_state.get("date", "")).strip()
+    if not latest_date:
+        latest_date = datetime.now(timezone.utc).date().isoformat()
+
+    levels_rows: list[dict[str, object]] = []
+    with sector_csv.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for raw in reader:
+            sector = str(raw.get("sector", "unknown")).strip() or "unknown"
+            n_assets = int(max(0, round(_safe_float(raw.get("n_assets"), default=0.0))))
+            risk = max(0.0, min(1.0, _safe_float(raw.get("risk_mean"), default=0.5)))
+            conf = max(0.0, min(1.0, _safe_float(raw.get("confidence_mean"), default=0.5)))
+            share_unstable = max(0.0, min(1.0, _safe_float(raw.get("pct_instavel"), default=0.0)))
+            share_transition = max(0.0, min(1.0, _safe_float(raw.get("pct_transicao"), default=0.0)))
+            level = _map_alert_level(
+                str(raw.get("alerta_setor", "")),
+                risk=risk,
+                share_unstable=share_unstable,
+                share_transition=share_transition,
+            )
+            if level == "vermelho":
+                action_tier, risk_budget_min, risk_budget_max = "defensivo", 0.40, 0.70
+            elif level == "amarelo":
+                action_tier, risk_budget_min, risk_budget_max = "cautela", 0.15, 0.35
+            else:
+                action_tier, risk_budget_min, risk_budget_max = "normal", 0.00, 0.10
+            levels_rows.append(
+                {
+                    "sector": sector,
+                    "date": latest_date,
+                    "n_assets": n_assets,
+                    "alert_level": level,
+                    "sector_score": risk,
+                    "share_unstable": share_unstable,
+                    "share_transition": share_transition,
+                    "mean_confidence": conf,
+                    "action_tier": action_tier,
+                    "risk_budget_min": risk_budget_min,
+                    "risk_budget_max": risk_budget_max,
+                    "hedge_min": max(0.0, 1.0 - risk_budget_max),
+                    "hedge_max": max(0.0, 1.0 - risk_budget_min),
+                    "action_priority": risk,
+                    "action_reason": "fallback_lab_corr_structural",
+                }
+            )
+    if not levels_rows:
+        raise RuntimeError("fallback generation produced zero sector rows")
+
+    levels_rows.sort(key=lambda x: float(x.get("sector_score", 0.0)), reverse=True)
+    levels_csv = outdir / "sector_alert_levels_latest.csv"
+    level_fields = [
+        "sector",
+        "date",
+        "n_assets",
+        "alert_level",
+        "sector_score",
+        "share_unstable",
+        "share_transition",
+        "mean_confidence",
+        "action_tier",
+        "risk_budget_min",
+        "risk_budget_max",
+        "hedge_min",
+        "hedge_max",
+        "action_priority",
+        "action_reason",
+    ]
+    with levels_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=level_fields)
+        writer.writeheader()
+        writer.writerows(levels_rows)
+
+    rank_rows = [
+        {
+            "sector": str(r["sector"]),
+            "drawdown_recall_l5": "",
+            "drawdown_precision_l5": "",
+            "drawdown_false_alarm_l5": "",
+            "drawdown_p_vs_random_l5": "",
+            "ret_tail_recall_l5": "",
+            "ret_tail_precision_l5": "",
+            "composite_score": f"{float(r['sector_score']):.6f}",
+            "n_assets_median_test": int(r["n_assets"]),
+        }
+        for r in levels_rows
+    ]
+    rank_csv = outdir / "sector_rank_l5.csv"
+    rank_fields = [
+        "sector",
+        "drawdown_recall_l5",
+        "drawdown_precision_l5",
+        "drawdown_false_alarm_l5",
+        "drawdown_p_vs_random_l5",
+        "ret_tail_recall_l5",
+        "ret_tail_precision_l5",
+        "composite_score",
+        "n_assets_median_test",
+    ]
+    with rank_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=rank_fields)
+        writer.writeheader()
+        writer.writerows(rank_rows)
+
+    eligibility_csv = outdir / "sector_eligibility.csv"
+    with eligibility_csv.open("w", encoding="utf-8", newline="") as handle:
+        fields = ["sector", "eligible", "reason", "n_days_cal", "n_days_test", "n_assets_median_test"]
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for r in levels_rows:
+            writer.writerow(
+                {
+                    "sector": r["sector"],
+                    "eligible": "true",
+                    "reason": "fallback_lab_corr",
+                    "n_days_cal": 0,
+                    "n_days_test": 0,
+                    "n_assets_median_test": r["n_assets"],
+                }
+            )
+
+    signals_csv = outdir / "sector_daily_signals.csv"
+    with signals_csv.open("w", encoding="utf-8", newline="") as handle:
+        fields = ["sector", "date", "alert_level", "sector_score"]
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for r in levels_rows:
+            writer.writerow(
+                {
+                    "sector": r["sector"],
+                    "date": r["date"],
+                    "alert_level": r["alert_level"],
+                    "sector_score": r["sector_score"],
+                }
+            )
+
+    report_path = outdir / "report_sector_event_study.txt"
+    report_path.write_text(
+        "\n".join(
+            [
+                "Fallback setorial (lab_corr_macro)",
+                f"source_run_dir: {run_dir}",
+                f"asof_date: {latest_date}",
+                "motivo: indisponibilidade de artefatos legacy *_daily_regimes.csv",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    diagnostics_csv = outdir / "diagnostics_assets_daily.csv"
+    diagnostics_ok = _build_diagnostics_from_asset_diag(asset_csv, diagnostics_csv)
+    step_log.append(
+        {
+            "step": "event_study_validate_sectors_fallback",
+            "status": "ok",
+            "mode": "lab_corr_macro",
+            "source_run_dir": str(run_dir),
+            "outdir": str(outdir),
+            "diagnostics_ready": diagnostics_ok,
+        }
+    )
+    return {
+        "status": "ok",
+        "mode": "fallback_lab_corr",
+        "run_id": run_id,
+        "outdir": str(outdir),
+        "source_run_dir": str(run_dir),
+        "diagnostics_csv": str(diagnostics_csv) if diagnostics_ok else "",
+    }
+
+
+def _resolve_diagnostics_csv(
+    *,
+    diagnostics_arg: str,
+    outdir: Path,
+    fallback_meta: dict[str, object],
+) -> tuple[Path, str]:
+    text = str(diagnostics_arg).strip()
+    if text:
+        p = Path(text)
+        if not p.is_absolute():
+            p = ROOT / text
+        if p.exists():
+            return p, "arg"
+
+    fb_csv = str(fallback_meta.get("diagnostics_csv", "")).strip()
+    if fb_csv:
+        p = Path(fb_csv)
+        if p.exists():
+            return p, "fallback"
+
+    try:
+        run_dir = _latest_lab_corr_run_dir()
+        asset_csv = run_dir / "asset_regime_diagnostics.csv"
+        diag_csv = outdir / "diagnostics_assets_daily.csv"
+        if _build_diagnostics_from_asset_diag(asset_csv, diag_csv):
+            return diag_csv, "lab_corr_asset_diag"
+    except (FileNotFoundError, RuntimeError):
+        pass
+
+    fallback_path = outdir / "diagnostics_assets_daily.csv"
+    levels_path = outdir / "sector_alert_levels_latest.csv"
+    if levels_path.exists():
+        pseudo_rows: list[dict[str, object]] = []
+        with levels_path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for raw in reader:
+                sector = str(raw.get("sector", "unknown")).strip() or "unknown"
+                level = str(raw.get("alert_level", "verde")).strip().lower()
+                risk = _safe_float(raw.get("sector_score"), default=0.5)
+                conf = _safe_float(raw.get("mean_confidence"), default=0.5)
+                if level == "vermelho":
+                    regime, behavior = "UNSTABLE", "fragil"
+                elif level == "amarelo":
+                    regime, behavior = "TRANSITION", "transicao"
+                else:
+                    regime, behavior = "STABLE", "estavel"
+                pseudo_rows.append(
+                    {
+                        "asset": f"{sector}__proxy",
+                        "sector": sector,
+                        "regime": regime,
+                        "behavior": behavior,
+                        "confidence": max(0.0, min(1.0, conf)),
+                        "quality": max(0.0, min(1.0, conf)),
+                        "risk_score": max(0.0, min(1.0, risk)),
+                        "stay_prob": max(0.0, min(1.0, 1.0 - risk)),
+                        "escape_prob": max(0.0, min(1.0, risk)),
+                        "alerts_n": 1,
+                    }
+                )
+        if pseudo_rows:
+            fields = ["asset", "sector", "regime", "behavior", "confidence", "quality", "risk_score", "stay_prob", "escape_prob", "alerts_n"]
+            with fallback_path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fields)
+                writer.writeheader()
+                writer.writerows(pseudo_rows)
+            return fallback_path, "proxy_from_levels"
+    return fallback_path, "missing"
+
+
 def apply_profile_defaults(
     args: argparse.Namespace,
     *,
@@ -461,9 +834,9 @@ def main() -> None:
     ap.add_argument(
         "--diagnostics-csv",
         type=str,
-        default="results/latest_graph_universe470_batch/diagnostics_assets_daily.csv",
+        default="",
     )
-    ap.add_argument("--sector-pack-outdir", type=str, default="results/latest_graph_universe470_batch/sector_pack")
+    ap.add_argument("--sector-pack-outdir", type=str, default="results/event_study_sectors/sector_pack")
     ap.add_argument("--db-path", type=str, default="results/event_study_sectors/sector_alerts.db")
     ap.add_argument("--retries", type=int, default=1)
     ap.add_argument("--retry-delay-sec", type=float, default=2.0)
@@ -520,26 +893,42 @@ def main() -> None:
         "--out-root",
         str(args.out_root),
     ]
-    out_validate = run_retry(
-        cmd_validate,
-        label="event_study_validate_sectors",
-        retries=int(args.retries),
-        retry_delay_sec=float(args.retry_delay_sec),
-        step_log=step_log,
-    )
-    validate_json = json.loads(out_validate.splitlines()[-1])
-    outdir = Path(validate_json["outdir"])
+    fallback_meta: dict[str, object] = {}
+    try:
+        out_validate = run_retry(
+            cmd_validate,
+            label="event_study_validate_sectors",
+            retries=int(args.retries),
+            retry_delay_sec=float(args.retry_delay_sec),
+            step_log=step_log,
+        )
+        validate_json = json.loads(out_validate.splitlines()[-1])
+        outdir = Path(validate_json["outdir"])
+    except (subprocess.CalledProcessError, OSError, json.JSONDecodeError, KeyError, IndexError, ValueError):
+        out_root_path = ROOT / str(args.out_root)
+        fallback_meta = _build_sector_run_fallback(out_root=out_root_path, step_log=step_log)
+        validate_json = dict(fallback_meta)
+        outdir = Path(str(fallback_meta["outdir"]))
     run_id = outdir.name
     generated_at_utc = datetime.now(timezone.utc).isoformat()
     levels = read_levels_csv(outdir / "sector_alert_levels_latest.csv")
+
+    diagnostics_csv_path, diagnostics_source = _resolve_diagnostics_csv(
+        diagnostics_arg=str(args.diagnostics_csv),
+        outdir=outdir,
+        fallback_meta=fallback_meta,
+    )
+    pack_outdir = Path(str(args.sector_pack_outdir))
+    if not pack_outdir.is_absolute():
+        pack_outdir = ROOT / str(args.sector_pack_outdir)
 
     cmd_pack = [
         sys.executable,
         "scripts/bench/organize_diagnostics_by_sector.py",
         "--diagnostics-csv",
-        str(args.diagnostics_csv),
+        str(diagnostics_csv_path),
         "--outdir",
-        str(args.sector_pack_outdir),
+        str(pack_outdir),
     ]
     out_pack = run_retry(
         cmd_pack,
@@ -689,7 +1078,7 @@ def main() -> None:
         outdir / "weekly_compare.json",
         outdir / "drift_monitor.json",
         outdir / "sector_structural_report.json",
-        ROOT / str(args.sector_pack_outdir) / "sector_overview.csv",
+        pack_outdir / "sector_overview.csv",
     ]
     missing = [str(p) for p in required_files if not p.exists()]
 
@@ -725,6 +1114,8 @@ def main() -> None:
         "profile_applied": bool(profile_meta.get("profile_applied", False)),
         "profile_file": str(profile_meta.get("profile_file", "")),
         "profile_version": str(profile_meta.get("profile_version", "")),
+        "validation_mode": str(validate_json.get("mode", "event_study")),
+        "validation_payload": validate_json,
         "min_sector_assets": int(args.min_sector_assets),
         "min_cal_days": int(args.min_cal_days),
         "min_test_days": int(args.min_test_days),
@@ -743,6 +1134,8 @@ def main() -> None:
         "drift_level": str(drift_block.get("level", drift_payload.get("drift_level", "unknown"))),
         "notification": notification_payload,
         "sector_pack": pack_payload,
+        "diagnostics_csv_used": str(diagnostics_csv_path),
+        "diagnostics_source": diagnostics_source,
     }
 
     latest_path = ROOT / args.out_root / "latest_run.json"
