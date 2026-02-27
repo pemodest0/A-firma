@@ -167,11 +167,10 @@
   - `docs/operacao/README.md`
   - `docs/operacao/ROTINA_DIARIA_MASTER.md`
   - `docs/operacao/NOMES_PASTAS_SAIDA.md`
-  - `docs/historico/README.md`
   - `docs/INDEX_UNICO.md`
 - Arquivo de legado:
-  - `scripts/maintenance/archive_legacy_docs.py` (executado com `--apply`)
-  - copias em `docs/historico/arquivo_20260220/`
+  - `scripts/maintenance/archive_legacy_docs.py` (executado com `--apply`, removido no cleanup de 2026-02-27)
+  - copias antigas em `docs/historico/arquivo_20260220/` (arquivo removido no cleanup de 2026-02-27)
 - Limpeza de resultados antigos:
   - `scripts/maintenance/clean_old_results.py` (dry-run pronto)
 

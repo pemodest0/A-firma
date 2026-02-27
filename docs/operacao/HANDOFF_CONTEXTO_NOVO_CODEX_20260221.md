@@ -269,12 +269,6 @@ website-ui/public/data/latest/prediction_truth_history.csv
 ```text
 .github/workflows/repo-healthcheck.yml
 docs/INDEX_UNICO.md
-docs/historico/ARQUIVO_MATERIAL_ANTIGO.md
-docs/historico/README.md
-docs/historico/arquivo_20260220/graph_engine_deps.md
-docs/historico/arquivo_20260220/graph_engine_frontend_contract.md
-docs/historico/arquivo_20260220/graph_engine_plan.md
-docs/historico/arquivo_20260220/graph_engine_universe_40.md
 docs/motor/FUNDAMENTACAO_TEORICA_ASSYNTRAX_LATEX.md
 docs/motor/MANUAL_MESTRE_ASSYNTRAX.md
 docs/motor/README.md
@@ -488,12 +482,6 @@ docs/graph_engine_deps.md
 docs/graph_engine_frontend_contract.md
 docs/graph_engine_plan.md
 docs/graph_engine_universe_40.md
-docs/historico/ARQUIVO_MATERIAL_ANTIGO.md
-docs/historico/README.md
-docs/historico/arquivo_20260220/graph_engine_deps.md
-docs/historico/arquivo_20260220/graph_engine_frontend_contract.md
-docs/historico/arquivo_20260220/graph_engine_plan.md
-docs/historico/arquivo_20260220/graph_engine_universe_40.md
 docs/motor/FUNDAMENTACAO_TEORICA_ASSYNTRAX_LATEX.md
 docs/motor/LIVRO_MOTOR_ASSYNTRAX_300P.md
 docs/motor/MANUAL_MESTRE_ASSYNTRAX.md

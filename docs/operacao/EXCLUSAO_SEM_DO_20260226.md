@@ -1,7 +1,7 @@
 # Exclusao Sem Do (Auditavel)
 
-Data: 2026-02-26  
-Status: lote A executado
+Data: 2026-02-27  
+Status: lote A + lote B1 executados
 
 ## Base de evidencia
 
@@ -38,7 +38,11 @@ Pastas de pesquisa que nao entram no fluxo diario oficial:
 - `scripts/sim/`
 - `scripts/engine/`
 - `docs/notes/`
-- `docs/historico/`
+
+Execucao parcial:
+
+- `docs/historico/` removido em 2026-02-27 (bloco B1, apenas arquivo historico).
+- Pendentes: `scripts/sim/`, `scripts/engine/`, `docs/notes/`.
 
 ## Nao remover
 
@@ -61,4 +65,4 @@ Nucleo de producao:
 2. Rodar:
    - `python3 -m pytest -q`
    - `bash ./scripts/ops/run_repo_healthcheck.sh`
-3. Se verde, abrir `Lote B` em blocos.
+3. Se verde, abrir `Lote B` em blocos (B1 concluido).

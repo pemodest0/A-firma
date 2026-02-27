@@ -27,7 +27,6 @@
 - `website-ui/app/app/venda/page.tsx`
 
 ## Histórico
-- `docs/historico/README.md`
 - `docs/LEGACY_CANDIDATES.md`
 
 ## Continuidade
