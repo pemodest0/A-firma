@@ -1,7 +1,7 @@
 # Exclusao Sem Do (Auditavel)
 
 Data: 2026-02-26  
-Status: pronto para execucao em lotes pequenos
+Status: lote A executado
 
 ## Base de evidencia
 
@@ -12,6 +12,8 @@ Status: pronto para execucao em lotes pequenos
 ## Lote A (remocao imediata segura)
 
 Estes arquivos nao aparecem em chamadas do fluxo oficial nem em outros scripts.
+
+Execucao: concluida em 2026-02-26.
 
 - `scripts/bench/evaluate_auto_regime_model.py`
 - `scripts/bench/train_auto_regime_model.py`
