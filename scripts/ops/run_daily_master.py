@@ -55,6 +55,20 @@ def _latest_run_id(runs_root: Path, current_run_id: str) -> str | None:
     return dirs[-1] if dirs else None
 
 
+def _extract_last_json_line(text: str) -> dict[str, Any]:
+    for line in reversed(str(text or "").splitlines()):
+        line = line.strip()
+        if not line or (not line.startswith("{")) or (not line.endswith("}")):
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict):
+            return payload
+    return {}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Rotina diaria unica: execucao, sanidade, gate e relatorio.")
     ap.add_argument("--run-id", type=str, default=_ts_id())
@@ -96,6 +110,7 @@ def main() -> None:
         return row
 
     heavy_outputs: dict[str, Any] = {}
+    sector_step: dict[str, Any] = {}
     failed = False
     fail_reason = ""
     try:
@@ -136,9 +151,16 @@ def main() -> None:
             required=False,
         )
         do_step("daily_diff", [PY, "scripts/ops/daily_diff_report.py", "--outdir", f"results/ops/runs/{run_id}/diff"])
-        do_step(
+        sector_step = do_step(
             "daily_sector_alerts",
-            [PY, "scripts/ops/run_daily_sector_alerts.py", "--profile-file", str(args.profile_file)],
+            [
+                PY,
+                "scripts/ops/run_daily_sector_alerts.py",
+                "--profile-file",
+                str(args.profile_file),
+                "--run-id",
+                run_id,
+            ],
         )
 
         if args.with_heavy:
@@ -166,7 +188,17 @@ def main() -> None:
     contract_check = _read_json(outdir / "contract_check.json")
     prediction_truth = _read_json(outdir / "prediction_truth_summary.json")
     diff_summary = _read_json(outdir / "diff" / "summary.json")
-    latest_sector = _read_json(ROOT / "results" / "event_study_sectors" / "latest_run.json")
+    sector_latest_path = ROOT / "results" / "event_study_sectors" / "latest_run.json"
+    if (not args.dry_run) and sector_step:
+        sector_out = _extract_last_json_line(str(sector_step.get("stdout_tail", "")))
+        sector_latest_raw = str(sector_out.get("latest_run_json", "")).strip()
+        if sector_latest_raw:
+            candidate = Path(sector_latest_raw)
+            if not candidate.is_absolute():
+                candidate = ROOT / sector_latest_raw
+            if candidate.exists():
+                sector_latest_path = candidate
+    latest_sector = _read_json(sector_latest_path)
 
     sanity = {
         "status": "ok",
@@ -178,6 +210,7 @@ def main() -> None:
             "diff_exists": bool(diff_summary),
             "diff_gate_not_blocked": not bool((diff_summary.get("deployment_gate") or {}).get("blocked", False)),
             "sector_run_available": bool(latest_sector),
+            "sector_run_matches_master_id": bool(args.dry_run) or str(latest_sector.get("event_study_run_id", "")).strip() == run_id,
         },
         "failure_reason": fail_reason,
     }

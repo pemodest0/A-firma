@@ -129,8 +129,13 @@ def _build_diagnostics_from_asset_diag(asset_diag_csv: Path, out_csv: Path) -> b
     return True
 
 
-def _build_sector_run_fallback(out_root: Path, step_log: list[dict[str, object]]) -> dict[str, object]:
-    run_id = _ts_id()
+def _build_sector_run_fallback(
+    out_root: Path,
+    step_log: list[dict[str, object]],
+    *,
+    preferred_run_id: str = "",
+) -> dict[str, object]:
+    run_id = str(preferred_run_id).strip() or _ts_id()
     outdir = out_root / run_id
     outdir.mkdir(parents=True, exist_ok=True)
 
@@ -742,11 +747,6 @@ def notify_if_needed(
         "exited_green": exited_green,
         "n_exited_green": len(exited_green),
     }
-    alerts_dir = out_root / "alerts"
-    alerts_dir.mkdir(parents=True, exist_ok=True)
-    (alerts_dir / f"alert_{run_id}.json").write_text(json.dumps(payload, indent=2, allow_nan=False), encoding="utf-8")
-    (alerts_dir / "latest_alert.json").write_text(json.dumps(payload, indent=2, allow_nan=False), encoding="utf-8")
-
     webhook = webhook_url.strip()
     sent = False
     should_send = bool(webhook) and (bool(exited_green) or bool(force_send))
@@ -759,6 +759,10 @@ def notify_if_needed(
         except (urllib.error.URLError, TimeoutError, OSError):
             sent = False
     payload["webhook_sent"] = sent
+    alerts_dir = out_root / "alerts"
+    alerts_dir.mkdir(parents=True, exist_ok=True)
+    (alerts_dir / f"alert_{run_id}.json").write_text(json.dumps(payload, indent=2, allow_nan=False), encoding="utf-8")
+    (alerts_dir / "latest_alert.json").write_text(json.dumps(payload, indent=2, allow_nan=False), encoding="utf-8")
     return payload
 
 
@@ -844,6 +848,7 @@ def main() -> None:
     ap.add_argument("--ignore-profile", action="store_true")
     ap.add_argument("--webhook-url", type=str, default=os.environ.get("SECTOR_ALERT_WEBHOOK_URL", ""))
     ap.add_argument("--test-webhook", action="store_true", help="Force webhook send even without exited_green sectors.")
+    ap.add_argument("--run-id", type=str, default="", help="Optional deterministic run id propagated to sector validation.")
     args = ap.parse_args()
     profile_meta = apply_profile_defaults(args=args, defaults=defaults)
     t_start = time.time()
@@ -893,6 +898,9 @@ def main() -> None:
         "--out-root",
         str(args.out_root),
     ]
+    run_id_hint = str(args.run_id).strip()
+    if run_id_hint:
+        cmd_validate.extend(["--run-id", run_id_hint])
     fallback_meta: dict[str, object] = {}
     try:
         out_validate = run_retry(
@@ -906,7 +914,11 @@ def main() -> None:
         outdir = Path(validate_json["outdir"])
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError, KeyError, IndexError, ValueError):
         out_root_path = ROOT / str(args.out_root)
-        fallback_meta = _build_sector_run_fallback(out_root=out_root_path, step_log=step_log)
+        fallback_meta = _build_sector_run_fallback(
+            out_root=out_root_path,
+            step_log=step_log,
+            preferred_run_id=run_id_hint,
+        )
         validate_json = dict(fallback_meta)
         outdir = Path(str(fallback_meta["outdir"]))
     run_id = outdir.name

@@ -1934,7 +1934,7 @@ def _load_policy(path: Path) -> dict[str, Any]:
         return {}
 
 
-def _slug_token(text: str) -> str:
+def _slug_token_policy(text: str) -> str:
     s = "".join(ch.lower() if ch.isalnum() else "_" for ch in str(text))
     while "__" in s:
         s = s.replace("__", "_")
@@ -1963,7 +1963,7 @@ def _resolve_baseline_dir(
         return baseline_dir, "official_default"
 
     version = str((policy or {}).get("version", "")).strip()
-    ns = _slug_token(version if version else policy_path.stem)
+    ns = _slug_token_policy(version if version else policy_path.stem)
     if ns in {"lab_corr_policy_v1", "lab_corr_policy", "official"}:
         return baseline_dir, "official_default"
     return out_base / f"_baseline_{ns}", ns
@@ -2548,9 +2548,12 @@ def _build_structural_parallel_diagnostics(
         norm = {}
         d["score"] = np.nan
 
-    d["flags_valid"] = (
-        d[["phi", "deff", "ac1_phi", "forman_mean"]].replace([np.inf, -np.inf], np.nan).notna().all(axis=1).astype(int)
-    )
+    base_valid_cols = ["phi", "deff", "ac1_phi"]
+    optional_valid_cols: list[str] = []
+    if "forman_mean" in d.columns and d["forman_mean"].replace([np.inf, -np.inf], np.nan).notna().any():
+        optional_valid_cols.append("forman_mean")
+    valid_cols = base_valid_cols + optional_valid_cols
+    d["flags_valid"] = d[valid_cols].replace([np.inf, -np.inf], np.nan).notna().all(axis=1).astype(int)
     d["date"] = pd.DatetimeIndex(d["date"]).strftime("%Y-%m-%d")
 
     diag_cols = [

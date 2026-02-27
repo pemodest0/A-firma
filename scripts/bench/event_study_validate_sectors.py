@@ -814,6 +814,7 @@ def main() -> None:
         ],
     )
     ap.add_argument("--out-root", type=str, default="results/event_study_sectors")
+    ap.add_argument("--run-id", type=str, default="", help="Optional fixed run id for deterministic outdir.")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
 
@@ -844,7 +845,8 @@ def main() -> None:
     }
     auto_candidates = [x.strip() for x in str(args.auto_candidates).split(",") if x.strip()]
 
-    outdir = ROOT / args.out_root / _ts_id()
+    run_id = str(args.run_id).strip() or _ts_id()
+    outdir = ROOT / args.out_root / run_id
     outdir.mkdir(parents=True, exist_ok=True)
 
     log("step: build_reference")

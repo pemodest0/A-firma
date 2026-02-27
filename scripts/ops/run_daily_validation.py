@@ -29,7 +29,11 @@ def _run(cmd: list[str], timeout_sec: float) -> tuple[int, str]:
 def _read_json(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
 
 
 def main() -> None:
