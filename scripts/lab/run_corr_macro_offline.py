@@ -708,7 +708,7 @@ def _perf(rets: pd.Series) -> dict[str, float]:
     x = pd.to_numeric(rets, errors="coerce").dropna().astype(float)
     if x.empty:
         return {"ann_return": float("nan"), "ann_vol": float("nan"), "sharpe": float("nan"), "max_drawdown": float("nan")}
-    eq = (1.0 + x).cumprod()
+    eq = _safe_cum_equity(x)
     ann = float(np.power(float(eq.iloc[-1]), 252.0 / max(int(x.shape[0]), 1)) - 1.0)
     vol = float(x.std(ddof=0) * np.sqrt(252.0))
     return {
@@ -717,6 +717,14 @@ def _perf(rets: pd.Series) -> dict[str, float]:
         "sharpe": float(ann / vol) if vol > 1e-12 else float("nan"),
         "max_drawdown": float((eq / eq.cummax() - 1.0).min()),
     }
+
+
+def _safe_cum_equity(simple_rets: pd.Series) -> pd.Series:
+    x = pd.to_numeric(simple_rets, errors="coerce").astype(float)
+    gross = (1.0 + x).clip(lower=1e-9, upper=10.0)
+    log_eq = np.log(gross).cumsum()
+    log_eq = pd.Series(log_eq, index=x.index).clip(lower=-50.0, upper=50.0)
+    return np.exp(log_eq)
 
 
 def _backtest(
@@ -737,7 +745,8 @@ def _backtest(
     if bt.empty:
         return pd.DataFrame(), {"error": "no_overlap"}
 
-    bt["mkt_simple_ret"] = np.expm1(bt["mkt_log_ret"].astype(float))
+    bt["mkt_simple_ret_raw"] = np.expm1(bt["mkt_log_ret"].astype(float))
+    bt["mkt_simple_ret"] = bt["mkt_simple_ret_raw"].clip(lower=-0.95, upper=2.0)
     bt["exposure_target"] = bt["exposure"].astype(float).clip(0.0, 1.0)
     target_exec = bt["exposure_target"].shift(1).fillna(float(start_exposure)).to_numpy(dtype=float)
     cap = float(max(0.0, max_daily_turnover))
@@ -753,11 +762,14 @@ def _backtest(
     bt["exposure_exec"] = exec_exp
     bt["turnover"] = bt["exposure_exec"].diff().abs().fillna(0.0)
     bt["cost"] = bt["turnover"] * (float(cost_bps) / 10000.0)
-    bt["strategy_simple_ret"] = bt["exposure_exec"] * bt["mkt_simple_ret"] - bt["cost"]
+    bt["strategy_simple_ret_raw"] = bt["exposure_exec"] * bt["mkt_simple_ret"] - bt["cost"]
+    bt["strategy_simple_ret"] = bt["strategy_simple_ret_raw"].clip(lower=-0.99, upper=2.0)
     bt["benchmark_simple_ret"] = bt["mkt_simple_ret"]
-    bt["strategy_equity"] = (1.0 + bt["strategy_simple_ret"]).cumprod()
-    bt["benchmark_equity"] = (1.0 + bt["benchmark_simple_ret"]).cumprod()
+    bt["strategy_equity"] = _safe_cum_equity(bt["strategy_simple_ret"])
+    bt["benchmark_equity"] = _safe_cum_equity(bt["benchmark_simple_ret"])
     s, b = _perf(bt["strategy_simple_ret"]), _perf(bt["benchmark_simple_ret"])
+    n_clip_mkt = int((bt["mkt_simple_ret_raw"] != bt["mkt_simple_ret"]).sum())
+    n_clip_strategy = int((bt["strategy_simple_ret_raw"] != bt["strategy_simple_ret"]).sum())
     summary = {
         "start": bt.index.min().date().isoformat(),
         "end": bt.index.max().date().isoformat(),
@@ -768,6 +780,8 @@ def _backtest(
         "avg_turnover": float(bt["turnover"].mean()),
         "total_cost_paid": float(bt["cost"].sum()),
         "max_daily_turnover": float(cap),
+        "n_clip_mkt_simple_ret": int(n_clip_mkt),
+        "n_clip_strategy_simple_ret": int(n_clip_strategy),
         "regime_counts": bt["regime"].value_counts().to_dict(),
     }
     out = bt.reset_index().rename(columns={"index": "date"})
@@ -2728,6 +2742,12 @@ def _write_hierarchical_state(
     cross_internal: pd.DataFrame,
 ) -> tuple[Path, Path]:
     g = global_score_df.copy()
+    if g.empty or ("date" not in g.columns) or ("score" not in g.columns):
+        daily = outdir / "hierarchical_state_daily.jsonl"
+        latest = outdir / "hierarchical_state_latest.json"
+        daily.write_text("", encoding="utf-8")
+        latest.write_text(json.dumps({"status": "empty"}, ensure_ascii=False, indent=2), encoding="utf-8")
+        return daily, latest
     g["date"] = g["date"].astype(str)
     g["score"] = pd.to_numeric(g["score"], errors="coerce")
     g = g.dropna(subset=["date"]).sort_values("date")

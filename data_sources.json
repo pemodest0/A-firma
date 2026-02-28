@@ -4,6 +4,14 @@
       "url_template": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/carga_energia_di/CARGA_ENERGIA_{year}.csv",
       "years": [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
     },
+    "ons_ear_subsistema_di": {
+      "url_template": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/ear_subsistema_di/EAR_DIARIO_SUBSISTEMA_{year}.csv",
+      "years": [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+    },
+    "ons_cmo_semanal": {
+      "url_template": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_se/CMO_SEMANAL_{year}.csv",
+      "years": [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]
+    },
     "ons_curva_carga_horaria": {
       "url_template": "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/curva-carga-ho/CURVA_CARGA_{year}.csv",
       "years": [2023, 2024, 2025, 2026]

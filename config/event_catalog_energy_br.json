@@ -1,0 +1,40 @@
+{
+  "schema_version": "event_catalog_energy_br_v1",
+  "events": [
+    {
+      "id": "greve_caminhoneiros_2018",
+      "date": "2018-05-25",
+      "title": "Greve dos caminhoneiros",
+      "type": "logistica",
+      "source": "catalogo_manual_assyntrax"
+    },
+    {
+      "id": "blackout_amapa_2020",
+      "date": "2020-11-03",
+      "title": "Apagao do Amapa",
+      "type": "apagao",
+      "source": "catalogo_manual_assyntrax"
+    },
+    {
+      "id": "crise_hidrica_2021",
+      "date": "2021-09-01",
+      "title": "Crise hidrica e escassez energetica",
+      "type": "hidrologia",
+      "source": "catalogo_manual_assyntrax"
+    },
+    {
+      "id": "apagao_sin_2023",
+      "date": "2023-08-15",
+      "title": "Interrupcao no SIN de agosto de 2023",
+      "type": "apagao",
+      "source": "catalogo_manual_assyntrax"
+    },
+    {
+      "id": "enchentes_rs_2024",
+      "date": "2024-05-01",
+      "title": "Enchentes no Rio Grande do Sul",
+      "type": "clima",
+      "source": "catalogo_manual_assyntrax"
+    }
+  ]
+}
