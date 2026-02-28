@@ -1,0 +1,331 @@
+{
+  "schema_version": "agro_brasil_monthly_series_v1",
+  "bcb_sgs": [
+    {
+      "asset_id": "BCB_SELIC_D",
+      "ticker": "BCB_SELIC_D",
+      "name": "Taxa Selic (diaria)",
+      "series_id": 11,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "juros",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_IPCA_M",
+      "ticker": "BCB_IPCA_M",
+      "name": "IPCA (mensal)",
+      "series_id": 433,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "inflacao",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_INPC_M",
+      "ticker": "BCB_INPC_M",
+      "name": "INPC (mensal)",
+      "series_id": 188,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "inflacao",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_IGPM_M",
+      "ticker": "BCB_IGPM_M",
+      "name": "IGP-M (mensal)",
+      "series_id": 189,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "inflacao",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_INCC_M",
+      "ticker": "BCB_INCC_M",
+      "name": "INCC (mensal)",
+      "series_id": 192,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "custos",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_CRED_IMOB_PF_SALDO",
+      "ticker": "BCB_CRED_IMOB_PF_SALDO",
+      "name": "Saldo de credito PF imobiliario",
+      "series_id": 20540,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "credito",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_CRED_IMOB_PF_JUROS_TOTAL",
+      "ticker": "BCB_CRED_IMOB_PF_JUROS_TOTAL",
+      "name": "Taxa de juros PF imobiliario",
+      "series_id": 20038,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "credito",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_CRED_IMOB_PF_JUROS_MERCADO",
+      "ticker": "BCB_CRED_IMOB_PF_JUROS_MERCADO",
+      "name": "Taxa de juros PF imobiliario mercado",
+      "series_id": 25447,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "credito",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    },
+    {
+      "asset_id": "BCB_USDBRL_PTX",
+      "ticker": "BCB_USDBRL_PTX",
+      "name": "Cambio PTAX USD/BRL",
+      "series_id": 1,
+      "aggregation": "last",
+      "sector_gics": "macro",
+      "sector_internal": "cambio",
+      "source": "BCB/SGS",
+      "license": "Dados abertos BCB"
+    }
+  ],
+  "comex": {
+    "source": "Comex Stat (MDIC)",
+    "license": "Dados abertos federais",
+    "default_file_patterns": [
+      "*.csv",
+      "*.CSV"
+    ]
+  },
+  "conab": {
+    "source": "CONAB - Informacoes Agropecuarias",
+    "license": "Dados governamentais",
+    "default_file_patterns": [
+      "*.csv",
+      "*.CSV",
+      "*.xlsx",
+      "*.xls"
+    ]
+  },
+  "local_finance_tickers": [
+    {
+      "asset_id": "YF_ADM",
+      "ticker": "ADM",
+      "name": "Archer Daniels Midland",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "agro_corporativo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_BG",
+      "ticker": "BG",
+      "name": "Bunge",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "agro_corporativo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_CTVA",
+      "ticker": "CTVA",
+      "name": "Corteva",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "insumos",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_DE",
+      "ticker": "DE",
+      "name": "Deere",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "maquinas",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_DBA",
+      "ticker": "DBA",
+      "name": "Invesco DB Agriculture Fund",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "commodities_agro",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_USO",
+      "ticker": "USO",
+      "name": "United States Oil Fund",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "energia_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_XLE",
+      "ticker": "XLE",
+      "name": "Energy Select Sector SPDR",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "energia_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_EWZ",
+      "ticker": "EWZ",
+      "name": "iShares MSCI Brazil",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "brasil_mercado",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_EEM",
+      "ticker": "EEM",
+      "name": "iShares MSCI Emerging Markets",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "externo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_SPY",
+      "ticker": "SPY",
+      "name": "SPDR S&P 500 ETF",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "global_risco",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_FDX",
+      "ticker": "FDX",
+      "name": "FedEx",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "logistica",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_BTC_USD",
+      "ticker": "BTC-USD",
+      "name": "Bitcoin USD",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "liquidez_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_ETH_USD",
+      "ticker": "ETH-USD",
+      "name": "Ethereum USD",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "liquidez_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_VIX",
+      "ticker": "^VIX",
+      "name": "CBOE Volatility Index",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "volatilidade_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_KRO",
+      "ticker": "KRO",
+      "name": "Kronos Worldwide (insumos/fertilizantes)",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "fertilizantes",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_FCX",
+      "ticker": "FCX",
+      "name": "Freeport-McMoRan (metais base)",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "metais_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_XOP",
+      "ticker": "XOP",
+      "name": "SPDR S&P Oil & Gas Exploration & Production",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "energia_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_LNG",
+      "ticker": "LNG",
+      "name": "Cheniere Energy (gas natural)",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "energia_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_UUP",
+      "ticker": "UUP",
+      "name": "Invesco DB US Dollar Index Bullish Fund",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "cambio_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_GLD",
+      "ticker": "GLD",
+      "name": "SPDR Gold Shares",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "metais_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_SLV",
+      "ticker": "SLV",
+      "name": "iShares Silver Trust",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "metais_insumo",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_HYG",
+      "ticker": "HYG",
+      "name": "iShares iBoxx High Yield Corporate Bond",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "credito_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    },
+    {
+      "asset_id": "YF_LQD",
+      "ticker": "LQD",
+      "name": "iShares iBoxx Investment Grade Corporate Bond",
+      "sector_gics": "agro_brasil",
+      "sector_internal": "credito_global",
+      "source": "YFinance local cache",
+      "license": "Yahoo Finance - uso local de pesquisa"
+    }
+  ]
+}
