@@ -29,6 +29,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <div className="space-y-2">
               <div className="text-zinc-200 text-xs uppercase tracking-[0.2em]">Suporte</div>
               <Link className="block text-zinc-400 hover:text-zinc-200" href="/contact">Contato</Link>
+              <Link className="block text-zinc-400 hover:text-zinc-200" href="/security">Segurança</Link>
               <Link className="block text-zinc-400 hover:text-zinc-200" href="/privacy">Política de Privacidade</Link>
               <Link className="block text-zinc-400 hover:text-zinc-200" href="/about">Sobre</Link>
             </div>

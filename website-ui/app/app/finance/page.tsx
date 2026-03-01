@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import SectorDashboard from "@/components/SectorDashboard";
 
 export default function FinancePage() {
-  redirect("/app/dashboard");
+  return <SectorDashboard title="Eigen Engine | Finanças" showTable initialDomain="finance" />;
 }

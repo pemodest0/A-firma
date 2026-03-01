@@ -28,7 +28,8 @@
       "core_artifacts": [
         "results/lab_corr_macro/*/hierarchical/hierarchical_state_latest.json",
         "results/lab_corr_macro/*/hierarchical/impact_learning_2015_2026_compare/historical_structure_summary.json",
-        "results/ops/finance_product_ready/latest_finance_product_ready.json"
+        "results/ops/finance_product_ready/latest_finance_product_ready.json",
+        "config/event_catalog_finance_macro.json"
       ]
     },
     "energia": {
@@ -36,7 +37,8 @@
       "objective": "capturar pre-sinais de eventos operacionais sem explodir alert_rate",
       "core_artifacts": [
         "results/energy_br/latest/hierarchical_state_latest_energy_br.json",
-        "results/macro3/energy_corr_modes_*/corr_event_modes_eval.json"
+        "results/macro3/energy_corr_modes_*/corr_event_modes_eval.json",
+        "config/event_catalog_energy_br.json"
       ]
     },
     "agro": {
@@ -44,9 +46,15 @@
       "objective": "aumentar robustez de sinal e cobertura de eventos validos",
       "core_artifacts": [
         "results/agro_br/latest/hierarchical_state_latest_agro_br.json",
-        "results/macro3/agro_corr_modes_*/corr_event_modes_eval.json"
+        "results/macro3/agro_corr_modes_*/corr_event_modes_eval.json",
+        "config/event_catalog_agro_br.json"
       ]
     }
+  },
+  "domain_relations": {
+    "financas": "eventos monetarios, de credito e geopoliticos tendem a aumentar sincronizacao setorial e concentracao do modo global",
+    "energia": "eventos de rede, hidrologia e logistica tendem a elevar risco operacional e acoplamento regional no curto prazo",
+    "agro": "eventos de clima, insumos e logistica tendem a propagar choques pela cadeia clima-insumo-producao-exportacao"
   },
   "reasoning_protocol": {
     "causal_first": true,

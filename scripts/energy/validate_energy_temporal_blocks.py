@@ -131,6 +131,42 @@ def _f1(precision: float, recall: float) -> float:
     return float(2 * precision * recall / (precision + recall))
 
 
+def _random_baseline(
+    y_true: np.ndarray,
+    *,
+    alert_rate: float,
+    n_iter: int,
+    seed: int,
+) -> dict[str, float]:
+    y = np.asarray(y_true, dtype=bool)
+    n = int(y.size)
+    p = float(min(1.0, max(0.0, alert_rate)))
+    if n <= 0 or (not np.isfinite(p)):
+        return {"precision": float("nan"), "recall": float("nan"), "f1": float("nan")}
+
+    rng = np.random.default_rng(int(seed))
+    prec: list[float] = []
+    rec: list[float] = []
+    f1s: list[float] = []
+    for _ in range(int(max(1, n_iter))):
+        a = rng.random(n) < p
+        tp = int(np.sum(a & y))
+        fp = int(np.sum(a & (~y)))
+        fn = int(np.sum((~a) & y))
+        precision = _safe_div(float(tp), float(tp + fp))
+        recall = _safe_div(float(tp), float(tp + fn))
+        prec.append(precision)
+        rec.append(recall)
+        f1s.append(_f1(precision, recall))
+
+    def _mean(values: list[float]) -> float:
+        arr = np.asarray(values, dtype=float)
+        arr = arr[np.isfinite(arr)]
+        return float(arr.mean()) if arr.size > 0 else float("nan")
+
+    return {"precision": _mean(prec), "recall": _mean(rec), "f1": _mean(f1s)}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Validação temporal do Energia BR por blocos com recall/lift.")
     ap.add_argument("--run-dir", type=str, required=True)
@@ -144,6 +180,8 @@ def main() -> None:
         type=str,
         default="2018-01-01:2019-12-31,2020-01-01:2022-12-31,2023-01-01:2026-12-31",
     )
+    ap.add_argument("--random-iters", type=int, default=300)
+    ap.add_argument("--seed", type=int, default=23)
     ap.add_argument("--outdir", type=str, default="results/energy_br/latest/temporal_validation")
     args = ap.parse_args()
 
@@ -217,7 +255,13 @@ def main() -> None:
         f1 = _f1(precision, recall)
         event_rate = float(np.mean(y)) if y.size else float("nan")
         alert_rate = float(np.mean(a)) if a.size else float("nan")
-        lift = _safe_div(precision, event_rate) if np.isfinite(precision) and np.isfinite(event_rate) else float("nan")
+        rb = _random_baseline(
+            y_true=y,
+            alert_rate=alert_rate,
+            n_iter=int(args.random_iters),
+            seed=int(args.seed) + int(start.year) * 10 + int(end.year),
+        )
+        lift = _safe_div(precision, rb["precision"]) if np.isfinite(precision) and np.isfinite(rb["precision"]) else float("nan")
         tp_leads = d.loc[(d["alert"] == True) & (d["y_event"] == True), "days_to_next_event"]
         median_lead = float(tp_leads.median()) if not tp_leads.empty else float("nan")
         summary_rows.append(
@@ -236,7 +280,12 @@ def main() -> None:
                 "precision": precision,
                 "recall": recall,
                 "f1": f1,
-                "lift_vs_random": lift,
+                "random_precision": rb["precision"],
+                "random_recall": rb["recall"],
+                "random_f1": rb["f1"],
+                "lift_vs_random_precision": lift,
+                "lift_vs_random_recall": _safe_div(recall, rb["recall"]) if np.isfinite(recall) and np.isfinite(rb["recall"]) else float("nan"),
+                "lift_vs_random_f1": _safe_div(f1, rb["f1"]) if np.isfinite(f1) and np.isfinite(rb["f1"]) else float("nan"),
                 "median_lead_days_tp": median_lead,
             }
         )
@@ -256,6 +305,8 @@ def main() -> None:
             "phi_z_threshold": float(args.phi_z_threshold),
             "deff_z_threshold": float(args.deff_z_threshold),
             "horizon_days": int(args.horizon_days),
+            "random_iters": int(args.random_iters),
+            "seed": int(args.seed),
         },
         "blocks": summary_rows,
         "artifacts": {
@@ -269,4 +320,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

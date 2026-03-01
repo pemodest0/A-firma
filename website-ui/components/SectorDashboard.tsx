@@ -43,6 +43,19 @@ type AssetRecommendation = {
   rationale: string;
 };
 
+type PlatformSectorImpact = {
+  sector?: string;
+  sector_kind?: string;
+  impact?: number | null;
+};
+
+type PlatformLatestPayload = {
+  rankings?: {
+    date?: string;
+    top_sectors_global_mode?: PlatformSectorImpact[];
+  };
+};
+
 const MISSING = "n/d";
 
 const groupLabels: Record<string, string> = {
@@ -247,6 +260,7 @@ export default function SectorDashboard({
   const [seriesByAsset, setSeriesByAsset] = useState<Record<string, SeriesPoint[]>>({});
   const [loading, setLoading] = useState(false);
   const [universeLoaded, setUniverseLoaded] = useState(true);
+  const [platformLatest, setPlatformLatest] = useState<PlatformLatestPayload | null>(null);
 
   const pickUniverseSample = (limit: number) => {
     const safeLimit = Math.max(1, Math.min(EXPANDED_SAMPLE_SIZE, limit));
@@ -343,6 +357,20 @@ export default function SectorDashboard({
 
     loadSeries();
   }, [selected, timeframe]);
+
+  useEffect(() => {
+    const loadPlatformLatest = async () => {
+      try {
+        const res = await fetch("/api/platform/latest", { cache: "no-store" });
+        if (!res.ok) return;
+        const payload = (await res.json()) as PlatformLatestPayload;
+        setPlatformLatest(payload);
+      } catch {
+        setPlatformLatest(null);
+      }
+    };
+    loadPlatformLatest();
+  }, []);
 
   useEffect(() => {
     if (!selected.length) {
@@ -459,6 +487,19 @@ export default function SectorDashboard({
     return showAllRecommendationCards ? sorted : sorted.slice(0, 12);
   }, [tableRows, showAllRecommendationCards]);
 
+  const topSectorImpactRows = useMemo(() => {
+    const rows = Array.isArray(platformLatest?.rankings?.top_sectors_global_mode)
+      ? platformLatest?.rankings?.top_sectors_global_mode
+      : [];
+    return rows
+      .filter((row) => String(row?.sector_kind || "").toLowerCase() === "gics")
+      .slice(0, 6)
+      .map((row) => ({
+        sector: String(row?.sector || MISSING),
+        impact: isFiniteNumber(row?.impact) ? row.impact : null,
+      }));
+  }, [platformLatest]);
+
   const sectors =
     initialDomain === "finance"
       ? financeGroupFilter
@@ -547,6 +588,25 @@ export default function SectorDashboard({
           chartTitle="Evolução temporal por ativo"
           yUnitLabel={normalize ? "Índice base 100" : "Preço (unidade original da série)"}
         />
+
+        <div className="rounded-xl border border-zinc-800 bg-black/20 p-3">
+          <div className="text-sm text-zinc-200">Ranking setor → global (impacto estrutural)</div>
+          <div className="text-xs text-zinc-500">
+            Fonte: `results/platform/rankings_latest.json` ({platformLatest?.rankings?.date || MISSING}).
+          </div>
+          <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+            {topSectorImpactRows.length ? (
+              topSectorImpactRows.map((row) => (
+                <div key={`sector-impact-${row.sector}`} className="rounded-md border border-zinc-800 bg-zinc-950/60 px-2 py-1.5">
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">{row.sector}</div>
+                  <div className="text-sm font-semibold text-zinc-100">{isFiniteNumber(row.impact) ? row.impact.toFixed(4) : MISSING}</div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-xs text-zinc-500">Sem ranking setorial publicado no artefato atual.</div>
+            )}
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Card label="Ativos" value={String(selected.length)} helper="Quantidade de ativos selecionados na leitura atual." compact />

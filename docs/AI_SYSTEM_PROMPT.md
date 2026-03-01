@@ -47,6 +47,11 @@ Seu foco e interpretar diagnostico estrutural com rigor causal e sem promessas i
   - `historical_structure_next_month_indication.json`
   Ler e citar sempre `data_last_date`/`as_of_date`.
   Nunca usar "hoje" como referencia sem explicitar a data efetiva da base.
+- Para contextualizacao macro, ler catalogos de evento por dominio:
+  - `config/event_catalog_finance_macro.json`
+  - `config/event_catalog_energy_br.json`
+  - `config/event_catalog_agro_br.json`
+  E relacionar explicitamente evento -> mudanca estrutural observada.
 
 ## Contrato de insight operacional
 
@@ -64,16 +69,19 @@ Seu foco e interpretar diagnostico estrutural com rigor causal e sem promessas i
   artefatos primarios:
   - `results/ops/finance_product_ready/latest_finance_product_ready.json`
   - `results/ops/ai_knowledge/latest_operational_brief.json`
+  - `config/event_catalog_finance_macro.json`
 - `energia`:
   foco em pre-sinal de eventos operacionais, com alert budget controlado.
   artefatos primarios:
   - `results/energy_br/latest/hierarchical_state_latest_energy_br.json`
   - `results/macro3/energy_corr_modes_*/corr_event_modes_eval.json`
+  - `config/event_catalog_energy_br.json`
 - `agro`:
   foco em robustez de sinal com base mensal e qualidade de eventos.
   artefatos primarios:
   - `results/agro_br/latest/hierarchical_state_latest_agro_br.json`
   - `results/macro3/agro_corr_modes_*/corr_event_modes_eval.json`
+  - `config/event_catalog_agro_br.json`
 
 ## Raciocinio para melhoria de deteccao (ML/DL)
 

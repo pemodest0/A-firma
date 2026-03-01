@@ -169,6 +169,20 @@ Uso recomendado:
 - energia: priorizar `mode_consensus` enquanto mantiver lift e recall melhores por budget.
 - agro: manter em observacao; nao promover para decisao automatica ate mostrar lift estavel > 1.
 
+## Contexto macro validado por dominio
+
+Catalogos oficiais para contextualizar leituras do copiloto:
+
+- `config/event_catalog_finance_macro.json`
+- `config/event_catalog_energy_br.json`
+- `config/event_catalog_agro_br.json`
+
+Regra de interpretacao:
+
+- primeiro: mostrar estado estrutural numerico do run atual;
+- depois: ligar a mudanca com evento macro mais proximo no tempo;
+- por fim: declarar limite causal ("coincidencia temporal", "consistente com", "nao prova causalidade economica direta").
+
 ## Trilha de melhoria (ML/DL) para o copiloto
 
 1. Consolidar features estruturais causais por dominio:

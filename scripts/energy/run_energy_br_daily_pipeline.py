@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -73,6 +74,16 @@ def _validate_json(path: Path, required_keys: list[str]) -> tuple[bool, str]:
     if missing:
         return False, f"missing_keys:{','.join(missing)}"
     return True, "ok"
+
+
+def _safe_float(value: Any, default: float) -> float:
+    try:
+        n = float(value)
+    except (TypeError, ValueError):
+        return float(default)
+    if not math.isfinite(n):
+        return float(default)
+    return float(n)
 
 
 def validate_latest_artifacts(latest_dir: Path) -> dict[str, Any]:
@@ -174,6 +185,13 @@ def main() -> None:
     ap.add_argument("--score-z-threshold", type=float, default=0.0)
     ap.add_argument("--phi-z-threshold", type=float, default=1.2)
     ap.add_argument("--deff-z-threshold", type=float, default=-1.0)
+    ap.add_argument("--auto-thresholds-from-tuning", type=int, default=1)
+    ap.add_argument("--target-alert-rate", type=float, default=0.25)
+    ap.add_argument("--max-alert-rate", type=float, default=0.45)
+    ap.add_argument("--run-temporal-validation", type=int, default=1)
+    ap.add_argument("--random-iters", type=int, default=300)
+    ap.add_argument("--run-epistemic-diagnostics", type=int, default=1)
+    ap.add_argument("--epistemic-random-iters", type=int, default=300)
     args = ap.parse_args()
 
     if str(args.pack_dir).strip():
@@ -291,6 +309,44 @@ def main() -> None:
     if not ranking_ok:
         _write_rankings_fallback(latest_dir=latest_dir)
 
+    selected_score = float(args.score_z_threshold)
+    selected_phi = float(args.phi_z_threshold)
+    selected_deff = float(args.deff_z_threshold)
+    tuning_meta: dict[str, Any] = {
+        "auto_enabled": bool(int(args.auto_thresholds_from_tuning)),
+        "recommendation_json": "",
+        "used_recommendation": False,
+        "target_alert_rate": float(args.target_alert_rate),
+        "max_alert_rate": float(args.max_alert_rate),
+    }
+    if bool(int(args.auto_thresholds_from_tuning)):
+        tuning_outdir = latest_dir / f"threshold_tuning_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        _run(
+            [
+                sys.executable,
+                "scripts/energy/tune_energy_event_thresholds.py",
+                "--run-dir",
+                str(run_dir),
+                "--event-catalog",
+                str(args.event_catalog),
+                "--target-alert-rate",
+                str(float(args.target_alert_rate)),
+                "--max-alert-rate",
+                str(float(args.max_alert_rate)),
+                "--outdir",
+                str(tuning_outdir),
+            ]
+        )
+        rec_path = tuning_outdir / "threshold_sweep_recommendation.json"
+        tuning_meta["recommendation_json"] = str(rec_path)
+        if rec_path.exists():
+            rec = json.loads(rec_path.read_text(encoding="utf-8"))
+            best = rec.get("best", {}) if isinstance(rec, dict) else {}
+            selected_score = _safe_float(best.get("score_z_threshold"), selected_score)
+            selected_phi = _safe_float(best.get("phi_z_threshold"), selected_phi)
+            selected_deff = _safe_float(best.get("deff_z_threshold"), selected_deff)
+            tuning_meta["used_recommendation"] = True
+
     event_catalog = Path(args.event_catalog)
     if not event_catalog.is_absolute():
         event_catalog = ROOT / str(args.event_catalog)
@@ -305,13 +361,70 @@ def main() -> None:
             "--outdir",
             str(latest_dir),
             "--score-z-threshold",
-            str(float(args.score_z_threshold)),
+            str(float(selected_score)),
             "--phi-z-threshold",
-            str(float(args.phi_z_threshold)),
+            str(float(selected_phi)),
             "--deff-z-threshold",
-            str(float(args.deff_z_threshold)),
+            str(float(selected_deff)),
         ]
     )
+
+    temporal_summary_json = ""
+    if bool(int(args.run_temporal_validation)):
+        temporal_outdir = latest_dir / f"temporal_validation_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}_auto"
+        _run(
+            [
+                sys.executable,
+                "scripts/energy/validate_energy_temporal_blocks.py",
+                "--run-dir",
+                str(run_dir),
+                "--event-catalog",
+                str(event_catalog),
+                "--score-z-threshold",
+                str(float(selected_score)),
+                "--phi-z-threshold",
+                str(float(selected_phi)),
+                "--deff-z-threshold",
+                str(float(selected_deff)),
+                "--random-iters",
+                str(int(args.random_iters)),
+                "--seed",
+                str(int(args.seed)),
+                "--outdir",
+                str(temporal_outdir),
+            ]
+        )
+        temporal_summary_json = str(temporal_outdir / "temporal_validation_summary.json")
+
+    epistemic_summary_json = ""
+    epistemic_summary_csv = ""
+    epistemic_ok = False
+    epistemic_err = ""
+    if bool(int(args.run_epistemic_diagnostics)):
+        ep_outdir = latest_dir / "epistemic_global"
+        epistemic_ok, epistemic_err = _run_optional(
+            [
+                sys.executable,
+                "scripts/structural/run_epistemic_diagnostics.py",
+                "--run-dir",
+                str(run_dir),
+                "--universe",
+                "global",
+                "--horizons",
+                "5,10",
+                "--quantiles",
+                "0.75,0.80,0.85,0.90,0.95",
+                "--split-cutoffs",
+                "2023-12-31,2024-06-30",
+                "--random-iters",
+                str(int(args.epistemic_random_iters)),
+                "--outdir",
+                str(ep_outdir),
+            ]
+        )
+        if epistemic_ok:
+            epistemic_summary_json = str(ep_outdir / "epistemic_diagnostics_summary.json")
+            epistemic_summary_csv = str(ep_outdir / "epistemic_summary.csv")
 
     state_src = latest_dir / "hierarchical_state_latest.json"
     rank_src = latest_dir / "rankings_latest.json"
@@ -346,6 +459,25 @@ def main() -> None:
             "error": str(ranking_err),
             "mode": "full" if ranking_ok else "fallback_no_v1_vectors",
         },
+        "calibration": {
+            "selected_thresholds": {
+                "score_z_threshold": float(selected_score),
+                "phi_z_threshold": float(selected_phi),
+                "deff_z_threshold": float(selected_deff),
+            },
+            "tuning": tuning_meta,
+        },
+        "validation": {
+            "temporal_validation_summary_json": str(temporal_summary_json),
+            "random_baseline_iters": int(args.random_iters),
+            "epistemic": {
+                "ok": bool(epistemic_ok),
+                "error": str(epistemic_err),
+                "summary_json": str(epistemic_summary_json),
+                "summary_csv": str(epistemic_summary_csv),
+                "random_iters": int(args.epistemic_random_iters),
+            },
+        },
     }
     release_path = ROOT / "results" / "energy_br" / "latest_release_energy_br.json"
     release_path.parent.mkdir(parents=True, exist_ok=True)
@@ -355,4 +487,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -3,38 +3,52 @@
   "events": [
     {
       "id": "greve_caminhoneiros_2018",
-      "date": "2018-05-01",
+      "date": "2018-05-21",
       "title": "Greve dos caminhoneiros",
       "type": "logistica",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.gov.br/abin/pt-br/assuntos/noticias/paralisacao-dos-caminhoneiros-completa-4-anos"
     },
     {
       "id": "covid_disrupcao_2020",
-      "date": "2020-03-01",
+      "date": "2020-03-11",
       "title": "Disrupcao COVID-19",
       "type": "macro",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
     },
     {
       "id": "seca_brasil_2021",
       "date": "2021-09-01",
       "title": "Seca e choque hidrico no Brasil",
       "type": "clima",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.conab.gov.br/info-agro/safras/graos/monitoramento-agricola/item/download/52444_a2719f8f7f299905fce3d892bc95f38f"
+    },
+    {
+      "id": "guerra_ucrania_2022",
+      "date": "2022-02-24",
+      "title": "Escalada da guerra Russia-Ucrania",
+      "type": "geopolitica",
+      "source": "https://press.un.org/en/2022/sc14808.doc.htm"
     },
     {
       "id": "choque_fertilizantes_2022",
-      "date": "2022-03-01",
+      "date": "2022-03-11",
       "title": "Choque global de fertilizantes",
       "type": "insumos",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.gov.br/agricultura/pt-br/assuntos/noticias/governo-federal-lanca-plano-nacional-de-fertilizantes"
+    },
+    {
+      "id": "el_nino_2023",
+      "date": "2023-06-08",
+      "title": "NOAA declara inicio de condicoes de El Nino",
+      "type": "clima_global",
+      "source": "https://www.climate.gov/news-features/blogs/enso/june-2023-enso-update-el-ni%C3%B1o-here"
     },
     {
       "id": "enchentes_rs_2024",
       "date": "2024-05-01",
       "title": "Enchentes no Rio Grande do Sul",
       "type": "clima",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.rs.gov.br/governo-do-rs-apresenta-plano-rio-grande-com-medidas-para-reconstrucao-do-estado"
     }
   ]
 }

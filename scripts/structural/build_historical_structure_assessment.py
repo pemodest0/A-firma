@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from pandas.errors import EmptyDataError
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -51,6 +52,17 @@ def _latest_lab_run() -> Path:
     raise FileNotFoundError("no lab run found")
 
 
+def _safe_read_csv(path: Path, *, required_columns: list[str]) -> pd.DataFrame:
+    try:
+        df = pd.read_csv(path)
+    except (OSError, EmptyDataError):
+        df = pd.DataFrame(columns=required_columns)
+    for col in required_columns:
+        if col not in df.columns:
+            df[col] = np.nan
+    return df
+
+
 def _verdict_tag(*, lift: float, recall: float, months: int) -> str:
     if months < 6:
         return "insuficiente"
@@ -84,6 +96,8 @@ def _build_yearly_performance(monthly: pd.DataFrame) -> tuple[pd.DataFrame, pd.D
         .reset_index()
     )
     grp = grp.sort_values(["year", "target", "mode", "f1_mean_nan0", "lift_mean_nan0"], ascending=[True, True, True, False, False]).reset_index(drop=True)
+    if grp.empty:
+        return grp, pd.DataFrame(columns=[*grp.columns, "verdict"])
 
     best = (
         grp.sort_values(["year", "target", "mode", "f1_mean_nan0", "lift_mean_nan0"], ascending=[True, True, True, False, False])
@@ -494,9 +508,42 @@ def main() -> None:
     if (not monthly_path.exists()) or (not compare_path.exists()) or (not asset_global_path.exists()):
         raise SystemExit("missing required impact outputs (monthly/compare/asset_global)")
 
-    monthly = pd.read_csv(monthly_path)
-    compare = pd.read_csv(compare_path)
-    asset_global = pd.read_csv(asset_global_path)
+    monthly = _safe_read_csv(
+        monthly_path,
+        required_columns=[
+            "month_start",
+            "month",
+            "target",
+            "mode",
+            "model",
+            "f1",
+            "precision",
+            "recall",
+            "lift_precision_vs_random",
+            "event_rate",
+            "alert_rate",
+        ],
+    )
+    compare = _safe_read_csv(
+        compare_path,
+        required_columns=[
+            "month_start",
+            "month",
+            "target",
+            "cv_mode",
+            "model",
+            "f1",
+            "precision",
+            "recall",
+            "lift_precision_vs_random",
+            "event_rate",
+            "alert_rate",
+        ],
+    )
+    asset_global = _safe_read_csv(
+        asset_global_path,
+        required_columns=["date", "asset_id", "ticker", "sector_gics", "impact_global"],
+    )
 
     selected_budget = _clip_budget(float(args.alert_budget))
     budget_sweep = _parse_budget_list(str(args.alert_budget_sweep))

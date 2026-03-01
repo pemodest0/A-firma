@@ -2,7 +2,7 @@
   "version": "lab_corr_policy_v1",
   "data": {
     "start": "2018-01-01",
-    "end": "2026-02-12",
+    "end": "2026-02-27",
     "coverage_core": 0.95,
     "coverage_window": 0.98,
     "overlap_step": 5,

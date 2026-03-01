@@ -131,6 +131,30 @@ const guides = [
   },
 ];
 
+const sectorMethods = [
+  {
+    setor: "Finanças (diário)",
+    dados: "Preços diários, estrutura de correlação multivariada, ranking de impacto ativo/setor.",
+    janelas: "T60/T120/T252 (produção em T120 com suporte de robustez).",
+    validacao: "Walk-forward por blocos, baseline aleatório na mesma taxa de alerta e análise de lead time.",
+    artefatos: "diagnostics_global_daily.csv, rankings_latest.json, latest_finance_product_ready.json",
+  },
+  {
+    setor: "Energia Brasil (diário)",
+    dados: "Painel diário setorial de energia com eventos oficiais e leitura de acoplamento global-setor.",
+    janelas: "Grade de janelas curta/média com seleção por estabilidade temporal.",
+    validacao: "Teste em blocos 2020-2022 e 2023-2026 com lift vs random e pre-sinal de evento.",
+    artefatos: "energy_latest_summary.json, corr_event_modes_eval.json, temporal_validation_summary.json",
+  },
+  {
+    setor: "Agro Brasil (mensal)",
+    dados: "Macro + safra + comércio exterior em frequência mensal, com ingestão oficial e cache local.",
+    janelas: "24/36/60 meses, com checagem explícita de cobertura por série.",
+    validacao: "Pré/pós-evento em catálogo agro, testes de causalidade temporal e estabilidade por bloco.",
+    artefatos: "agro_latest_summary.json, historical_structure_summary_agro_br.json, rankings_latest_agro_br.json",
+  },
+];
+
 export default function MethodsPageClient() {
   return (
     <div className="space-y-10">
@@ -188,6 +212,23 @@ export default function MethodsPageClient() {
             <article key={item.titulo} className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
               <h2 className="text-sm font-semibold tracking-wide text-zinc-100">{item.titulo}</h2>
               <p className="mt-2 text-sm text-zinc-300 leading-relaxed">{item.texto}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+        <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">Métodos por setor</div>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {sectorMethods.map((item) => (
+            <article key={item.setor} className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+              <h3 className="text-sm font-semibold text-zinc-100">{item.setor}</h3>
+              <div className="mt-3 space-y-2 text-sm text-zinc-300">
+                <p><span className="text-zinc-400">Dados:</span> {item.dados}</p>
+                <p><span className="text-zinc-400">Janelas:</span> {item.janelas}</p>
+                <p><span className="text-zinc-400">Validação:</span> {item.validacao}</p>
+                <p><span className="text-zinc-400">Artefatos:</span> {item.artefatos}</p>
+              </div>
             </article>
           ))}
         </div>

@@ -1,0 +1,47 @@
+{
+  "schema_version": "event_catalog_finance_macro_v1",
+  "events": [
+    {
+      "id": "covid_pandemia_2020",
+      "date": "2020-03-11",
+      "title": "Declaracao de pandemia da COVID-19",
+      "type": "macro_global",
+      "source": "https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
+    },
+    {
+      "id": "copom_inicio_alta_2021",
+      "date": "2021-03-17",
+      "title": "COPOM inicia ciclo de alta da Selic (2,00 para 2,75)",
+      "type": "politica_monetaria",
+      "source": "https://www.bcb.gov.br/en/pressdetail/2346/nota"
+    },
+    {
+      "id": "guerra_ucrania_2022",
+      "date": "2022-02-24",
+      "title": "Escalada da guerra Russia-Ucrania",
+      "type": "geopolitica",
+      "source": "https://press.un.org/en/2022/sc14808.doc.htm"
+    },
+    {
+      "id": "svb_fechamento_2023",
+      "date": "2023-03-10",
+      "title": "Fechamento do Silicon Valley Bank",
+      "type": "credito_liquidez",
+      "source": "https://www.fdic.gov/news/press-releases/2023/pr23016.html"
+    },
+    {
+      "id": "copom_inicio_corte_2023",
+      "date": "2023-08-02",
+      "title": "COPOM inicia ciclo de corte da Selic (13,75 para 13,25)",
+      "type": "politica_monetaria",
+      "source": "https://www.bcb.gov.br/en/pressdetail/2465/nota"
+    },
+    {
+      "id": "copom_1050_2024",
+      "date": "2024-05-08",
+      "title": "COPOM reduz Selic para 10,50%",
+      "type": "politica_monetaria",
+      "source": "https://www.bcb.gov.br/en/pressdetail/2532/nota"
+    }
+  ]
+}

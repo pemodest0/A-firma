@@ -30,9 +30,8 @@ const nextConfig: NextConfig = {
       { source: "/app/real-estate", destination: "/app/dashboard", permanent: false },
       { source: "/app/macro", destination: "/app/dashboard", permanent: false },
       { source: "/app/setores", destination: "/app/dashboard", permanent: false },
-      { source: "/app/finance", destination: "/app/dashboard", permanent: false },
+      { source: "/app/finance", destination: "/app/financas", permanent: false },
       { source: "/app/aplicacoes", destination: "/app/dashboard", permanent: false },
-      { source: "/app/copiloto", destination: "/app/dashboard", permanent: false },
       { source: "/app/sobre", destination: "/about", permanent: false },
       { source: "/pt", destination: "/", permanent: false },
       { source: "/pt/guia", destination: "/", permanent: false },
@@ -41,6 +40,26 @@ const nextConfig: NextConfig = {
       { source: "/pt/methods", destination: "/methods", permanent: false },
       { source: "/pt/product", destination: "/methods", permanent: false },
       { source: "/pt/proposta", destination: "/methods", permanent: false },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:;",
+          },
+        ],
+      },
     ];
   },
 };

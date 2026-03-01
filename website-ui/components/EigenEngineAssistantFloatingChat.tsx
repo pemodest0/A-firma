@@ -13,8 +13,17 @@ type Message = {
   text: string;
 };
 
-export default function EigenEngineAssistantFloatingChat() {
-  const [open, setOpen] = useState(false);
+type ChatMode = "floating" | "embedded";
+
+export default function EigenEngineAssistantFloatingChat({
+  mode = "floating",
+  className = "",
+}: {
+  mode?: ChatMode;
+  className?: string;
+}) {
+  const embedded = mode === "embedded";
+  const [open, setOpen] = useState(embedded);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -22,10 +31,11 @@ export default function EigenEngineAssistantFloatingChat() {
   const initialized = useRef(false);
 
   useEffect(() => {
-    if (!open || initialized.current) return;
+    const shouldLoad = embedded || open;
+    if (!shouldLoad || initialized.current) return;
     initialized.current = true;
     void bootstrap();
-  }, [open]);
+  }, [embedded, open]);
 
   async function bootstrap() {
     setLoading(true);
@@ -73,21 +83,27 @@ export default function EigenEngineAssistantFloatingChat() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className={embedded ? className : "fixed bottom-4 right-4 z-50"}>
       {open ? (
-        <section className="w-[360px] max-w-[92vw] h-[520px] rounded-2xl border border-zinc-700 bg-zinc-950/95 shadow-2xl backdrop-blur flex flex-col overflow-hidden">
+        <section
+          className={`rounded-2xl border border-zinc-700 bg-zinc-950/95 shadow-2xl backdrop-blur flex flex-col overflow-hidden ${
+            embedded ? "h-[650px] w-full" : "h-[520px] w-[360px] max-w-[92vw]"
+          }`}
+        >
           <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
             <div>
               <div className="text-sm font-semibold text-zinc-100">Eigen Engine Assistant</div>
               <div className="text-[11px] text-zinc-400">Copiloto do projeto Assyntrax</div>
             </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:text-zinc-100"
-            >
-              fechar
-            </button>
+            {!embedded ? (
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="rounded-lg border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:text-zinc-100"
+              >
+                fechar
+              </button>
+            ) : null}
           </header>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
@@ -128,7 +144,7 @@ export default function EigenEngineAssistantFloatingChat() {
         </section>
       ) : null}
 
-      {!open ? (
+      {!embedded && !open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -140,4 +156,3 @@ export default function EigenEngineAssistantFloatingChat() {
     </div>
   );
 }
-

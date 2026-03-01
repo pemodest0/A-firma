@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 import ProblemSection from "@/components/sections/ProblemSection";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
+import SectorCoverageSection from "@/components/sections/SectorCoverageSection";
 import { buildPageMetadata } from "@/lib/site/metadata";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -57,6 +58,7 @@ export default function HomePage() {
       />
       <HeroSection />
       <ProblemSection />
+      <SectorCoverageSection />
       <HowItWorksSection />
     </div>
   );

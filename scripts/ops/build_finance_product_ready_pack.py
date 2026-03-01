@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -82,15 +83,75 @@ def _check(condition: bool, name: str, detail: str) -> dict[str, Any]:
     return {"name": str(name), "ok": bool(condition), "detail": str(detail)}
 
 
+def _select_alert_budget_from_sweep(
+    sweep_csv: Path,
+    *,
+    target_alert_rate: float,
+    max_alert_rate: float,
+) -> dict[str, Any]:
+    out: dict[str, Any] = {
+        "status": "missing",
+        "selected_alert_budget": float("nan"),
+        "source": "global",
+        "target_alert_rate": float(target_alert_rate),
+        "max_alert_rate": float(max_alert_rate),
+        "sweep_csv": str(sweep_csv),
+        "row": {},
+    }
+    if not sweep_csv.exists():
+        return out
+    try:
+        df = pd.read_csv(sweep_csv)
+    except Exception:
+        out["status"] = "invalid_csv"
+        return out
+    if df.empty or ("alert_budget" not in df.columns):
+        out["status"] = "empty_csv"
+        return out
+
+    d = df.copy()
+    d["source"] = d.get("source", "").astype(str).str.lower()
+    d["alert_budget"] = pd.to_numeric(d["alert_budget"], errors="coerce")
+    d["daily_alert_rate_raw"] = pd.to_numeric(d.get("daily_alert_rate_raw"), errors="coerce")
+    d["alert_before_5d_rate"] = pd.to_numeric(d.get("alert_before_5d_rate"), errors="coerce")
+    d["alerted_events"] = pd.to_numeric(d.get("alerted_events"), errors="coerce")
+    d["budget_ok"] = d["daily_alert_rate_raw"] <= float(max_alert_rate)
+    d["distance_to_target_alert_rate"] = (d["daily_alert_rate_raw"] - float(target_alert_rate)).abs()
+
+    g = d[d["source"] == "global"].copy()
+    if g.empty:
+        g = d.copy()
+        out["source"] = "all_sources_fallback"
+    g = g.dropna(subset=["alert_budget"]).copy()
+    if g.empty:
+        out["status"] = "no_budget_rows"
+        return out
+    g = g.sort_values(
+        ["budget_ok", "alert_before_5d_rate", "alerted_events", "distance_to_target_alert_rate"],
+        ascending=[False, False, False, True],
+    ).reset_index(drop=True)
+    best = g.iloc[0].to_dict()
+    selected = _safe_float(best.get("alert_budget"))
+    out["status"] = "ok" if np.isfinite(selected) else "invalid_selected_budget"
+    out["selected_alert_budget"] = selected
+    out["row"] = {k: (None if (isinstance(v, float) and not np.isfinite(v)) else v) for k, v in best.items()}
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Build finance product-readiness pack (state + evidence + operational brief).")
     ap.add_argument("--run-dir", type=str, default="")
     ap.add_argument("--impact-dir", type=str, default="")
     ap.add_argument("--alert-budget", type=float, default=0.15)
     ap.add_argument("--alert-budget-sweep", type=str, default="0.10,0.15,0.20")
+    ap.add_argument("--auto-alert-budget", type=int, default=1)
+    ap.add_argument("--target-alert-rate", type=float, default=0.15)
+    ap.add_argument("--max-alert-rate", type=float, default=0.25)
     ap.add_argument("--alert-dedupe-days", type=int, default=20)
     ap.add_argument("--lead-window-days", type=int, default=30)
     ap.add_argument("--min-event-gap-days", type=int, default=20)
+    ap.add_argument("--run-epistemic-diagnostics", type=int, default=1)
+    ap.add_argument("--epistemic-random-iters", type=int, default=500)
     ap.add_argument("--ai-outdir", type=str, default="results/ops/ai_knowledge")
     ap.add_argument("--outdir", type=str, default="results/ops/finance_product_ready")
     args = ap.parse_args()
@@ -119,6 +180,7 @@ def main() -> None:
         outdir = ROOT / str(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
+    requested_alert_budget = float(args.alert_budget)
     _run(
         [
             sys.executable,
@@ -128,7 +190,7 @@ def main() -> None:
             "--impact-dir",
             str(impact_dir),
             "--alert-budget",
-            str(float(args.alert_budget)),
+            str(float(requested_alert_budget)),
             "--alert-budget-sweep",
             str(args.alert_budget_sweep),
             "--alert-dedupe-days",
@@ -139,6 +201,47 @@ def main() -> None:
             str(int(args.min_event_gap_days)),
         ]
     )
+
+    auto_budget_meta: dict[str, Any] = {
+        "auto_enabled": bool(int(args.auto_alert_budget)),
+        "requested_alert_budget": float(requested_alert_budget),
+        "selected_alert_budget": float(requested_alert_budget),
+        "recomputed": False,
+        "selection": {},
+    }
+    if bool(int(args.auto_alert_budget)):
+        sweep_csv = impact_dir / "historical_structure_stress_prealert_budget_sweep.csv"
+        selection = _select_alert_budget_from_sweep(
+            sweep_csv=sweep_csv,
+            target_alert_rate=float(args.target_alert_rate),
+            max_alert_rate=float(args.max_alert_rate),
+        )
+        auto_budget_meta["selection"] = selection
+        selected_budget = _safe_float(selection.get("selected_alert_budget"))
+        if np.isfinite(selected_budget):
+            auto_budget_meta["selected_alert_budget"] = float(selected_budget)
+            if abs(float(selected_budget) - float(requested_alert_budget)) > 1e-12:
+                _run(
+                    [
+                        sys.executable,
+                        "scripts/structural/build_historical_structure_assessment.py",
+                        "--run-dir",
+                        str(run_dir),
+                        "--impact-dir",
+                        str(impact_dir),
+                        "--alert-budget",
+                        str(float(selected_budget)),
+                        "--alert-budget-sweep",
+                        str(args.alert_budget_sweep),
+                        "--alert-dedupe-days",
+                        str(int(args.alert_dedupe_days)),
+                        "--lead-window-days",
+                        str(int(args.lead_window_days)),
+                        "--min-event-gap-days",
+                        str(int(args.min_event_gap_days)),
+                    ]
+                )
+                auto_budget_meta["recomputed"] = True
 
     _run(
         [
@@ -152,6 +255,33 @@ def main() -> None:
             str(ai_outdir),
         ]
     )
+
+    epistemic_summary_json = ""
+    epistemic_summary_csv = ""
+    if bool(int(args.run_epistemic_diagnostics)):
+        ep_out = outdir / f"epistemic_finance_{_run_id()}"
+        _run(
+            [
+                sys.executable,
+                "scripts/structural/run_epistemic_diagnostics.py",
+                "--run-dir",
+                str(run_dir),
+                "--universe",
+                "global",
+                "--horizons",
+                "5,10",
+                "--quantiles",
+                "0.75,0.80,0.85,0.90,0.95",
+                "--split-cutoffs",
+                "2023-12-31,2024-06-30",
+                "--random-iters",
+                str(int(args.epistemic_random_iters)),
+                "--outdir",
+                str(ep_out),
+            ]
+        )
+        epistemic_summary_json = str(ep_out / "epistemic_diagnostics_summary.json")
+        epistemic_summary_csv = str(ep_out / "epistemic_summary.csv")
 
     hist_summary_path = impact_dir / "historical_structure_summary.json"
     hist_next_path = impact_dir / "historical_structure_next_month_indication.json"
@@ -181,6 +311,7 @@ def main() -> None:
         _check(str(next_month.get("status", "")) == "ok", "next_month_status_ok", str(next_month.get("status", ""))),
         _check(len(hist_summary.get("stress_prealert_summary_top10", []) or []) > 0, "stress_prealert_summary_non_empty", "top10 available"),
         _check(np.isfinite(reg_f1), "regime_horizon_f1_available", f"{reg_f1}"),
+        _check((not bool(int(args.run_epistemic_diagnostics))) or Path(epistemic_summary_json).exists(), "epistemic_summary_exists", str(epistemic_summary_json)),
     ]
 
     warnings: list[str] = []
@@ -209,6 +340,8 @@ def main() -> None:
         "operational_state": str(((ai_brief.get("operational_signal") or {}).get("operational_state", ""))),
         "confidence_score": _safe_float(((ai_brief.get("operational_signal") or {}).get("confidence_score"))),
         "selected_alert_budget": _safe_float(((hist_summary.get("lead_alert_config") or {}).get("selected_alert_budget"))),
+        "requested_alert_budget": float(requested_alert_budget),
+        "auto_budget": auto_budget_meta,
         "regime_horizon_f1_mean": reg_f1,
         "checks": checks,
         "warnings": warnings,
@@ -218,6 +351,8 @@ def main() -> None:
             "historical_budget_sweep_csv": str(hist_budget_sweep),
             "ai_latest_json": str(ai_latest_path),
             "ai_brief_json": str(ai_brief_path) if ai_brief_path is not None else "",
+            "epistemic_summary_json": str(epistemic_summary_json),
+            "epistemic_summary_csv": str(epistemic_summary_csv),
         },
     }
     payload = _sanitize_json_value(payload)

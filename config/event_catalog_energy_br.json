@@ -3,38 +3,45 @@
   "events": [
     {
       "id": "greve_caminhoneiros_2018",
-      "date": "2018-05-25",
+      "date": "2018-05-21",
       "title": "Greve dos caminhoneiros",
       "type": "logistica",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.gov.br/abin/pt-br/assuntos/noticias/paralisacao-dos-caminhoneiros-completa-4-anos"
     },
     {
       "id": "blackout_amapa_2020",
       "date": "2020-11-03",
       "title": "Apagao do Amapa",
       "type": "apagao",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.ons.org.br/Paginas/Noticias/20201103-ocorrencia-no-amapa.aspx"
+    },
+    {
+      "id": "pandemia_covid_2020",
+      "date": "2020-03-11",
+      "title": "Declaracao de pandemia da COVID-19",
+      "type": "macro",
+      "source": "https://www.who.int/director-general/speeches/detail/who-director-general-s-opening-remarks-at-the-media-briefing-on-covid-19---11-march-2020"
     },
     {
       "id": "crise_hidrica_2021",
       "date": "2021-09-01",
       "title": "Crise hidrica e escassez energetica",
       "type": "hidrologia",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.gov.br/aneel/pt-br/assuntos/noticias/2021/aneel-aprova-bandeira-escassez-hidrica-que-vigora-de-1o-de-setembro-de-2021-a-30-de-abril-de-2022"
     },
     {
       "id": "apagao_sin_2023",
       "date": "2023-08-15",
       "title": "Interrupcao no SIN de agosto de 2023",
       "type": "apagao",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.ons.org.br/Paginas/Noticias/20230815-ocorrencia-interligacao-nacional.aspx"
     },
     {
       "id": "enchentes_rs_2024",
       "date": "2024-05-01",
       "title": "Enchentes no Rio Grande do Sul",
       "type": "clima",
-      "source": "catalogo_manual_assyntrax"
+      "source": "https://www.gov.br/aneel/pt-br/assuntos/noticias/2024/aneel-atua-com-foco-no-restabelecimento-da-distribuicao-de-energia-no-rio-grande-do-sul"
     }
   ]
 }

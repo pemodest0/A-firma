@@ -868,6 +868,42 @@ export async function readPlatformDbSnapshot() {
   }
 }
 
+export async function readPlatformRankingsLatest() {
+  const { results } = dataDirs();
+  const target = path.join(results, "platform", "rankings_latest.json");
+  try {
+    const raw = await fs.readFile(target, "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    return {
+      status: "missing",
+      date: "",
+      top_assets_global_mode: [],
+      top_sectors_global_mode: [],
+      sector_global_overlap: [],
+      global_state: {},
+    };
+  }
+}
+
+export async function readPlatformHierarchicalStateLatest() {
+  const { results } = dataDirs();
+  const target = path.join(results, "platform", "latest_hierarchical_state.json");
+  try {
+    const raw = await fs.readFile(target, "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    return {
+      status: "missing",
+      date: "",
+      global_score: null,
+      top_sectors_by_score: [],
+      top_sectors_by_loading: [],
+      top_sectors_by_overlap: [],
+    };
+  }
+}
+
 export async function readPlatformDbRelease() {
   const { results } = dataDirs();
   const target = path.join(results, "platform", "latest_release.json");
