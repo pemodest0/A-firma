@@ -1,14 +1,14 @@
 ﻿import "@/app/globals.css";
 import SiteHeader from "@/components/SiteHeader";
-import LeonardoFloatingChat from "@/components/LeonardoFloatingChat";
+import EigenEngineAssistantFloatingChat from "@/components/EigenEngineAssistantFloatingChat";
+import GlobalStructuralBackground from "@/components/visuals/GlobalStructuralBackground";
 import Link from "next/link";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   const year = 2026;
   return (
     <div className="relative min-h-screen overflow-hidden ax-site-bg text-zinc-100">
-      <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-grid-layer" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-physics-layer" />
+      <GlobalStructuralBackground />
       <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-vignette" />
       <div className="relative z-10">
         <SiteHeader />
@@ -49,7 +49,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </footer>
-        <LeonardoFloatingChat />
+        <EigenEngineAssistantFloatingChat />
       </div>
     </div>
   );

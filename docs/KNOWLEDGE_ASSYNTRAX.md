@@ -136,3 +136,48 @@ Metricas padrao para IA citar:
   - event_rate muito baixo
   - alert_rate muito alto
   - base desatualizada (`freshness=attention|stale`)
+
+## Estado atual por dominio (snapshot de 2026-03-01)
+
+- `financas`:
+  dominio mais robusto no momento para regime estrutural.
+  usar como referencia operacional primaria do produto.
+- `energia`:
+  sinal util, mas com variacao entre blocos temporais.
+  tratar como beta tecnico com budget de alerta controlado.
+- `agro`:
+  base ampliada e pipeline funcional, mas sinal preditivo ainda fraco.
+  usar como monitor estrutural e fase de ganho de robustez.
+
+## Contexto de deteccao por matriz de correlacao
+
+Modos estruturais comparados no pipeline:
+
+- `mode_concentration`:
+  combinacao de concentracao do modo dominante e queda da dimensao efetiva.
+- `mode_rotation`:
+  instabilidade do autovetor dominante e rotacao estrutural.
+- `mode_spectral_gap`:
+  concentracao com diferenca espectral e fragilidade topologica.
+- `mode_topology_break`:
+  ruptura topologica local (curvatura/instabilidade).
+- `mode_consensus`:
+  consenso entre sinais estruturais fortes do dia.
+
+Uso recomendado:
+
+- energia: priorizar `mode_consensus` enquanto mantiver lift e recall melhores por budget.
+- agro: manter em observacao; nao promover para decisao automatica ate mostrar lift estavel > 1.
+
+## Trilha de melhoria (ML/DL) para o copiloto
+
+1. Consolidar features estruturais causais por dominio:
+   `p1`, `deff`, instabilidade de autovetor, gap espectral, sinais topologicos.
+2. Treinar baselines ML leves (logistica regularizada, boosting) com:
+   - treino ate data fixa
+   - teste apenas futuro
+   - walk-forward por blocos
+3. Somente depois avaliar DL (LSTM/Transformer/GNN temporal) se:
+   - superar baseline em lift vs random
+   - manter estabilidade entre blocos
+   - respeitar budget operacional de alertas

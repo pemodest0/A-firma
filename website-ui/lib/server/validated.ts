@@ -1,12 +1,21 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { existsSync } from "node:fs";
 
 function repoRoot() {
   return path.resolve(process.cwd(), "..");
 }
 
 export function validatedRoot() {
-  return process.env.VALIDATED_DIR || path.join(repoRoot(), "results", "validated", "latest");
+  if (process.env.VALIDATED_DIR) return process.env.VALIDATED_DIR;
+  const candidates = [
+    path.join(process.cwd(), "public", "data", "latest"),
+    path.join(repoRoot(), "results", "validated", "latest"),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return candidates[0];
 }
 
 export async function readValidatedUniverse(tf: string) {

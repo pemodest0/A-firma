@@ -3,7 +3,7 @@
 :root {
   --background: #05060b;
   --foreground: #eef1f7;
-  --font-geist-sans: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+  --font-geist-sans: "Sora", "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-geist-mono: "Consolas", "Menlo", "Monaco", monospace;
   --ax-surface: #0b0f16;
   --ax-panel: #0f141c;
@@ -143,40 +143,422 @@ body {
 
 .ax-site-bg {
   background:
-    radial-gradient(circle at 12% 14%, rgba(34, 211, 238, 0.12), transparent 36%),
-    radial-gradient(circle at 84% 10%, rgba(249, 115, 22, 0.11), transparent 34%),
-    radial-gradient(circle at 50% 102%, rgba(124, 58, 237, 0.14), transparent 44%),
-    linear-gradient(180deg, #03040a 0%, #060a12 50%, #03040a 100%);
+    radial-gradient(circle at 12% 12%, rgba(81, 207, 255, 0.2), transparent 38%),
+    radial-gradient(circle at 88% 20%, rgba(37, 116, 255, 0.16), transparent 42%),
+    radial-gradient(circle at 52% 88%, rgba(57, 179, 232, 0.13), transparent 46%),
+    linear-gradient(180deg, #020817 0%, #031028 52%, #020817 100%);
 }
 
 .ax-site-grid-layer {
-  opacity: 0.42;
+  opacity: 0.35;
   background-image:
-    linear-gradient(rgba(148, 163, 184, 0.11) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.11) 1px, transparent 1px);
-  background-size: 58px 58px;
+    linear-gradient(rgba(133, 175, 219, 0.13) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(133, 175, 219, 0.13) 1px, transparent 1px);
+  background-size: 64px 64px;
   background-position: -1px -1px;
-  -webkit-mask-image: radial-gradient(circle at 50% 45%, black 22%, transparent 92%);
-  mask-image: radial-gradient(circle at 50% 45%, black 22%, transparent 92%);
+  -webkit-mask-image: radial-gradient(circle at 50% 46%, black 18%, transparent 92%);
+  mask-image: radial-gradient(circle at 50% 46%, black 18%, transparent 92%);
+  animation: axGridSlide 34s linear infinite;
+}
+
+.ax-site-flow-layer {
+  opacity: 0.55;
+  background:
+    radial-gradient(60% 22% at 72% 46%, rgba(122, 244, 255, 0.34), transparent 72%),
+    radial-gradient(46% 20% at 66% 52%, rgba(84, 164, 255, 0.28), transparent 78%),
+    radial-gradient(40% 16% at 60% 58%, rgba(103, 240, 255, 0.18), transparent 84%);
+  filter: blur(10px);
+  animation: axFlowShift 16s ease-in-out infinite;
 }
 
 .ax-site-physics-layer {
-  opacity: 0.32;
+  opacity: 0.34;
   background-image:
-    radial-gradient(circle at 22% 30%, rgba(34, 211, 238, 0.38) 0 2px, transparent 3px),
-    radial-gradient(circle at 74% 22%, rgba(249, 115, 22, 0.35) 0 2px, transparent 3px),
-    radial-gradient(circle at 64% 70%, rgba(168, 85, 247, 0.33) 0 2px, transparent 3px),
-    repeating-radial-gradient(circle at 28% 62%, rgba(148, 163, 184, 0.14) 0, rgba(148, 163, 184, 0.14) 1px, transparent 1px, transparent 24px);
-  animation: physicsDrift 20s linear infinite;
+    radial-gradient(circle at 18% 24%, rgba(108, 226, 255, 0.32) 0 1.8px, transparent 2.8px),
+    radial-gradient(circle at 80% 30%, rgba(59, 146, 255, 0.34) 0 1.8px, transparent 2.8px),
+    radial-gradient(circle at 60% 72%, rgba(124, 238, 255, 0.24) 0 1.8px, transparent 2.8px),
+    repeating-radial-gradient(circle at 70% 54%, rgba(147, 197, 253, 0.12) 0, rgba(147, 197, 253, 0.12) 1px, transparent 1px, transparent 25px);
+  animation: axParticleShift 26s linear infinite;
 }
 
 .ax-site-vignette {
-  background: radial-gradient(circle at 50% 50%, transparent 36%, rgba(2, 4, 8, 0.68) 100%);
+  background: radial-gradient(circle at 50% 50%, transparent 34%, rgba(1, 5, 14, 0.72) 100%);
 }
 
-@keyframes physicsDrift {
+@keyframes axParticleShift {
   0% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(16px, -10px, 0); }
+  50% { transform: translate3d(18px, -12px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes axGridSlide {
+  0% { background-position: -1px -1px; }
+  100% { background-position: 63px 63px; }
+}
+
+@keyframes axFlowShift {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.52; }
+  50% { transform: translate3d(-12px, 8px, 0) scale(1.04); opacity: 0.7; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.52; }
+}
+
+.ax-hero-wave {
+  background:
+    linear-gradient(110deg, rgba(2, 10, 27, 0.86) 0%, rgba(4, 20, 48, 0.66) 40%, rgba(8, 43, 95, 0.28) 65%, rgba(13, 63, 122, 0.12) 100%),
+    radial-gradient(58% 28% at 74% 48%, rgba(124, 249, 255, 0.4), transparent 74%),
+    radial-gradient(45% 24% at 68% 56%, rgba(78, 170, 255, 0.34), transparent 80%);
+  animation: axWaveSweep 18s ease-in-out infinite;
+}
+
+.ax-hero-stars {
+  opacity: 0.48;
+  background-image:
+    radial-gradient(circle at 18% 34%, rgba(200, 235, 255, 0.36) 0 1px, transparent 2px),
+    radial-gradient(circle at 54% 42%, rgba(122, 206, 255, 0.42) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 64%, rgba(94, 188, 255, 0.38) 0 1px, transparent 2px),
+    repeating-linear-gradient(146deg, rgba(117, 211, 255, 0.06) 0 1px, transparent 1px 22px);
+  animation: axStarsMove 24s linear infinite;
+}
+
+@keyframes axWaveSweep {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(10px, -8px, 0) scale(1.02); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes axStarsMove {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-20px, 12px, 0); }
+}
+
+.ax-global-structural {
+  opacity: 0.9;
+  filter: saturate(1.2) contrast(1.06);
+  mix-blend-mode: screen;
+}
+
+.ax-global-glow-layer {
+  animation: axGlobalGlowDrift 24s ease-in-out infinite;
+}
+
+.ax-global-flow {
+  animation: axGlobalFlowDrift 20s ease-in-out infinite;
+}
+
+.ax-global-flow-path {
+  fill: none;
+  stroke: rgba(126, 246, 255, 0.56);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 14 10;
+  animation: axGlobalFlowRun 8.8s linear infinite;
+}
+
+.ax-global-flow-path-alt {
+  stroke: rgba(92, 183, 255, 0.46);
+  animation-duration: 11.6s;
+}
+
+.ax-global-flow-path-thin {
+  stroke-width: 1.2;
+  stroke: rgba(176, 238, 255, 0.3);
+  animation-duration: 14.4s;
+}
+
+.ax-global-edge {
+  stroke-width: 0.88;
+  stroke-dasharray: 10 8;
+  animation: axGlobalEdgePulse 4.6s ease-in-out infinite;
+}
+
+.ax-global-node {
+  fill: rgba(181, 238, 255, 0.84);
+  animation: axGlobalNodeBlink 3.9s ease-in-out infinite;
+}
+
+.ax-global-field-layer {
+  opacity: 0.62;
+}
+
+.ax-global-vector {
+  stroke: rgba(154, 231, 255, 0.78);
+  fill: rgba(154, 231, 255, 0.78);
+  stroke-width: 0.9;
+  animation: axGlobalVectorPulse 3.7s ease-in-out infinite;
+}
+
+.ax-global-packet {
+  fill: rgba(184, 251, 255, 0.95);
+  filter: drop-shadow(0 0 7px rgba(95, 224, 255, 0.85));
+  animation: axGlobalPacketBlink 2.6s ease-in-out infinite;
+}
+
+.ax-global-orb {
+  fill: rgba(146, 246, 255, 0.9);
+  filter: drop-shadow(0 0 10px rgba(94, 228, 255, 0.74));
+}
+
+.ax-global-orb-a { animation: axGlobalOrbA 8.4s ease-in-out infinite; }
+.ax-global-orb-b { animation: axGlobalOrbB 10.8s ease-in-out infinite; }
+.ax-global-orb-c { animation: axGlobalOrbC 13.2s ease-in-out infinite; }
+.ax-global-orb-d { animation: axGlobalOrbD 15.2s ease-in-out infinite; }
+
+@keyframes axGlobalFlowRun {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -260; }
+}
+
+.ax-global-matrix-cell {
+  fill: rgba(64, 158, 255, 0.2);
+  stroke: rgba(142, 221, 255, 0.42);
+  stroke-width: 0.68;
+  animation: axGlobalMatrixBeat 3.6s ease-in-out infinite;
+}
+
+.ax-global-shock-ring {
+  fill: none;
+  stroke: rgba(128, 242, 255, 0.5);
+  stroke-width: 1.2;
+  animation: axGlobalShockPulse 5.2s ease-out infinite;
+}
+
+.ax-global-shock-ring-wide {
+  stroke: rgba(76, 169, 255, 0.38);
+  animation-duration: 6.4s;
+}
+
+@keyframes axGlobalEdgePulse {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.86; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes axGlobalNodeBlink {
+  0% { opacity: 0.38; transform: scale(0.9); }
+  45% { opacity: 1; transform: scale(1.24); }
+  100% { opacity: 0.38; transform: scale(0.9); }
+}
+
+@keyframes axGlobalVectorPulse {
+  0% { opacity: 0.24; }
+  50% { opacity: 0.86; }
+  100% { opacity: 0.24; }
+}
+
+@keyframes axGlobalPacketBlink {
+  0% { opacity: 0.42; }
+  50% { opacity: 1; }
+  100% { opacity: 0.42; }
+}
+
+@keyframes axGlobalMatrixBeat {
+  0% { opacity: 0.2; }
+  50% { opacity: 0.94; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes axGlobalShockPulse {
+  0% { opacity: 0.54; transform: scale(0.82); }
+  70% { opacity: 0.1; transform: scale(1.22); }
+  100% { opacity: 0; transform: scale(1.32); }
+}
+
+@keyframes axGlobalOrbA {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(710px, -124px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes axGlobalOrbB {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(650px, -46px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes axGlobalOrbC {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(484px, 30px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes axGlobalOrbD {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(320px, 26px); }
+  100% { transform: translate(0, 0); }
+}
+
+.ax-hero-structure-card {
+  --ax-hero-speed: 1;
+  box-shadow:
+    0 0 0 1px rgba(135, 188, 255, 0.16),
+    0 24px 48px rgba(5, 16, 38, 0.54);
+}
+
+.ax-hero-matrix-cell {
+  fill: rgba(65, 177, 255, 0.24);
+  stroke: rgba(145, 231, 255, 0.45);
+  stroke-width: 0.7;
+  animation: axHeroCellPulse calc(4.2s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+.ax-hero-vector {
+  stroke: rgba(162, 231, 255, 0.86);
+  fill: rgba(162, 231, 255, 0.86);
+  stroke-width: 1.05;
+  animation: axHeroVectorPulse calc(3.4s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+.ax-hero-corr-line {
+  fill: none;
+  stroke: rgba(130, 247, 255, 0.78);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-dasharray: 12 12;
+  animation: axHeroCorrMove calc(6.3s * var(--ax-hero-speed)) linear infinite;
+}
+
+.ax-hero-corr-line-alt {
+  stroke: rgba(92, 167, 255, 0.66);
+  animation-duration: calc(8.2s * var(--ax-hero-speed));
+}
+
+.ax-hero-graph-edge {
+  stroke: rgba(120, 208, 255, 0.44);
+  stroke-width: 1.05;
+  animation: axHeroGraphEdgePulse calc(3.6s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+.ax-hero-graph-node {
+  fill: rgba(145, 232, 255, 0.86);
+  animation: axHeroGraphNodePulse calc(2.8s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+.ax-hero-curv-cell {
+  fill: rgba(68, 152, 255, 0.16);
+  stroke: rgba(143, 219, 255, 0.3);
+  stroke-width: 0.66;
+  animation: axHeroCurvCell calc(4.4s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+.ax-hero-curv-ring {
+  fill: none;
+  stroke: rgba(126, 246, 255, 0.58);
+  stroke-width: 1.2;
+  animation: axHeroCurvRing calc(5.6s * var(--ax-hero-speed)) ease-out infinite;
+}
+
+.ax-hero-curv-ring-wide {
+  stroke: rgba(85, 169, 255, 0.4);
+  animation-duration: calc(6.8s * var(--ax-hero-speed));
+}
+
+.ax-hero-curv-ridge {
+  fill: none;
+  stroke: rgba(98, 182, 255, 0.76);
+  stroke-width: 1.8;
+  stroke-dasharray: 10 10;
+  animation: axHeroCorrMove calc(6.9s * var(--ax-hero-speed)) linear infinite;
+}
+
+.ax-hero-eig-axis {
+  stroke: rgba(145, 186, 255, 0.34);
+  stroke-width: 1;
+}
+
+.ax-hero-eig-bar {
+  fill: rgba(72, 178, 255, 0.34);
+  stroke: rgba(142, 230, 255, 0.44);
+  stroke-width: 0.8;
+  animation: axHeroEigBar calc(3.8s * var(--ax-hero-speed)) ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+.ax-hero-eig-line {
+  fill: none;
+  stroke: rgba(125, 246, 255, 0.86);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 11 10;
+  animation: axHeroCorrMove calc(7.6s * var(--ax-hero-speed)) linear infinite;
+}
+
+.ax-hero-flow-path {
+  fill: none;
+  stroke: rgba(124, 247, 255, 0.72);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 11 10;
+  animation: axHeroCorrMove calc(6s * var(--ax-hero-speed)) linear infinite;
+}
+
+.ax-hero-flow-packet {
+  fill: rgba(188, 250, 255, 0.95);
+  filter: drop-shadow(0 0 7px rgba(102, 227, 255, 0.86));
+  animation: axHeroFlowPacket calc(2.8s * var(--ax-hero-speed)) ease-in-out infinite;
+}
+
+@keyframes axHeroCellPulse {
+  0% { opacity: 0.24; }
+  50% { opacity: 0.88; }
+  100% { opacity: 0.24; }
+}
+
+@keyframes axHeroVectorPulse {
+  0% { opacity: 0.32; }
+  50% { opacity: 0.92; }
+  100% { opacity: 0.32; }
+}
+
+@keyframes axHeroCorrMove {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -210; }
+}
+
+@keyframes axHeroGraphEdgePulse {
+  0% { opacity: 0.24; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.24; }
+}
+
+@keyframes axHeroGraphNodePulse {
+  0% { opacity: 0.4; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 0.4; transform: scale(0.9); }
+}
+
+@keyframes axHeroCurvCell {
+  0% { opacity: 0.16; }
+  50% { opacity: 0.92; }
+  100% { opacity: 0.16; }
+}
+
+@keyframes axHeroCurvRing {
+  0% { opacity: 0.48; transform: scale(0.84); }
+  70% { opacity: 0.08; transform: scale(1.24); }
+  100% { opacity: 0; transform: scale(1.32); }
+}
+
+@keyframes axHeroEigBar {
+  0% { opacity: 0.42; transform: scaleY(0.86); }
+  50% { opacity: 0.96; transform: scaleY(1.08); }
+  100% { opacity: 0.42; transform: scaleY(0.86); }
+}
+
+@keyframes axHeroFlowPacket {
+  0% { opacity: 0.36; }
+  50% { opacity: 1; }
+  100% { opacity: 0.36; }
+}
+
+@keyframes axGlobalGlowDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.74; }
+  50% { transform: translate3d(-24px, 18px, 0) scale(1.05); opacity: 0.95; }
+  100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.74; }
+}
+
+@keyframes axGlobalFlowDrift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-10px, 8px, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
 
@@ -288,4 +670,331 @@ body {
 .ax-math-block mjx-container,
 .ax-math-inline mjx-container {
   color: inherit;
+}
+
+.ax-global-directed-bg {
+  opacity: 0.9;
+  filter: saturate(1.12) contrast(1.05);
+  mix-blend-mode: screen;
+}
+
+.ax-global-directed-network {
+  animation: axDirectedDrift 24s ease-in-out infinite;
+}
+
+.ax-global-directed-edge {
+  stroke: rgba(129, 226, 255, 0.35);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+  stroke-dasharray: 9 9;
+  animation: axDirectedEdgePulse 4.2s ease-in-out infinite;
+}
+
+.ax-global-directed-curve {
+  fill: none;
+  stroke: rgba(142, 242, 255, 0.44);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 12 10;
+  animation: axDirectedCurveRun 7.8s linear infinite;
+}
+
+.ax-global-directed-node {
+  fill: rgba(172, 237, 255, 0.82);
+  animation: axDirectedNodePulse 3.5s ease-in-out infinite;
+}
+
+.ax-global-directed-hub {
+  fill: rgba(121, 248, 255, 0.95);
+  filter: drop-shadow(0 0 10px rgba(102, 235, 255, 0.86));
+  animation: axDirectedHubPulse 3.2s ease-in-out infinite;
+}
+
+.ax-global-directed-packet {
+  fill: rgba(198, 252, 255, 0.95);
+  filter: drop-shadow(0 0 8px rgba(98, 232, 255, 0.82));
+  animation: axDirectedPacketBlink 2.4s ease-in-out infinite;
+}
+
+@keyframes axDirectedDrift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-14px, 10px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes axDirectedEdgePulse {
+  0% { opacity: 0.22; }
+  50% { opacity: 0.88; }
+  100% { opacity: 0.22; }
+}
+
+@keyframes axDirectedCurveRun {
+  0% { stroke-dashoffset: 0; opacity: 0.42; }
+  50% { opacity: 0.8; }
+  100% { stroke-dashoffset: -220; opacity: 0.42; }
+}
+
+@keyframes axDirectedNodePulse {
+  0% { opacity: 0.34; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 0.34; transform: scale(0.9); }
+}
+
+@keyframes axDirectedHubPulse {
+  0% { opacity: 0.62; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.22); }
+  100% { opacity: 0.62; transform: scale(0.9); }
+}
+
+@keyframes axDirectedPacketBlink {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.ax-hero-domain-edge {
+  stroke: rgba(133, 229, 255, 0.5);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-dasharray: 8 8;
+  animation: axHeroDomainEdge 4.2s ease-in-out infinite;
+}
+
+.ax-hero-domain-edge-energy {
+  stroke: rgba(146, 246, 255, 0.58);
+}
+
+.ax-hero-domain-edge-science {
+  stroke: rgba(120, 182, 255, 0.58);
+}
+
+.ax-hero-domain-node {
+  fill: rgba(170, 235, 255, 0.84);
+  animation: axHeroDomainNode 3.2s ease-in-out infinite;
+}
+
+.ax-hero-domain-hub {
+  fill: rgba(126, 247, 255, 0.96);
+  filter: drop-shadow(0 0 8px rgba(102, 236, 255, 0.76));
+  animation: axHeroDomainHub 2.8s ease-in-out infinite;
+}
+
+.ax-hero-domain-packet {
+  fill: rgba(188, 252, 255, 0.95);
+  filter: drop-shadow(0 0 6px rgba(114, 230, 255, 0.82));
+  animation: axHeroDomainPacket 2.4s ease-in-out infinite;
+}
+
+.ax-hero-domain-ring {
+  fill: none;
+  stroke: rgba(128, 235, 255, 0.45);
+  stroke-width: 1.1;
+  animation: axHeroDomainRing 5.2s ease-out infinite;
+}
+
+@keyframes axHeroDomainEdge {
+  0% { opacity: 0.22; }
+  50% { opacity: 0.88; }
+  100% { opacity: 0.22; }
+}
+
+@keyframes axHeroDomainNode {
+  0% { opacity: 0.36; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.36; transform: scale(0.92); }
+}
+
+@keyframes axHeroDomainHub {
+  0% { opacity: 0.62; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 0.62; transform: scale(0.9); }
+}
+
+@keyframes axHeroDomainPacket {
+  0% { opacity: 0.35; }
+  50% { opacity: 1; }
+  100% { opacity: 0.35; }
+}
+
+@keyframes axHeroDomainRing {
+  0% { opacity: 0.48; transform: scale(0.82); }
+  70% { opacity: 0.08; transform: scale(1.24); }
+  100% { opacity: 0; transform: scale(1.32); }
+}
+
+.ax-hero-sector-cluster {
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+
+.ax-hero-sector-a { animation: axHeroSectorA 8.4s ease-in-out infinite; }
+.ax-hero-sector-b { animation: axHeroSectorB 8.4s ease-in-out infinite; }
+.ax-hero-sector-c { animation: axHeroSectorC 8.4s ease-in-out infinite; }
+.ax-hero-sector-d { animation: axHeroSectorD 8.4s ease-in-out infinite; }
+
+.ax-hero-fin-correlation-layer {
+  animation: axHeroFinCorrelationLayer 8.4s ease-in-out infinite;
+}
+
+.ax-hero-fin-corr-edge {
+  fill: none;
+  stroke: rgba(116, 210, 255, 0.38);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-dasharray: 8 9;
+  animation: axHeroFinCorrEdgeFlow 5.8s linear infinite;
+}
+
+.ax-hero-fin-corr-packet {
+  fill: rgba(174, 242, 255, 0.9);
+  filter: drop-shadow(0 0 6px rgba(110, 232, 255, 0.82));
+  animation: axHeroFinPacketBlink 2.2s ease-in-out infinite;
+}
+
+.ax-hero-fin-label {
+  fill: rgba(188, 228, 255, 0.78);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ax-hero-fin-global-label {
+  fill: rgba(188, 246, 255, 0.88);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ax-hero-fin-node {
+  fill: rgba(160, 230, 255, 0.86);
+  animation: axHeroFinNodePulse 3.2s ease-in-out infinite;
+}
+
+.ax-hero-fin-hub {
+  fill: rgba(132, 243, 255, 0.96);
+  filter: drop-shadow(0 0 8px rgba(101, 226, 255, 0.8));
+  animation: axHeroFinHubPulse 3.2s ease-in-out infinite;
+}
+
+.ax-hero-fin-sector-edge {
+  stroke: rgba(135, 212, 255, 0.44);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 7 8;
+  animation: axHeroFinEdgePulse 4.4s ease-in-out infinite;
+}
+
+.ax-hero-fin-global-edge {
+  stroke: rgba(126, 245, 255, 0.72);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-dasharray: 9 8;
+  animation: axHeroFinGlobalFlow 5.4s linear infinite;
+}
+
+.ax-hero-fin-packet {
+  fill: rgba(198, 252, 255, 0.96);
+  filter: drop-shadow(0 0 6px rgba(110, 236, 255, 0.82));
+  animation: axHeroFinPacketBlink 2.2s ease-in-out infinite;
+}
+
+.ax-hero-fin-global {
+  fill: rgba(126, 245, 255, 0.97);
+  filter: drop-shadow(0 0 10px rgba(108, 235, 255, 0.86));
+  animation: axHeroFinGlobalPulse 2.8s ease-in-out infinite;
+}
+
+.ax-hero-fin-global-ring {
+  fill: none;
+  stroke: rgba(129, 245, 255, 0.46);
+  stroke-width: 1.2;
+  animation: axHeroFinRingPulse 5.4s ease-out infinite;
+}
+
+.ax-hero-fin-global-ring-wide {
+  stroke: rgba(96, 182, 255, 0.32);
+  animation-duration: 6.6s;
+}
+
+@keyframes axHeroSectorA {
+  0% { transform: translate(-14px, -11px) scale(0.94); }
+  46% { transform: translate(-2px, -1px) scale(1.02); }
+  54% { transform: translate(-2px, -1px) scale(1.02); }
+  100% { transform: translate(-14px, -11px) scale(0.94); }
+}
+
+@keyframes axHeroSectorB {
+  0% { transform: translate(14px, -11px) scale(0.94); }
+  46% { transform: translate(2px, -1px) scale(1.02); }
+  54% { transform: translate(2px, -1px) scale(1.02); }
+  100% { transform: translate(14px, -11px) scale(0.94); }
+}
+
+@keyframes axHeroSectorC {
+  0% { transform: translate(-12px, 12px) scale(0.94); }
+  46% { transform: translate(-1px, 2px) scale(1.02); }
+  54% { transform: translate(-1px, 2px) scale(1.02); }
+  100% { transform: translate(-12px, 12px) scale(0.94); }
+}
+
+@keyframes axHeroSectorD {
+  0% { transform: translate(12px, 12px) scale(0.94); }
+  46% { transform: translate(1px, 2px) scale(1.02); }
+  54% { transform: translate(1px, 2px) scale(1.02); }
+  100% { transform: translate(12px, 12px) scale(0.94); }
+}
+
+@keyframes axHeroFinCorrelationLayer {
+  0% { opacity: 0.2; }
+  46% { opacity: 1; }
+  54% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes axHeroFinNodePulse {
+  0% { opacity: 0.36; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.36; transform: scale(0.9); }
+}
+
+@keyframes axHeroFinHubPulse {
+  0% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.22); }
+  100% { opacity: 0.6; transform: scale(0.9); }
+}
+
+@keyframes axHeroFinEdgePulse {
+  0% { opacity: 0.22; }
+  50% { opacity: 0.78; }
+  100% { opacity: 0.22; }
+}
+
+@keyframes axHeroFinGlobalFlow {
+  0% { stroke-dashoffset: 0; opacity: 0.34; }
+  50% { opacity: 0.96; }
+  100% { stroke-dashoffset: -130; opacity: 0.34; }
+}
+
+@keyframes axHeroFinCorrEdgeFlow {
+  0% { stroke-dashoffset: 0; opacity: 0.24; }
+  50% { opacity: 0.86; }
+  100% { stroke-dashoffset: -126; opacity: 0.24; }
+}
+
+@keyframes axHeroFinPacketBlink {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+@keyframes axHeroFinGlobalPulse {
+  0% { opacity: 0.62; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.24); }
+  100% { opacity: 0.62; transform: scale(0.92); }
+}
+
+@keyframes axHeroFinRingPulse {
+  0% { opacity: 0.5; transform: scale(0.84); }
+  75% { opacity: 0.08; transform: scale(1.24); }
+  100% { opacity: 0; transform: scale(1.32); }
 }

@@ -13,7 +13,7 @@ type Message = {
   text: string;
 };
 
-export default function LeonardoFloatingChat() {
+export default function EigenEngineAssistantFloatingChat() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function LeonardoFloatingChat() {
         },
       ]);
     } catch {
-      setError("Nao foi possivel carregar o Leonardo agora.");
+      setError("Nao foi possivel carregar o Eigen Engine Assistant agora.");
     } finally {
       setLoading(false);
     }
@@ -78,8 +78,8 @@ export default function LeonardoFloatingChat() {
         <section className="w-[360px] max-w-[92vw] h-[520px] rounded-2xl border border-zinc-700 bg-zinc-950/95 shadow-2xl backdrop-blur flex flex-col overflow-hidden">
           <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
             <div>
-              <div className="text-sm font-semibold text-zinc-100">Leonardo</div>
-              <div className="text-[11px] text-zinc-400">Guia do Eigen Engine</div>
+              <div className="text-sm font-semibold text-zinc-100">Eigen Engine Assistant</div>
+              <div className="text-[11px] text-zinc-400">Copiloto do projeto Assyntrax</div>
             </div>
             <button
               type="button"
@@ -91,9 +91,7 @@ export default function LeonardoFloatingChat() {
           </header>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {!messages.length && loading ? (
-              <div className="text-xs text-zinc-500">Carregando contexto...</div>
-            ) : null}
+            {!messages.length && loading ? <div className="text-xs text-zinc-500">Carregando contexto...</div> : null}
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -136,7 +134,7 @@ export default function LeonardoFloatingChat() {
           onClick={() => setOpen(true)}
           className="rounded-full border border-cyan-600/50 bg-cyan-950/80 px-4 py-2 text-sm font-medium text-cyan-100 shadow-lg hover:bg-cyan-900/80"
         >
-          Leonardo
+          Eigen Engine Assistant
         </button>
       ) : null}
     </div>

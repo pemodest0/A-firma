@@ -15,6 +15,8 @@ type Props = {
   smoothing?: "none" | "ema_short" | "ema_long";
   rangePreset?: string;
   tooltipMode?: "full" | "price_only";
+  chartTitle?: string;
+  yUnitLabel?: string;
 };
 
 const regimeColors: Record<string, string> = {
@@ -74,6 +76,8 @@ export default function RegimeChart(props: Props) {
     smoothing = "none",
     rangePreset = "all",
     tooltipMode = "full",
+    chartTitle = "Grafico principal",
+    yUnitLabel,
   } = props;
   const [hidden, setHidden] = useState<Record<string, boolean>>({});
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -153,12 +157,14 @@ export default function RegimeChart(props: Props) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs text-zinc-400">
-        <div>Grafico principal</div>
+        <div>{chartTitle}</div>
         <button className="rounded border border-zinc-700 px-2 py-1 hover:border-zinc-500" onClick={() => setHidden({})}>
           Reset series
         </button>
       </div>
-      <div className="text-xs text-zinc-500">Eixo X: tempo do periodo selecionado. Eixo Y: {normalize ? "indice base 100" : "preco do ativo"}.</div>
+      <div className="text-xs text-zinc-500">
+        Eixo X: tempo do periodo selecionado. Eixo Y: {yUnitLabel || (normalize ? "indice base 100" : "preco do ativo")}.
+      </div>
 
       <div className="rounded-xl border border-zinc-800 p-4 md:p-5 bg-transparent">
         <svg

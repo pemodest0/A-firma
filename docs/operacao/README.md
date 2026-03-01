@@ -14,6 +14,8 @@ Documentos da rotina diária e controle de publicação.
 - `docs/operacao/CHECKLIST_SITE_DEPLOY.md`
 - `docs/operacao/RELATORIO_VERIFICACAO_SITE_20260221.md`
 - `docs/operacao/COMMIT_CONTEXT_20260221.md`
+- `scripts/ops/build_finance_product_ready_pack.py`
+- `docs/operacao/FINANCE_PRODUCT_READY_WORKFLOW.md`
 
 ## Fluxo
 1. Executa validação e snapshot.

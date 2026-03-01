@@ -1,39 +1,62 @@
-# Assyntrax Platform + Eigen Engine
+# Assyntrax | Eigen Engine
 
-Repositorio canonico da plataforma Assyntrax e do motor estrutural Eigen Engine.
+<p align="center">
+  <img src="website-ui/public/assets/brand/assyntrax-mark.svg" alt="Logo Assyntrax" width="120" />
+</p>
+
+Repositório canônico da **Assyntrax** (empresa/plataforma) e do **Eigen Engine** (motor de diagnóstico estrutural).
+
+## Marca e produto
+- **Assyntrax**: empresa, site e plataforma operacional.
+- **Eigen Engine**: motor quantitativo de regimes e transições estruturais.
+- **Eigen Engine Assistant**: copiloto técnico do projeto (contextualizado por domínio).
+
+## Setores de atuação
+- **Finanças**: estrutura de risco, concentração e transição de regime.
+- **Energia**: mudanças estruturais em séries de carga/custo/coupling.
+- **Agro**: dinâmica macro-setorial e transições em séries mensais.
 
 ## Links oficiais
-- Repositorio: `https://github.com/pemodest0/Assyntrax`
+- Repositório: `https://github.com/pemodest0/Assyntrax`
 - Branch oficial: `main`
 - App oficial (Vercel): `https://assyntrax.vercel.app`
-- Licenca: MIT (`LICENSE`)
+- Licença: MIT (`LICENSE`)
 
-## Nomenclatura oficial
-- `Assyntrax`: empresa/plataforma/site.
-- `Eigen Engine`: motor estrutural.
+## O que o Eigen Engine faz
+- Diagnóstico causal de estrutura com matriz de correlação dinâmica.
+- Leitura de regime com governança de publicação por gate.
+- Ranking de impacto ativo→setor e setor→global.
+- Validação temporal com split treino/teste e comparação com baseline aleatório.
 
-## Escopo atual
-- Motor estrutural causal (correlacao rolling + espectro + regime + gate).
-- Pipeline diario auditavel com publicacao condicionada ao gate.
-- API/site operacional em Next.js para consumo dos artefatos.
+## Simulações e validações ativas
+- Walk-forward temporal por blocos.
+- Treino até data fixa e teste somente no futuro.
+- Comparação de alerta estrutural vs alerta aleatório na mesma taxa.
+- Controle de estabilidade entre blocos antes de promover regra/modelo.
 
 ## Estrutura principal
-- `scripts/lab/run_corr_macro_offline.py`: nucleo do motor estrutural (gera regime, diagnosticos e gate).
-- `config/lab_corr_policy.json`: politica oficial de parametros.
-- `scripts/ops/run_daily_master.py`: pipeline diario principal.
-- `scripts/ops/publish_latest_if_gate_ok.py`: publicacao condicionada ao gate.
-- `engine/structural/`: modulos estruturais reutilizaveis (RMT, espectro, CSD, score, impacto).
-- `engine/core/universe.py`: selecao deterministica de universo global/setorial.
-- `engine/ops/metadata.py`: contrato de metadata de ativos.
-- `website-ui/`: diretorio tecnico local do site Assyntrax (nome de pasta legado).
-- `results/`: artefatos de execucao e validacao.
+- `scripts/lab/run_corr_macro_offline.py`: núcleo do Eigen Engine.
+- `config/lab_corr_policy.json`: política oficial de parâmetros.
+- `scripts/ops/run_daily_master.py`: pipeline diário auditável.
+- `scripts/ops/publish_latest_if_gate_ok.py`: publicação condicionada ao gate.
+- `engine/structural/`: RMT, espectro, CSD, score e impacto.
+- `engine/core/universe.py`: seleção determinística de universo global/setorial.
+- `engine/ops/metadata.py`: contrato de metadados de ativos.
+- `website-ui/`: diretório técnico local do site Assyntrax.
+- `results/`: artefatos de execução, validação e publicação.
 
-## Fluxo canonico por sessao
+## Artefatos centrais
+- `results/ops/finance_product_ready/latest_finance_product_ready.json`
+- `results/ops/ai_knowledge/latest_operational_brief.json`
+- `results/platform/latest_db_snapshot.json`
+- `results/validation/latest_validation.json`
+
+## Fluxo canônico por sessão
 1. `git fetch origin --prune`
 2. `git pull --ff-only origin main`
 3. `./scripts/ops/run_repo_healthcheck.sh`
 4. Implementar escopo
-5. `cd website-ui && npm run build` (quando mexer no site)
+5. `cd website-ui && npm run build` (quando houver mudança de frontend)
 6. Commit pequeno e objetivo
 7. `git push origin main`
 
@@ -41,24 +64,15 @@ Repositorio canonico da plataforma Assyntrax e do motor estrutural Eigen Engine.
 - Sincronizar local com remoto (remoto vence):
   - Mac/Linux: `./scripts/ops/git_sync_canonical.sh`
   - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\git_sync_canonical.ps1`
-- Rodar pipeline diario local:
+- Rodar pipeline diário local:
   - Mac/Linux: `bash ./scripts/ops/run_daily_jobs.sh 23 80`
   - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\run_daily_jobs.ps1 -Seed 23 -MaxAssets 80`
 
-## Dados e artefatos
-- Layout canonico de dados: `docs/operacao/DATA_LAYOUT_CANONICO.md`
-- Snapshot de validacao: `results/validation/latest_validation.json`
-- Snapshot de plataforma: `results/platform/latest_db_snapshot.json`
-
-## Mapa tecnico (arquivos e funcoes)
-- Mapa detalhado do motor: `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
+## Documentação técnica
 - Manual mestre: `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
-- Teoria: `docs/motor/THEORY_ASSYNTRAX.md`
+- Teoria do motor: `docs/motor/THEORY_ASSYNTRAX.md`
+- Mapa de arquivos e funções: `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
+- Índice geral: `docs/INDEX.md`
 
-## Operacao e qualidade
-- Healthcheck: `docs/operacao/REPO_HEALTHCHECK.md`
-- Checklist diario: `docs/operacao/CHECKLIST_OPERACAO_EIGEN_ENGINE.md`
-- Governanca GitHub canonico: `docs/operacao/GITHUB_CANONICO.md`
-
-## Licenca
-Este projeto esta licenciado sob MIT. Veja `LICENSE`.
+## Licença
+Este projeto está licenciado sob MIT. Consulte `LICENSE`.

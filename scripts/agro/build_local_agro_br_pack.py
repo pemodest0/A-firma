@@ -70,10 +70,32 @@ def _to_float(v: object) -> float | None:
 
 
 def _read_csv_auto(path: Path) -> pd.DataFrame:
-    df = pd.read_csv(path)
-    if df.shape[1] == 1 and ";" in str(df.columns[0]):
-        df = pd.read_csv(path, sep=";")
-    return df
+    last_exc: Exception | None = None
+    encodings = ["utf-8", "utf-8-sig", "latin-1", "cp1252"]
+    seps: list[str | None] = [None, ";", ",", "\t"]
+    for enc in encodings:
+        for sep in seps:
+            try:
+                kwargs: dict[str, Any] = {"encoding": enc}
+                if sep is None:
+                    kwargs["sep"] = None
+                    kwargs["engine"] = "python"
+                else:
+                    kwargs["sep"] = sep
+                df = pd.read_csv(path, **kwargs)
+                if df.empty:
+                    return df
+                # If parser guessed a single wide string column, try explicit separators next.
+                if df.shape[1] == 1 and sep is None:
+                    continue
+                if df.shape[1] == 1 and ";" in str(df.columns[0]) and sep != ";":
+                    continue
+                return df
+            except Exception as exc:  # pragma: no cover - parser variability
+                last_exc = exc
+    if last_exc is not None:
+        raise last_exc
+    return pd.DataFrame()
 
 
 def _read_tabular(path: Path) -> list[pd.DataFrame]:
@@ -93,6 +115,18 @@ def _read_tabular(path: Path) -> list[pd.DataFrame]:
                 continue
         return out
     return []
+
+
+def _extract_year_end(series: pd.Series) -> pd.Series:
+    def _pick(v: object) -> float:
+        s = str(v).strip()
+        years = re.findall(r"(?:19|20)\d{2}", s)
+        if not years:
+            return np.nan
+        return float(max(int(y) for y in years))
+
+    out = series.map(_pick)
+    return pd.to_numeric(out, errors="coerce")
 
 
 def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -218,7 +252,7 @@ def _parse_comex_dir(dir_path: Path, cfg: dict[str, Any]) -> tuple[list[pd.DataF
     if not dir_path.exists():
         return frames, metadata, status
 
-    files = sorted([p for p in dir_path.iterdir() if p.is_file()])
+    files = sorted([p for p in dir_path.rglob("*") if p.is_file()])
     all_rows: list[pd.DataFrame] = []
     for p in files:
         rec: dict[str, Any] = {"file": str(p)}
@@ -232,13 +266,27 @@ def _parse_comex_dir(dir_path: Path, cfg: dict[str, Any]) -> tuple[list[pd.DataF
             cols = list(d.columns)
             year_col = _find_column(cols, [r"^ano$", r"^year$"])
             month_col = _find_column(cols, [r"^mes$", r"^month$"])
-            date_col = _find_column(cols, [r"^data$", r"^date$", r"periodo", r"ref"])
+            date_col = _find_column(cols, [r"^data$", r"^date$", r"periodo", r"ref", r"ano_mes", r"mes_ano"])
             flow_col = _find_column(cols, [r"flow", r"fluxo", r"tipo", r"operacao"])
             value_col = _find_column(cols, [r"fob", r"valor", r"usd", r"us\$"])
             qty_col = _find_column(cols, [r"kg", r"quant"])
 
             if date_col:
-                d["date"] = pd.to_datetime(d[date_col], errors="coerce")
+                dt = pd.to_datetime(d[date_col], errors="coerce")
+                miss = dt.isna()
+                if bool(miss.any()):
+                    dt2 = pd.to_datetime(d.loc[miss, date_col], errors="coerce", dayfirst=True)
+                    dt.loc[miss] = dt2
+                # Handle YYYYMM or YYYY-MM patterns that parse poorly in some locales.
+                miss = dt.isna()
+                if bool(miss.any()):
+                    raw_token = d.loc[miss, date_col].astype(str).str.replace(r"[^0-9]", "", regex=True)
+                    yyyymm = pd.to_numeric(raw_token, errors="coerce")
+                    year = (yyyymm // 100).astype("Int64")
+                    month = (yyyymm % 100).astype("Int64")
+                    dt3 = pd.to_datetime({"year": year, "month": month, "day": 1}, errors="coerce")
+                    dt.loc[miss] = dt3
+                d["date"] = dt
             elif year_col and month_col:
                 yy = pd.to_numeric(d[year_col], errors="coerce")
                 mm = pd.to_numeric(d[month_col], errors="coerce")
@@ -257,6 +305,13 @@ def _parse_comex_dir(dir_path: Path, cfg: dict[str, Any]) -> tuple[list[pd.DataF
                 status.append(rec)
                 continue
             d["flow"] = d[flow_col].astype(str).str.lower() if flow_col else "total"
+            d["flow"] = (
+                d["flow"]
+                .str.replace("exportacao", "export", regex=False)
+                .str.replace("exportação", "export", regex=False)
+                .str.replace("importacao", "import", regex=False)
+                .str.replace("importação", "import", regex=False)
+            )
             d["value_fob"] = pd.to_numeric(d[value_col].map(_to_float), errors="coerce") if value_col else np.nan
             d["value_kg"] = pd.to_numeric(d[qty_col].map(_to_float), errors="coerce") if qty_col else np.nan
             d["month"] = d["date"].dt.to_period("M")
@@ -321,9 +376,60 @@ def _extract_from_conab_frame(df_raw: pd.DataFrame, source_name: str) -> list[tu
         return out
     d = _normalize_columns(df_raw)
     cols = list(d.columns)
-    year_col = _find_column(cols, [r"^ano$", r"^year$"])
+    year_col = _find_column(cols, [r"^ano$", r"^year$", r"ano_agricola", r"ano_safra", r"safra"])
     month_col = _find_column(cols, [r"^mes$", r"^month$"])
     date_col = _find_column(cols, [r"^data$", r"^date$", r"periodo", r"ref"])
+    product_col = _find_column(cols, [r"^produto$", r"dsc_produto", r"cultura"])
+
+    # CONAB grain history file: annual/seasonal by UF+produto.
+    # Build aggregate annual series (Dec of harvest year) for main structural metrics.
+    if year_col and product_col:
+        area_col = _find_column(cols, [r"area_plantada", r"area_colhida"])
+        prod_col = _find_column(cols, [r"producao_mil_t", r"producao"])
+        yld_col = _find_column(cols, [r"produtividade"])
+        metric_cols = [c for c in [area_col, prod_col, yld_col] if c]
+        if metric_cols:
+            x = d.copy()
+            x["year_end"] = _extract_year_end(x[year_col])
+            x["date"] = pd.to_datetime({"year": x["year_end"].astype("Int64"), "month": 12, "day": 1}, errors="coerce")
+            x = x.dropna(subset=["date"]).copy()
+            if not x.empty:
+                for c in metric_cols:
+                    x[c] = pd.to_numeric(x[c].map(_to_float), errors="coerce")
+                metric_agg: list[tuple[str, str, str]] = []
+                if area_col:
+                    metric_agg.append((area_col, "sum", "area_plantada_mil_ha"))
+                if prod_col:
+                    metric_agg.append((prod_col, "sum", "producao_mil_t"))
+                if yld_col:
+                    metric_agg.append((yld_col, "mean", "produtividade_media"))
+                for c, agg_fn, tag in metric_agg:
+                    total = x.groupby("date", as_index=False)[c].agg(agg_fn)
+                    if total[c].notna().sum() >= 12:
+                        out.append((f"{source_name}_total_{tag}", total["date"], total[c]))
+                commodity_map = {
+                    "soja": "soja",
+                    "milho": "milho",
+                    "trigo": "trigo",
+                    "arroz": "arroz",
+                    "algodao": "algod",
+                    "cafe": "cafe",
+                    "feijao": "feij",
+                }
+                prod_txt = x[product_col].astype(str).str.lower()
+                for commodity, needle in commodity_map.items():
+                    mask = prod_txt.str.contains(needle, regex=False)
+                    if not bool(mask.any()):
+                        continue
+                    xc = x.loc[mask].copy()
+                    if xc.empty:
+                        continue
+                    for c, agg_fn, tag in metric_agg:
+                        byc = xc.groupby("date", as_index=False)[c].agg(agg_fn)
+                        if byc[c].notna().sum() >= 12:
+                            out.append((f"{source_name}_{commodity}_{tag}", byc["date"], byc[c]))
+                if out:
+                    return out
 
     month_name_cols: list[tuple[str, int]] = []
     for c in cols:
@@ -334,7 +440,10 @@ def _extract_from_conab_frame(df_raw: pd.DataFrame, source_name: str) -> list[tu
     if date_col:
         d["date"] = pd.to_datetime(d[date_col], errors="coerce")
     elif year_col and month_col:
-        yy = pd.to_numeric(d[year_col], errors="coerce")
+        raw_year = d[year_col].copy()
+        yy = pd.to_numeric(raw_year, errors="coerce")
+        if yy.isna().all():
+            yy = _extract_year_end(raw_year)
         mm = pd.to_numeric(d[month_col], errors="coerce")
         d["date"] = pd.to_datetime(
             {"year": yy.astype("Int64"), "month": mm.astype("Int64"), "day": 1},
@@ -342,7 +451,10 @@ def _extract_from_conab_frame(df_raw: pd.DataFrame, source_name: str) -> list[tu
         )
     elif year_col and month_name_cols:
         base = d[[year_col] + [x[0] for x in month_name_cols]].copy()
-        base[year_col] = pd.to_numeric(base[year_col], errors="coerce")
+        raw_year = base[year_col].copy()
+        base[year_col] = pd.to_numeric(raw_year, errors="coerce")
+        if base[year_col].isna().all():
+            base[year_col] = _extract_year_end(raw_year)
         m = base.melt(id_vars=[year_col], var_name="month_col", value_name="value")
         m["month"] = m["month_col"].map({x[0]: x[1] for x in month_name_cols})
         m["date"] = pd.to_datetime(
@@ -352,7 +464,10 @@ def _extract_from_conab_frame(df_raw: pd.DataFrame, source_name: str) -> list[tu
         out.append((f"{source_name}_principal", m["date"], pd.to_numeric(m["value"].map(_to_float), errors="coerce")))
         return out
     elif year_col:
-        yy = pd.to_numeric(d[year_col], errors="coerce")
+        raw_year = d[year_col].copy()
+        yy = pd.to_numeric(raw_year, errors="coerce")
+        if yy.isna().all():
+            yy = _extract_year_end(raw_year)
         # annual points become Dec reference of the year.
         d["date"] = pd.to_datetime({"year": yy.astype("Int64"), "month": 12, "day": 1}, errors="coerce")
     else:

@@ -37,6 +37,12 @@ type AssetRow = {
   retH10: number | null;
 };
 
+type AssetRecommendation = {
+  level: "ESTÁVEL" | "MONITORAR" | "ATENÇÃO" | "DEFENSIVO";
+  action: string;
+  rationale: string;
+};
+
 const MISSING = "n/d";
 
 const groupLabels: Record<string, string> = {
@@ -71,6 +77,9 @@ const PREFERRED_BY_DOMAIN: Record<Domain, string[]> = {
   energy: ["XLE", "USO", "XOP"],
   realestate: ["FipeZap_Índice_FipeZAP_Total", "FipeZap_São_Paulo_Total", "FipeZap_Rio_de_Janeiro_Total"],
 };
+
+const DEFAULT_SAMPLE_SIZE = 20;
+const EXPANDED_SAMPLE_SIZE = 40;
 
 function mean(values: number[]) {
   if (!values.length) return null;
@@ -118,6 +127,49 @@ function toneFromPct(value: number | null | undefined) {
   if (value > 0) return "text-emerald-300";
   if (value < 0) return "text-rose-300";
   return "text-zinc-300";
+}
+
+function recommendationTone(level: AssetRecommendation["level"]) {
+  if (level === "ESTÁVEL") return "border-emerald-500/40 bg-emerald-500/10 text-emerald-200";
+  if (level === "MONITORAR") return "border-cyan-500/40 bg-cyan-500/10 text-cyan-200";
+  if (level === "ATENÇÃO") return "border-amber-500/40 bg-amber-500/10 text-amber-200";
+  return "border-rose-500/40 bg-rose-500/10 text-rose-200";
+}
+
+function buildAssetRecommendation(row: AssetRow, horizon: 1 | 5 | 10): AssetRecommendation {
+  const hRet = horizon === 1 ? row.retH1 : horizon === 5 ? row.retH5 : row.retH10;
+  const changePct = isFiniteNumber(row.changePct) ? row.changePct : null;
+  const vol20d = isFiniteNumber(row.vol20d) ? row.vol20d : null;
+
+  if (changePct != null && vol20d != null) {
+    if ((changePct <= -0.02 && vol20d >= 0.025) || (hRet != null && hRet <= -0.05)) {
+      return {
+        level: "DEFENSIVO",
+        action: "Reduzir exposição e priorizar proteção",
+        rationale: "Queda relevante combinada com volatilidade elevada ou perda acumulada no horizonte.",
+      };
+    }
+    if (Math.abs(changePct) >= 0.015 && vol20d >= 0.02) {
+      return {
+        level: "ATENÇÃO",
+        action: "Manter monitoramento intradiário e revisar gatilhos",
+        rationale: "Movimento curto intenso com regime de volatilidade acima da média.",
+      };
+    }
+    if (Math.abs(changePct) <= 0.006 && vol20d <= 0.015 && (hRet == null || Math.abs(hRet) <= 0.03)) {
+      return {
+        level: "ESTÁVEL",
+        action: "Manter leitura com ajustes graduais",
+        rationale: "Oscilação diária baixa e risco curto controlado no ativo.",
+      };
+    }
+  }
+
+  return {
+    level: "MONITORAR",
+    action: "Acompanhar continuidade do movimento",
+    rationale: "Sem sinal extremo; validar direção com mais barras no horizonte ativo.",
+  };
 }
 
 function buildAssetNarrative(row: AssetRow | null, horizon: 1 | 5 | 10) {
@@ -188,6 +240,7 @@ export default function SectorDashboard({
   const [smoothing, setSmoothing] = useState<"none" | "ema_short" | "ema_long">("none");
   const [summaryHorizon, setSummaryHorizon] = useState<1 | 5 | 10>(5);
   const [focusAsset, setFocusAsset] = useState<string>("");
+  const [showAllRecommendationCards, setShowAllRecommendationCards] = useState(false);
 
   const [universe, setUniverse] = useState<UniverseAsset[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -195,15 +248,25 @@ export default function SectorDashboard({
   const [loading, setLoading] = useState(false);
   const [universeLoaded, setUniverseLoaded] = useState(true);
 
-  const loadExamples = () => {
+  const pickUniverseSample = (limit: number) => {
+    const safeLimit = Math.max(1, Math.min(EXPANDED_SAMPLE_SIZE, limit));
     const preferred = PREFERRED_BY_DOMAIN[initialDomain] || [];
     const available = new Set(universe.map((x) => x.asset));
     const picked = preferred.filter((asset) => available.has(asset));
-    if (picked.length) {
-      setSelected(picked.slice(0, 8));
-      return;
+    const selectedSet = new Set<string>(picked.slice(0, safeLimit));
+    for (const item of universe) {
+      if (selectedSet.size >= safeLimit) break;
+      selectedSet.add(item.asset);
     }
-    setSelected(universe.slice(0, 8).map((u) => u.asset));
+    setSelected(Array.from(selectedSet));
+  };
+
+  const loadExamples = () => {
+    pickUniverseSample(DEFAULT_SAMPLE_SIZE);
+  };
+
+  const loadExpanded = () => {
+    pickUniverseSample(EXPANDED_SAMPLE_SIZE);
   };
 
   useEffect(() => {
@@ -245,7 +308,7 @@ export default function SectorDashboard({
           const scoped = byGroup.map((u) => u.asset);
           const keep = prev.filter((asset) => scoped.includes(asset));
           if (keep.length) return keep;
-          return scoped.slice(0, 8);
+          return scoped.slice(0, DEFAULT_SAMPLE_SIZE);
         });
       } catch {
         setUniverse([]);
@@ -387,6 +450,14 @@ export default function SectorDashboard({
   }, [tableRows, summaryHorizon]);
 
   const focusRow = useMemo(() => tableRows.find((row) => row.asset === focusAsset) || null, [tableRows, focusAsset]);
+  const recommendationRows = useMemo(() => {
+    const sorted = [...tableRows].sort((a, b) => {
+      const av = isFiniteNumber(a.vol20d) ? a.vol20d : -1;
+      const bv = isFiniteNumber(b.vol20d) ? b.vol20d : -1;
+      return bv - av;
+    });
+    return showAllRecommendationCards ? sorted : sorted.slice(0, 12);
+  }, [tableRows, showAllRecommendationCards]);
 
   const sectors =
     initialDomain === "finance"
@@ -432,11 +503,18 @@ export default function SectorDashboard({
           <button
             onClick={loadExamples}
             className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-200 hover:border-zinc-500"
-            aria-label="Carregar ativos de exemplo"
+            aria-label="Carregar amostra completa base"
           >
-            Carregar exemplos
+            Amostra completa (20)
           </button>
-          <span className="text-xs text-zinc-500">Sugestão: use de 3 a 8 ativos para leitura rápida.</span>
+          <button
+            onClick={loadExpanded}
+            className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-200 hover:border-zinc-500"
+            aria-label="Expandir para amostra maior"
+          >
+            Expandir 20+
+          </button>
+          <span className="text-xs text-zinc-500">Amostra ativa: {selected.length} ativos (máximo 40).</span>
         </div>
         {!universeLoaded ? (
           <div className="rounded-lg border border-rose-800/60 bg-rose-950/20 p-3 text-xs text-rose-200">
@@ -444,9 +522,12 @@ export default function SectorDashboard({
           </div>
         ) : null}
 
-        <p className="text-xs text-zinc-500">
-          Gráfico central: eixo X = tempo do período selecionado. Eixo Y = preço (ou índice base 100 quando normalizar estiver ativo).
-        </p>
+        <div className="rounded-xl border border-zinc-800 bg-black/20 px-3 py-2">
+          <div className="text-sm text-zinc-200">Gráfico estrutural dos ativos selecionados</div>
+          <div className="text-xs text-zinc-500">
+            Eixo X: tempo da janela ativa. Eixo Y: {normalize ? "índice base 100" : "preço na unidade original da série (USD/pts/índice)"}.
+          </div>
+        </div>
 
         {loading ? <div className="text-sm text-zinc-500">Carregando séries...</div> : null}
         {!selected.length ? (
@@ -463,6 +544,8 @@ export default function SectorDashboard({
           smoothing={smoothing}
           rangePreset={rangePreset}
           tooltipMode="price_only"
+          chartTitle="Evolução temporal por ativo"
+          yUnitLabel={normalize ? "Índice base 100" : "Preço (unidade original da série)"}
         />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -489,11 +572,60 @@ export default function SectorDashboard({
         </details>
       </div>
 
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 md:p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-sm uppercase tracking-widest text-zinc-400">Holders por ativo e recomendação</div>
+            <div className="text-xs text-zinc-500">
+              Cards calculados sobre os ativos selecionados no filtro atual. Horizonte ativo: h{summaryHorizon}.
+            </div>
+          </div>
+          {tableRows.length > 12 ? (
+            <button
+              onClick={() => setShowAllRecommendationCards((v) => !v)}
+              className="rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-200 hover:border-zinc-500"
+            >
+              {showAllRecommendationCards ? "Mostrar menos" : `Ver todos (${tableRows.length})`}
+            </button>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {recommendationRows.map((row) => {
+            const rec = buildAssetRecommendation(row, summaryHorizon);
+            return (
+              <article key={`rec-${row.asset}`} className="rounded-xl border border-zinc-800 bg-black/20 p-3 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="text-sm font-semibold text-zinc-100">{row.asset}</div>
+                    <div className="text-xs text-zinc-500">{row.group || MISSING}</div>
+                  </div>
+                  <span className={`rounded-md border px-2 py-1 text-[10px] font-medium ${recommendationTone(rec.level)}`}>{rec.level}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <MetricMini label="Preço hoje" value={formatPrice(row.priceToday)} />
+                  <MetricMini label="Preço ontem" value={formatPrice(row.pricePrev)} />
+                  <MetricMini label="Delta %" value={formatPercent(row.changePct)} tone={toneFromPct(row.changePct)} />
+                  <MetricMini label="Vol 20D" value={formatPercent(row.vol20d)} />
+                </div>
+
+                <div className="rounded-lg border border-zinc-800 bg-zinc-950/60 p-2">
+                  <div className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">Recomendação operacional</div>
+                  <div className="mt-1 text-sm text-zinc-200">{rec.action}</div>
+                  <div className="mt-1 text-xs text-zinc-400">{rec.rationale}</div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+
       {showTable ? (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 md:gap-5">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 md:p-5">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm uppercase tracking-widest text-zinc-400">Tabela por ativo</div>
+              <div className="text-sm uppercase tracking-widest text-zinc-400">Amostra completa por ativo</div>
               <div
                 className="text-xs text-zinc-500"
                 title="Unidade base do preço: padrão USD. Exceções principais: VIX em pontos e séries FIPEZAP em índice."
@@ -671,6 +803,15 @@ function Card({
       </div>
       <div className={`mt-1 font-semibold text-zinc-100 ${compact ? "text-lg" : "text-xl"}`}>{value}</div>
       {!compact ? <div className="mt-1 text-[11px] text-zinc-500">{helper}</div> : null}
+    </div>
+  );
+}
+
+function MetricMini({ label, value, tone = "text-zinc-200" }: { label: string; value: string; tone?: string }) {
+  return (
+    <div className="rounded-md border border-zinc-800 bg-zinc-950/60 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">{label}</div>
+      <div className={`text-sm font-medium ${tone}`}>{value}</div>
     </div>
   );
 }

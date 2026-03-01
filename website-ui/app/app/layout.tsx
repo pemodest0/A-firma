@@ -1,11 +1,11 @@
 import "@/app/globals.css";
 import Link from "next/link";
+import GlobalStructuralBackground from "@/components/visuals/GlobalStructuralBackground";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-hidden ax-site-bg text-zinc-100">
-      <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-grid-layer" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-physics-layer" />
+      <GlobalStructuralBackground />
       <div aria-hidden className="pointer-events-none absolute inset-0 ax-site-vignette" />
       <div className="relative z-10 mx-auto max-w-none w-full px-4 py-6">
         <div className="grid grid-cols-12 gap-6">
@@ -23,11 +23,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
               <nav className="mt-6 space-y-1 text-sm">
                 <NavItem href="/app/dashboard" label="Dashboard" />
-                <NavItem href="/app/universo-observavel" label="Universo observável" />
-                <NavItem href="/app/plataforma" label="Plataforma" />
+                <NavItem href="/app/agro" label="Agro BR" />
                 <NavItem href="/app/venda" label="Venda" />
                 <NavItem href="/app/teoria" label="Teoria" />
-                <NavItem href="/app/metodologia" label="Metodologia" />
               </nav>
 
               <div className="mt-6 border-t border-zinc-800 pt-4 text-xs text-zinc-400">

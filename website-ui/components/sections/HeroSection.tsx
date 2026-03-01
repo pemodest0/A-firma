@@ -1,45 +1,42 @@
 import Link from "next/link";
-import SectorRegimeShowcase from "@/components/visuals/SectorRegimeShowcase";
+import HeroStructureCard from "@/components/visuals/HeroStructureCard";
 
 export default function HeroSection() {
   return (
-    <section className="grid grid-cols-1 lg:grid-cols-[1.08fr_0.92fr] gap-8 lg:gap-10 items-center min-h-[70vh] lg:min-h-[74vh] py-10 md:py-12 lg:py-14 xl:py-16">
-      <div className="rounded-[28px] border border-zinc-800 bg-zinc-950/70 p-8 lg:p-10 backdrop-blur ax-glow">
-        <div className="text-xs uppercase tracking-[0.3em] text-zinc-400">Diagnóstico estrutural</div>
-        <h1 className="mt-5 text-4xl md:text-5xl font-semibold tracking-tight">
-          Diagnóstico estrutural baseado em matemática e física para mercados complexos
-        </h1>
-        <p className="mt-4 text-zinc-300 max-w-2xl text-base lg:text-lg">
-          Identifique mudanças de regime antes que o mercado reaja. Classificação causal, sem uso de dados futuros,
-          para tomar decisões com clareza e controle.
-        </p>
-        <p className="mt-4 text-zinc-400 max-w-2xl text-sm lg:text-base">
-          Somos fisicos e engenheiros apaixonados pela estrutura dos mercados. Aplicamos teoria de sistemas dinamicos,
-          analise espectral e estatistica robusta para identificar mudancas estruturais no mercado brasileiro. O
-          Eigen Engine e causal: em cada momento t usa apenas informacoes observadas ate t-1, evitando vies de look-ahead.
-        </p>
-        <ul className="mt-5 space-y-2 text-sm text-zinc-300">
-          <li>Sem look-ahead: cálculo causal em modo walk-forward.</li>
-          <li>Saída com regime, risco estrutural e confiança do sinal.</li>
-          <li>Mesma leitura no painel, API e artefatos de auditoria.</li>
-        </ul>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            className="rounded-xl bg-zinc-100 text-black px-5 py-3 font-medium hover:bg-white transition"
-            href="/contact"
-          >
-            Solicitar demonstração
-          </Link>
-          <Link
-            className="rounded-xl border border-zinc-800 px-5 py-3 text-zinc-200 hover:border-zinc-600 transition"
-            href="/app/dashboard"
-          >
-            Abrir painel
-          </Link>
+    <section className="relative overflow-hidden rounded-[30px] border border-cyan-300/20 bg-[#050C1D]/72 p-8 md:p-10 lg:p-12 min-h-[72vh] ax-glow py-10 md:py-12 lg:py-14 xl:py-16">
+      <div aria-hidden className="ax-hero-wave absolute inset-0" />
+      <div aria-hidden className="ax-hero-stars absolute inset-0" />
+      <div className="relative z-10 grid grid-cols-1 xl:grid-cols-[1.08fr_0.92fr] items-center gap-8 lg:gap-10">
+        <div className="max-w-3xl">
+          <div className="text-xs uppercase tracking-[0.3em] text-cyan-100/70">Assyntrax</div>
+          <h1 className="mt-4 text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-zinc-100">
+            Diagnóstico Estrutural para Sistemas Complexos
+          </h1>
+          <p className="mt-5 text-zinc-200/90 text-base md:text-lg max-w-2xl">
+            Plataforma de diagnóstico estrutural para sistemas complexos de alta dimensionalidade.
+          </p>
+          <p className="mt-3 text-zinc-200/85 text-base md:text-lg max-w-2xl">
+            Identifique mudanças estruturais antes que elas se tornem instabilidade operacional.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              className="rounded-xl bg-[#2D7DFF] text-white px-5 py-3 font-medium hover:bg-[#3A89FF] transition"
+              href="/contact"
+            >
+              Solicitar demonstração
+            </Link>
+            <Link
+              className="rounded-xl border border-zinc-300/35 bg-white/5 px-5 py-3 text-zinc-100 hover:border-zinc-100/65 transition"
+              href="/app/dashboard"
+            >
+              Abrir app
+            </Link>
+          </div>
+          <div className="mt-8 text-sm text-zinc-300/90 tracking-wide">
+            Regimes • Acoplamento • Ranking de impacto • Governança de publicação
+          </div>
         </div>
-      </div>
-      <div className="animate-float-slow">
-        <SectorRegimeShowcase />
+        <HeroStructureCard />
       </div>
     </section>
   );

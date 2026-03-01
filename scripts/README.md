@@ -19,6 +19,8 @@ Deixar claro o que e fluxo oficial e o que e pesquisa para evitar dead-ends e sc
   Nucleo de laboratorio; inclui `run_corr_macro_offline.py` (core atual).
 - `scripts/realestate/`
   Ingestao/processamento do dominio imobiliario.
+- `scripts/agro/`
+  Ingestao e pipeline mensal do dominio Agro Brasil (vertical mensal).
 - `scripts/bench/`
   Benchmarks e comparacoes de pesquisa (review periodico).
 - `scripts/sim/`
@@ -36,6 +38,11 @@ Deixar claro o que e fluxo oficial e o que e pesquisa para evitar dead-ends e sc
 2. Script que toca pipeline oficial deve ter teste ou check de sanidade.
 3. Script de manutencao deve ser seguro por padrao (sem delecao imediata).
 4. Script sem uso em 14 dias entra em `review` para remover ou consolidar.
+
+## Entrypoints operacionais chave
+
+- `scripts/ops/build_finance_product_ready_pack.py`
+  Gera pacote de prontidao do produto de Financas (estado, evidencias, budget de alerta e brief operacional da IA).
 
 ## Inventario automatico
 

@@ -16,11 +16,20 @@ function resolveResultsDir() {
   return candidates[1];
 }
 
+function resolveLatestDir() {
+  if (process.env.DATA_DIR) return process.env.DATA_DIR;
+  const candidates = [path.join(process.cwd(), "public", "data", "latest"), path.join(repoRoot(), "results", "latest")];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return candidates[0];
+}
+
 export function dataDirs() {
-  const root = repoRoot();
+  const publicLatest = path.join(process.cwd(), "public", "data", "latest");
   return {
-    latest: process.env.DATA_DIR || path.join(root, "results", "latest"),
-    publicLatest: path.join(process.cwd(), "public", "data", "latest"),
+    latest: resolveLatestDir(),
+    publicLatest,
     results: resolveResultsDir(),
   };
 }
@@ -125,7 +134,7 @@ function isRunValid(summary: Record<string, unknown>) {
 }
 
 export async function findLatestValidRun(): Promise<LatestRunInfo | null> {
-  const { results } = dataDirs();
+  const { results, publicLatest } = dataDirs();
   const snapshotsRoot = path.join(results, "ops", "snapshots");
   let runDirs: string[] = [];
   try {
@@ -154,6 +163,25 @@ export async function findLatestValidRun(): Promise<LatestRunInfo | null> {
       // ignore invalid run and keep scanning older runs
     }
   }
+
+  const summaryPath = path.join(publicLatest, "summary.json");
+  const snapshotCandidates = [path.join(publicLatest, "api_records.jsonl"), path.join(publicLatest, "api_snapshot.jsonl")];
+  for (const snapshotPath of snapshotCandidates) {
+    try {
+      const [summaryText, snapshotStat] = await Promise.all([
+        fs.readFile(summaryPath, "utf-8"),
+        fs.stat(snapshotPath),
+      ]);
+      if (!snapshotStat.size) continue;
+      const summary = JSON.parse(summaryText) as Record<string, unknown>;
+      if (!isRunValid(summary)) continue;
+      const runId = String(summary.run_id || "published_latest");
+      return { runId, summaryPath, snapshotPath, summary };
+    } catch {
+      // try next published candidate
+    }
+  }
+
   return null;
 }
 
@@ -169,41 +197,47 @@ export async function readLatestSnapshot() {
 }
 
 export async function readRiskTruthPanel() {
-  const { results } = dataDirs();
-  const target = path.join(results, "validation", "risk_truth_panel.json");
-  try {
-    const text = await fs.readFile(target, "utf-8");
-    return sanitizeEncoding(JSON.parse(text));
-  } catch {
-    return {
-      status: "empty",
-      counts: { assets: 0, validated: 0, watch: 0, inconclusive: 0 },
-      entries: [],
-    };
+  const { results, publicLatest } = dataDirs();
+  const targets = [path.join(results, "validation", "risk_truth_panel.json"), path.join(publicLatest, "risk_truth_panel.json")];
+  for (const target of targets) {
+    try {
+      const text = await fs.readFile(target, "utf-8");
+      return sanitizeEncoding(JSON.parse(text));
+    } catch {
+      // try next target
+    }
   }
+  return {
+    status: "empty",
+    counts: { assets: 0, validated: 0, watch: 0, inconclusive: 0 },
+    entries: [],
+  };
 }
 
 export async function readLatestValidationSummary() {
-  const { results } = dataDirs();
-  const target = path.join(results, "validation", "latest_validation.json");
-  try {
-    const raw = await fs.readFile(target, "utf-8");
-    return sanitizeEncoding(JSON.parse(raw));
-  } catch {
-    return {
-      schema_version: "latest_validation_v1",
-      status: "missing",
-      as_of_date: "",
-      evidence: {
-        event_rate: null,
-        alert_rate: null,
-        lift: null,
-      },
-      validation_gate: {
-        status: "unknown",
-      },
-    };
+  const { results, publicLatest } = dataDirs();
+  const targets = [path.join(results, "validation", "latest_validation.json"), path.join(publicLatest, "latest_validation.json")];
+  for (const target of targets) {
+    try {
+      const raw = await fs.readFile(target, "utf-8");
+      return sanitizeEncoding(JSON.parse(raw));
+    } catch {
+      // try next target
+    }
   }
+  return {
+    schema_version: "latest_validation_v1",
+    status: "missing",
+    as_of_date: "",
+    evidence: {
+      event_rate: null,
+      alert_rate: null,
+      lift: null,
+    },
+    validation_gate: {
+      status: "unknown",
+    },
+  };
 }
 
 export async function readGlobalStatus() {

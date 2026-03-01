@@ -90,6 +90,7 @@ async function readInstructionCoreVersion() {
   );
   return {
     version: toText(cfg.version, "unknown"),
+    name: toText(asObj(cfg.identity).name, "Eigen Engine Assistant"),
     statement: toText(asObj(cfg.identity).statement, ""),
   };
 }
@@ -120,8 +121,152 @@ async function readOperationalBrief() {
   }
 }
 
+type CorrModeSummary = {
+  available: boolean;
+  domain: string;
+  best_mode: string;
+  recall: number | null;
+  f1: number | null;
+  lift_precision_vs_random: number | null;
+  pre_signal_rate: number | null;
+  alert_rate: number | null;
+  data_last_date: string;
+  run_dir: string;
+  eval_path: string;
+};
+
+type FinanceProductReady = {
+  available: boolean;
+  overall_readiness: string;
+  data_last_date: string;
+  risk_level_next_month: string;
+  operational_state: string;
+  confidence_score: number | null;
+  warnings: string[];
+  report_path: string;
+};
+
+async function readRunPeriodEnd(runDir: string): Promise<string> {
+  const clean = runDir.trim();
+  if (!clean) return "";
+  const runMeta = await readJsonFile<GenericRow | null>(path.join(clean, "run_meta.json"), null);
+  const periodEnd = toText(runMeta?.period_end, "");
+  if (periodEnd) return periodEnd;
+  const summary = await readJsonFile<GenericRow | null>(path.join(clean, "summary.json"), null);
+  return toText(summary?.period_end, "");
+}
+
+async function readLatestCorrModes(domain: "energy" | "agro"): Promise<CorrModeSummary> {
+  const { results } = dataDirs();
+  const root = path.join(results, "macro3");
+  let dirs: string[] = [];
+  try {
+    dirs = (await fs.readdir(root))
+      .filter((name) => name.startsWith(`${domain}_corr_modes_`))
+      .sort()
+      .reverse();
+  } catch {
+    return {
+      available: false,
+      domain,
+      best_mode: "",
+      recall: null,
+      f1: null,
+      lift_precision_vs_random: null,
+      pre_signal_rate: null,
+      alert_rate: null,
+      data_last_date: "",
+      run_dir: "",
+      eval_path: "",
+    };
+  }
+
+  for (const d of dirs) {
+    const evalPath = path.join(root, d, "corr_event_modes_eval.json");
+    const payload = await readJsonFile<GenericRow | null>(evalPath, null);
+    if (!payload || toText(payload.status, "") !== "ok") continue;
+    const best = asObj(payload.best_mode);
+    const runDir = toText(payload.run_dir, "");
+    const dataLastDate = await readRunPeriodEnd(runDir);
+    return {
+      available: true,
+      domain,
+      best_mode: toText(best.mode, ""),
+      recall: toNum(best.recall),
+      f1: toNum(best.f1),
+      lift_precision_vs_random: toNum(best.lift_precision_vs_random),
+      pre_signal_rate: toNum(best.pre_signal_rate),
+      alert_rate: toNum(best.test_alert_rate ?? best.alert_rate),
+      data_last_date: dataLastDate,
+      run_dir: runDir,
+      eval_path: evalPath,
+    };
+  }
+
+  return {
+    available: false,
+    domain,
+    best_mode: "",
+    recall: null,
+    f1: null,
+    lift_precision_vs_random: null,
+    pre_signal_rate: null,
+    alert_rate: null,
+    data_last_date: "",
+    run_dir: "",
+    eval_path: "",
+  };
+}
+
+async function readFinanceProductReady(): Promise<FinanceProductReady> {
+  const { results } = dataDirs();
+  const latestPath = path.join(results, "ops", "finance_product_ready", "latest_finance_product_ready.json");
+  const latest = await readJsonFile<GenericRow | null>(latestPath, null);
+  const reportPath = toText(latest?.finance_product_ready_json, "");
+  if (!reportPath) {
+    return {
+      available: false,
+      overall_readiness: "missing",
+      data_last_date: "",
+      risk_level_next_month: "",
+      operational_state: "",
+      confidence_score: null,
+      warnings: [],
+      report_path: "",
+    };
+  }
+  const report = await readJsonFile<GenericRow | null>(reportPath, null);
+  if (!report) {
+    return {
+      available: false,
+      overall_readiness: "missing",
+      data_last_date: "",
+      risk_level_next_month: "",
+      operational_state: "",
+      confidence_score: null,
+      warnings: [],
+      report_path: reportPath,
+    };
+  }
+  const warnings = Array.isArray(report.warnings) ? report.warnings.map((v) => String(v)) : [];
+  return {
+    available: true,
+    overall_readiness: toText(report.overall_readiness, "unknown"),
+    data_last_date: toText(report.data_last_date, ""),
+    risk_level_next_month: toText(report.risk_level_next_month, ""),
+    operational_state: toText(report.operational_state, ""),
+    confidence_score: toNum(report.confidence_score),
+    warnings,
+    report_path: reportPath,
+  };
+}
+
 type CopilotContext = {
   generated_at_utc: string;
+  assistant: {
+    name: string;
+    role: string;
+  };
   run: {
     id: string;
     status: string;
@@ -172,6 +317,7 @@ type CopilotContext = {
   };
   instruction_core: {
     version: string;
+    name: string;
     statement: string;
   };
   platform_db: {
@@ -196,24 +342,34 @@ type CopilotContext = {
     top_asset_global: string;
     insight_headlines: string[];
   };
+  domain_scenarios: {
+    finance: FinanceProductReady;
+    energy: CorrModeSummary;
+    agro: CorrModeSummary;
+  };
+  improvement_backlog: string[];
   watch_assets: Array<{ asset: string; confidence: number; quality: number }>;
   inconclusive_assets: Array<{ asset: string; confidence: number; quality: number }>;
   sources: string[];
 };
 
 export async function buildCopilotContext(): Promise<CopilotContext> {
-  const [run, snap, panel, labRun, labTs, playbook, alerts, instruction, platformSnapshot, opBrief] = await Promise.all([
-    findLatestValidRun(),
-    readLatestSnapshot(),
-    readRiskTruthPanel(),
-    findLatestLabCorrRun(),
-    readLatestLabCorrTimeseries(120),
-    readLatestLabCorrActionPlaybook(120),
-    readLatestLabCorrOperationalAlerts(120),
-    readInstructionCoreVersion(),
-    readPlatformDbSnapshot(),
-    readOperationalBrief(),
-  ]);
+  const [run, snap, panel, labRun, labTs, playbook, alerts, instruction, platformSnapshot, opBrief, financeReady, energyModes, agroModes] =
+    await Promise.all([
+      findLatestValidRun(),
+      readLatestSnapshot(),
+      readRiskTruthPanel(),
+      findLatestLabCorrRun(),
+      readLatestLabCorrTimeseries(120),
+      readLatestLabCorrActionPlaybook(120),
+      readLatestLabCorrOperationalAlerts(120),
+      readInstructionCoreVersion(),
+      readPlatformDbSnapshot(),
+      readOperationalBrief(),
+      readFinanceProductReady(),
+      readLatestCorrModes("energy"),
+      readLatestCorrModes("agro"),
+    ]);
 
   const shadow = await readCopilotShadow(run?.runId || null);
   const runSummary = asObj(run?.summary);
@@ -264,8 +420,18 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
     ? shadowFusion.publish_blockers.map((v) => String(v))
     : [];
 
+  const improvementBacklog = [
+    "manter baseline estrutural causal por dominio e budget fixo de alertas",
+    "comparar ML tabular vs baseline com split temporal e random na mesma taxa de alerta",
+    "promover DL apenas se houver ganho estavel de lift e recall entre blocos",
+  ];
+
   const context: CopilotContext = {
     generated_at_utc: new Date().toISOString(),
+    assistant: {
+      name: toText(instruction.name, "Eigen Engine Assistant"),
+      role: "copiloto_tecnico_multidominio",
+    },
     run: {
       id: run?.runId || toText(shadowRun.run_id, "no_valid_run"),
       status: run ? "ok" : toText(shadowRun.status, "missing"),
@@ -338,6 +504,21 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       top_asset_global: opTopAsset,
       insight_headlines: opInsightHeadlines,
     },
+    domain_scenarios: {
+      finance: {
+        available: financeReady.available,
+        overall_readiness: financeReady.overall_readiness,
+        data_last_date: financeReady.data_last_date || toText(opPayload.data_last_date, ""),
+        risk_level_next_month: financeReady.risk_level_next_month || toText(opSignal.risk_level_next_month, ""),
+        operational_state: financeReady.operational_state || toText(opSignal.operational_state, "monitoramento_normal"),
+        confidence_score: financeReady.confidence_score ?? toNum(opSignal.confidence_score),
+        warnings: financeReady.warnings,
+        report_path: financeReady.report_path,
+      },
+      energy: energyModes,
+      agro: agroModes,
+    },
+    improvement_backlog: improvementBacklog,
     watch_assets: sampleAssets(rows, "watch", 6),
     inconclusive_assets: sampleAssets(rows, "inconclusive", 6),
     sources: shadow
@@ -371,7 +552,7 @@ function renderResumo(ctx: CopilotContext): string {
       ? ctx.operational_brief.freshness_status
       : `${ctx.operational_brief.freshness_status} (${ctx.operational_brief.freshness_days_lag}d)`;
   const lines = [
-    "Leitura estrutural (fisica matematica) do run atual:",
+    `${ctx.assistant.name}: leitura estrutural (fisica matematica) do run atual:`,
     `- Run: ${ctx.run.id} | gate bloqueado: ${yesNo(ctx.run.gate_blocked)} | politica: ${ctx.run.policy}.`,
     `- Universo: ${ctx.universe.assets} ativos (${ctx.universe.validated} validated, ${ctx.universe.watch} watch, ${ctx.universe.inconclusive} inconclusive).`,
     `- IA operacional: estado=${ctx.operational_brief.operational_state}, risco_mes=${ctx.operational_brief.risk_level_next_month}, data_base=${ctx.operational_brief.data_last_date || "--"}, freshness=${opFresh}.`,
@@ -467,6 +648,40 @@ function renderModels(ctx: CopilotContext): string {
   );
 }
 
+function renderDomainScenarios(ctx: CopilotContext): string {
+  const f = ctx.domain_scenarios.finance;
+  const e = ctx.domain_scenarios.energy;
+  const a = ctx.domain_scenarios.agro;
+  const energyBest = e.available ? `${e.best_mode || "--"} (recall=${e.recall ?? "--"}, lift=${e.lift_precision_vs_random ?? "--"})` : "indisponivel";
+  const agroBest = a.available ? `${a.best_mode || "--"} (recall=${a.recall ?? "--"}, lift=${a.lift_precision_vs_random ?? "--"})` : "indisponivel";
+  return withPublishGuard(
+    [
+      "Cenarios por dominio (copiloto):",
+      `- Financas: readiness=${f.overall_readiness}, estado=${f.operational_state || "--"}, risco_proximo_mes=${f.risk_level_next_month || "--"}, data_base=${f.data_last_date || "--"}, conf=${f.confidence_score ?? "--"}.`,
+      `- Energia: modo_mais_forte=${energyBest}, alert_rate=${e.alert_rate ?? "--"}, pre_signal_rate=${e.pre_signal_rate ?? "--"}, data_base=${e.data_last_date || "--"}.`,
+      `- Agro: modo_mais_forte=${agroBest}, alert_rate=${a.alert_rate ?? "--"}, pre_signal_rate=${a.pre_signal_rate ?? "--"}, data_base=${a.data_last_date || "--"}.`,
+      "- Uso correto: diagnosticar mudanca de estrutura e dependencia entre series; nao prever preco diretamente.",
+    ].join("\n"),
+    ctx
+  );
+}
+
+function renderImprovementPlan(ctx: CopilotContext): string {
+  const items = ctx.improvement_backlog.length
+    ? ctx.improvement_backlog.map((line, idx) => `- ${idx + 1}. ${line}`).join("\n")
+    : "- backlog vazio";
+  return withPublishGuard(
+    [
+      "Plano de melhoria (ML/DL com rigor causal):",
+      "- Treino em janela fixa, teste so no futuro, walk-forward por blocos de tempo.",
+      "- Sempre comparar contra alerta aleatorio com mesma taxa de alertas.",
+      "- Promover modelo novo so com ganho estavel em varios blocos; se nao houver, manter baseline estrutural.",
+      items,
+    ].join("\n"),
+    ctx
+  );
+}
+
 export function buildCopilotReply(question: string, ctx: CopilotContext): string {
   const q = question.trim().toLowerCase();
   if (!q) return renderResumo(ctx);
@@ -482,6 +697,9 @@ export function buildCopilotReply(question: string, ctx: CopilotContext): string
   if (q.includes("gate") || q.includes("public") || q.includes("bloque")) return renderGate(ctx);
   if (q.includes("causal") || q.includes("look") || q.includes("futuro") || q.includes("leak")) return renderCausal(ctx);
   if (q.includes("ativo") || q.includes("watch") || q.includes("inconclusive") || q.includes("setor")) return renderAssets(ctx);
+  if (q.includes("agro") || q.includes("energia") || q.includes("finan")) return renderDomainScenarios(ctx);
+  if (q.includes("ml") || q.includes("dl") || q.includes("deep learning") || q.includes("melhor") || q.includes("padrao"))
+    return renderImprovementPlan(ctx);
   if (q.includes("modelo b") || q.includes("modelo c") || q.includes("gnn") || q.includes("rede neural"))
     return renderModels(ctx);
 

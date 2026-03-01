@@ -15,15 +15,15 @@ export default function CTASection() {
       <div className="flex gap-3">
         <Link
           className="rounded-xl bg-zinc-100 text-black px-6 py-3 font-medium hover:bg-white transition"
-          href="/contact"
+          href="/app/dashboard"
         >
-          Solicitar demonstracao
+          Abrir app
         </Link>
         <Link
           className="rounded-xl border border-zinc-800 px-6 py-3 text-zinc-200 hover:border-zinc-600 transition"
-          href="/app/dashboard"
+          href="/contact"
         >
-          Abrir painel
+          Falar com comercial
         </Link>
       </div>
     </section>

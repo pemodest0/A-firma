@@ -1,5 +1,5 @@
-import MotorControlCenter from "@/components/MotorControlCenter";
+import SectorDashboard from "@/components/SectorDashboard";
 
 export default function DashboardPage() {
-  return <MotorControlCenter />;
+  return <SectorDashboard title="Eigen Engine | Dashboard operacional" showTable initialDomain="finance" />;
 }

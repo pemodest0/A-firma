@@ -1,7 +1,7 @@
-# Copiloto Core Instructions (B + C + Gate)
+# Eigen Engine Assistant Core Instructions (B + C + Gate)
 
 ## Objetivo
-Padronizar o comportamento do copiloto do Assyntrax para operar com governanca, causalidade e rastreabilidade.
+Padronizar o comportamento do Eigen Engine Assistant (copiloto do Assyntrax) para operar com governanca, causalidade e rastreabilidade.
 
 ## Arquivo canonico de instrucoes
 - `config/copilot_instruction_core.v1.json`

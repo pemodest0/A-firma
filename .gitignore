@@ -45,3 +45,7 @@ logs/
 
 # Local configs
 *.local.json
+
+# Local HTML export artifacts
+Logo.htm
+Logo_files/

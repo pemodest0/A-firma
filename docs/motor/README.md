@@ -1,17 +1,19 @@
 # Eigen Engine
 
-Documentos de referencia do nucleo tecnico do Eigen Engine.
+Documentos de referência do núcleo técnico do Eigen Engine.
 
 ## O que faz
-- Diagnostica mudanca estrutural de risco por ativo e por setor.
+- Diagnostica mudança estrutural de risco por ativo e por setor.
 - Classifica estados com regras transparentes.
-- Gera sinal operacional com nivel e confianca.
+- Gera sinal operacional com nível e confiança.
+- Opera nos domínios de finanças, energia e agro com o mesmo núcleo matemático.
 
-## O que nao faz
-- Nao preve data exata de crash.
-- Nao garante retorno.
+## O que não faz
+- Não prevê data exata de crise.
+- Não garante retorno.
+- Não substitui decisão humana de gestão de risco.
 
-## Referencias
+## Referências
 - `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
 - `docs/motor/THEORY_ASSYNTRAX.md`
 - `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
@@ -25,7 +27,7 @@ Documentos de referencia do nucleo tecnico do Eigen Engine.
 
 ## Links de produto
 - App oficial (Vercel): `https://assyntrax.vercel.app`
-- Licenca: MIT (`LICENSE`)
+- Licença: MIT (`LICENSE`)
 
 Nota:
-- Paths legados podem manter `ASSYNTRAX` no nome para compatibilidade historica.
+- Paths legados podem manter `ASSYNTRAX` no nome por compatibilidade histórica.

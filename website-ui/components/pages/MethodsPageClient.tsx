@@ -47,33 +47,6 @@ const limites = [
   "Resultados históricos não garantem desempenho futuro.",
 ];
 
-const roadmap = [
-  {
-    etapa: "Fase 1 (já ativo)",
-    foco: "Causalidade, gate e trilha auditável",
-    entrega:
-      "Eigen Engine com classificação de regime causal, bloqueio de publicação automático e artefatos versionados por run.",
-  },
-  {
-    etapa: "Fase 2 (em andamento)",
-    foco: "Robustez e estabilidade",
-    entrega:
-      "Mais testes de sensibilidade de parâmetros, ajuste de histerese e redução de falso alerta em cenários reais.",
-  },
-  {
-    etapa: "Fase 3 (próxima)",
-    foco: "Explicabilidade por ativo e setor",
-    entrega:
-      "Leituras mais simples por ativo, resumo setorial acionável e histórico comparável de mudanças de regime.",
-  },
-  {
-    etapa: "Fase 4 (produto pleno)",
-    foco: "Operação diária institucional",
-    entrega:
-      "Rotina diária consolidada com comparação dia a dia, métricas de acerto e documentação pronta para auditoria.",
-  },
-];
-
 const dataSources = [
   {
     nome: "Preços financeiros",
@@ -227,19 +200,6 @@ export default function MethodsPageClient() {
             <li key={item}>- {item}</li>
           ))}
         </ul>
-      </section>
-
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
-        <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">Roadmap até produto pleno</div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {roadmap.map((item) => (
-            <article key={item.etapa} className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-              <h3 className="text-sm font-semibold tracking-wide text-zinc-100">{item.etapa}</h3>
-              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-zinc-500">{item.foco}</p>
-              <p className="mt-2 text-sm text-zinc-300 leading-relaxed">{item.entrega}</p>
-            </article>
-          ))}
-        </div>
       </section>
 
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">

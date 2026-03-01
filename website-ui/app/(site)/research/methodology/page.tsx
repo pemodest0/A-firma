@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function MetodologiaPage() {
+export default function ResearchMethodologyPage() {
   redirect("/methods");
 }
+

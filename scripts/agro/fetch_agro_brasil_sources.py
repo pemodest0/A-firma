@@ -17,6 +17,44 @@ DEFAULT_CONFIG = ROOT / "config" / "agro_brasil_monthly_series.json"
 BCB_PROXY_ASSETS = {
     "BCB_CRED_IMOB_PF_JUROS_TOTAL": "BCB_CRED_IMOB_PF_JUROS_MERCADO",
 }
+DEFAULT_COMEX_BCB_SERIES = [
+    {
+        "asset_id": "COMEX_BCB_BALANCE_BENS_SERVICOS_USD_M",
+        "series_id": 22704,
+        "flow": "balance",
+        "scope": "bens_servicos",
+    },
+    {
+        "asset_id": "COMEX_BCB_EXPORT_BENS_SERVICOS_USD_M",
+        "series_id": 22705,
+        "flow": "export",
+        "scope": "bens_servicos",
+    },
+    {
+        "asset_id": "COMEX_BCB_IMPORT_BENS_SERVICOS_USD_M",
+        "series_id": 22706,
+        "flow": "import",
+        "scope": "bens_servicos",
+    },
+    {
+        "asset_id": "COMEX_BCB_BALANCE_MERCADORIAS_USD_M",
+        "series_id": 22710,
+        "flow": "balance",
+        "scope": "mercadorias",
+    },
+    {
+        "asset_id": "COMEX_BCB_EXPORT_MERCADORIAS_USD_M",
+        "series_id": 22711,
+        "flow": "export",
+        "scope": "mercadorias",
+    },
+    {
+        "asset_id": "COMEX_BCB_IMPORT_MERCADORIAS_USD_M",
+        "series_id": 22712,
+        "flow": "import",
+        "scope": "mercadorias",
+    },
+]
 
 
 def _run_id() -> str:
@@ -234,6 +272,35 @@ def _parse_urls(text: str) -> list[str]:
     return [u.strip() for u in str(text).split(",") if u.strip()]
 
 
+def _parse_comex_bcb_specs(text: str) -> list[dict[str, object]]:
+    specs: list[dict[str, object]] = []
+    for token in str(text).split(","):
+        t = token.strip()
+        if not t:
+            continue
+        # token format: asset_id:series_id:flow[:scope]
+        parts = [p.strip() for p in t.split(":")]
+        if len(parts) < 3:
+            continue
+        asset_id, sid_txt, flow = parts[0], parts[1], parts[2]
+        scope = parts[3] if len(parts) >= 4 else "custom"
+        try:
+            sid = int(sid_txt)
+        except ValueError:
+            continue
+        if sid <= 0 or not asset_id:
+            continue
+        specs.append(
+            {
+                "asset_id": asset_id,
+                "series_id": sid,
+                "flow": flow.lower(),
+                "scope": scope.lower(),
+            }
+        )
+    return specs
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Fetch Agro Brasil monthly sources (BCB + optional Comex/CONAB raw files).")
     ap.add_argument("--config-path", type=str, default=str(DEFAULT_CONFIG))
@@ -247,6 +314,13 @@ def main() -> None:
     ap.add_argument("--allow-local-fallback", type=int, default=1, help="If 1, when API fails, use local cached BCB files.")
     ap.add_argument("--comex-urls", type=str, default="", help="Comma-separated file URLs for Comex raw files.")
     ap.add_argument("--conab-urls", type=str, default="", help="Comma-separated file URLs for CONAB raw files.")
+    ap.add_argument("--enable-comex-bcb", type=int, default=1, help="If 1, fetch Comex monthly proxies from BCB/SGS.")
+    ap.add_argument(
+        "--comex-bcb-series",
+        type=str,
+        default="",
+        help="Override Comex BCB specs as asset_id:series_id:flow[:scope], comma-separated.",
+    )
     args = ap.parse_args()
 
     cfg_path = Path(args.config_path)
@@ -268,10 +342,12 @@ def main() -> None:
     comex_download_dir = download_root / "comex"
     conab_download_dir = download_root / "conab"
     bcb_raw_dir = raw_root / "bcb"
+    comex_bcb_raw_dir = raw_root / "comex_bcb"
     bcb_download_dir.mkdir(parents=True, exist_ok=True)
     comex_download_dir.mkdir(parents=True, exist_ok=True)
     conab_download_dir.mkdir(parents=True, exist_ok=True)
     bcb_raw_dir.mkdir(parents=True, exist_ok=True)
+    comex_bcb_raw_dir.mkdir(parents=True, exist_ok=True)
 
     run_id = f"fetch_agro_br_{_run_id()}"
     summary: dict[str, object] = {
@@ -281,7 +357,7 @@ def main() -> None:
         "config_path": str(cfg_path),
         "download_root": str(download_root),
         "raw_root": str(raw_root),
-        "sources": {"bcb": [], "comex": [], "conab": []},
+        "sources": {"bcb": [], "comex_bcb": [], "comex": [], "conab": []},
     }
 
     bcb_items = cfg.get("bcb_sgs", [])
@@ -381,6 +457,82 @@ def main() -> None:
             else:
                 rec.update({"status": "fail", "reason": str(exc)})
         summary["sources"]["bcb"].append(rec)
+
+    if bool(int(args.enable_comex_bcb)):
+        specs = _parse_comex_bcb_specs(args.comex_bcb_series)
+        if not specs:
+            specs = list(DEFAULT_COMEX_BCB_SERIES)
+        comex_rows: list[pd.DataFrame] = []
+        for spec in specs:
+            asset_id = str(spec.get("asset_id", "")).strip()
+            series_id = int(spec.get("series_id", 0) or 0)
+            flow = str(spec.get("flow", "total")).strip().lower()
+            scope = str(spec.get("scope", "unknown")).strip().lower()
+            if not asset_id or series_id <= 0:
+                continue
+            rec: dict[str, object] = {
+                "asset_id": asset_id,
+                "series_id": int(series_id),
+                "flow": flow,
+                "scope": scope,
+            }
+            csv_name = f"{asset_id}.csv"
+            dl_path = comex_download_dir / csv_name
+            raw_path = comex_bcb_raw_dir / csv_name
+            try:
+                if bool(int(args.download_once)) and dl_path.exists() and raw_path.exists():
+                    m = pd.read_csv(raw_path)
+                else:
+                    m = _fetch_bcb_series_monthly(
+                        series_id=series_id,
+                        start_year=int(args.start_year),
+                        end_year=int(args.end_year),
+                        aggregation="last",
+                        timeout_sec=float(args.timeout_sec),
+                        max_retries=int(args.max_retries),
+                    )
+                    m.to_csv(dl_path, index=False)
+                    m.to_csv(raw_path, index=False)
+                rec.update(
+                    {
+                        "status": "ok",
+                        "download_csv": str(dl_path),
+                        "raw_csv": str(raw_path),
+                        "rows": int(m.shape[0]),
+                        "start": str(m["date"].iloc[0]) if not m.empty else "",
+                        "end": str(m["date"].iloc[-1]) if not m.empty else "",
+                    }
+                )
+                if not m.empty:
+                    one = m.copy()
+                    one["date"] = pd.to_datetime(one["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+                    one["flow"] = flow
+                    one["scope"] = scope
+                    one["metric"] = asset_id
+                    one = one.rename(columns={"value": "value_fob"})
+                    one["value_kg"] = np.nan
+                    comex_rows.append(one[["date", "flow", "scope", "metric", "value_fob", "value_kg"]].copy())
+            except Exception as exc:  # pragma: no cover - network/runtime variability
+                rec.update({"status": "fail", "reason": str(exc)})
+            summary["sources"]["comex_bcb"].append(rec)
+
+        if comex_rows:
+            comex_panel = pd.concat(comex_rows, ignore_index=True)
+            comex_panel["date"] = pd.to_datetime(comex_panel["date"], errors="coerce")
+            comex_panel["value_fob"] = pd.to_numeric(comex_panel["value_fob"], errors="coerce")
+            comex_panel = comex_panel.dropna(subset=["date", "value_fob"]).sort_values(["date", "scope", "metric"]).reset_index(drop=True)
+            comex_panel["date"] = comex_panel["date"].dt.strftime("%Y-%m-%d")
+            comex_panel_path = comex_download_dir / "comex_bcb_monthly.csv"
+            comex_panel.to_csv(comex_panel_path, index=False)
+            summary["sources"]["comex_bcb_aggregate"] = {
+                "status": "ok",
+                "file": str(comex_panel_path),
+                "rows": int(comex_panel.shape[0]),
+                "start": str(comex_panel["date"].iloc[0]) if not comex_panel.empty else "",
+                "end": str(comex_panel["date"].iloc[-1]) if not comex_panel.empty else "",
+            }
+        else:
+            summary["sources"]["comex_bcb_aggregate"] = {"status": "empty"}
 
     def _download_list(urls: list[str], outdir: Path) -> list[dict[str, object]]:
         out: list[dict[str, object]] = []

@@ -35,6 +35,16 @@ def _read_json(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _sanitize_json_value(x: Any) -> Any:
+    if isinstance(x, float):
+        return float(x) if np.isfinite(x) else None
+    if isinstance(x, dict):
+        return {str(k): _sanitize_json_value(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_sanitize_json_value(v) for v in x]
+    return x
+
+
 def _resolve_path(raw: str | Path | None) -> Path | None:
     if raw is None:
         return None
@@ -349,22 +359,25 @@ def main() -> None:
             "para operacao, usar regime/horizon como gatilho e drawdown como confirmacao secundaria",
         ],
     }
+    brief = _sanitize_json_value(brief)
 
     out_path = outdir / f"operational_brief_{_run_id()}.json"
     out_path.write_text(json.dumps(brief, indent=2, ensure_ascii=False), encoding="utf-8")
     latest_path = outdir / "latest_operational_brief.json"
+    latest_payload = {
+        "status": "ok",
+        "generated_at_utc": brief["generated_at_utc"],
+        "data_last_date": brief["data_last_date"],
+        "run_dir": brief["run_context"]["run_dir"],
+        "source_run_dir": brief["run_context"]["run_dir"],
+        "risk_level_next_month": (brief.get("operational_signal") or {}).get("risk_level_next_month"),
+        "operational_state": (brief.get("operational_signal") or {}).get("operational_state"),
+        "confidence_score": (brief.get("operational_signal") or {}).get("confidence_score"),
+        "operational_brief_path": str(out_path),
+    }
+    latest_payload = _sanitize_json_value(latest_payload)
     latest_path.write_text(
-        json.dumps(
-            {
-                "status": "ok",
-                "generated_at_utc": brief["generated_at_utc"],
-                "data_last_date": brief["data_last_date"],
-                "run_dir": brief["run_context"]["run_dir"],
-                "operational_brief_path": str(out_path),
-            },
-            indent=2,
-            ensure_ascii=False,
-        ),
+        json.dumps(latest_payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 

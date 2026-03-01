@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     template: "%s | Assyntrax",
   },
   description: "Diagnóstico causal de regime e risco estrutural com trilha auditável e governança de publicação.",
+  icons: {
+    icon: "/assets/brand/assyntrax-mark.svg",
+    shortcut: "/assets/brand/assyntrax-mark.svg",
+    apple: "/assets/brand/assyntrax-mark.svg",
+  },
   openGraph: {
     type: "website",
     siteName: "Assyntrax | Diagnóstico de Regime",
