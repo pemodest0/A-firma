@@ -5,6 +5,7 @@ import {
   findLatestLabCorrRun,
   findLatestValidRun,
   readLatestLabCorrActionPlaybook,
+  readLatestLabCorrAssetDiagnostics,
   readLatestLabCorrOperationalAlerts,
   readLatestLabCorrTimeseries,
   readLatestSnapshot,
@@ -65,6 +66,26 @@ function sampleAssets(rows: GenericRow[], desiredStatus: "watch" | "inconclusive
     }))
     .sort((a, b) => a.confidence - b.confidence)
     .slice(0, limit);
+}
+
+function runIdFromRunDir(runDir: string): string {
+  const clean = String(runDir || "").trim();
+  if (!clean) return "";
+  const normalized = clean.replace(/\\/g, "/").replace(/\/+$/, "");
+  const parts = normalized.split("/");
+  const last = parts[parts.length - 1] || "";
+  return /^20\d{6}T\d{6}Z$/.test(last) ? last : "";
+}
+
+function statusCountsFromLabAssetDiagnostics(rows: GenericRow[]) {
+  const out = { assets: rows.length, validated: 0, watch: 0, inconclusive: 0 };
+  for (const row of rows) {
+    const regime = lc(row.regime_asset);
+    if (regime === "estavel" || regime === "stable") out.validated += 1;
+    else if (regime === "transicao" || regime === "transition") out.watch += 1;
+    else out.inconclusive += 1;
+  }
+  return out;
 }
 
 async function readCopilotShadow(runId: string | null) {
@@ -354,7 +375,22 @@ type CopilotContext = {
 };
 
 export async function buildCopilotContext(): Promise<CopilotContext> {
-  const [run, snap, panel, labRun, labTs, playbook, alerts, instruction, platformSnapshot, opBrief, financeReady, energyModes, agroModes] =
+  const [
+    run,
+    snap,
+    panel,
+    labRun,
+    labTs,
+    playbook,
+    alerts,
+    instruction,
+    platformSnapshot,
+    opBrief,
+    financeReady,
+    energyModes,
+    agroModes,
+    labAssetDiagnostics,
+  ] =
     await Promise.all([
       findLatestValidRun(),
       readLatestSnapshot(),
@@ -369,6 +405,7 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       readFinanceProductReady(),
       readLatestCorrModes("energy"),
       readLatestCorrModes("agro"),
+      readLatestLabCorrAssetDiagnostics(2500),
     ]);
 
   const shadow = await readCopilotShadow(run?.runId || null);
@@ -379,13 +416,19 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
 
   const rows = Array.isArray(snap?.records) ? (snap.records as GenericRow[]) : [];
   const fallbackCounts = statusCountsFromRecords(rows);
+  const labCounts = statusCountsFromLabAssetDiagnostics(
+    Array.isArray(labAssetDiagnostics) ? (labAssetDiagnostics as GenericRow[]) : []
+  );
   const panelCounts = asObj(asObj(panel).counts);
-  const universe = {
+  let universe = {
     assets: Number(toNum(panelCounts.assets, fallbackCounts.assets) || 0),
     validated: Number(toNum(panelCounts.validated, fallbackCounts.validated) || 0),
     watch: Number(toNum(panelCounts.watch, fallbackCounts.watch) || 0),
     inconclusive: Number(toNum(panelCounts.inconclusive, fallbackCounts.inconclusive) || 0),
   };
+  if (universe.assets <= 0 && labCounts.assets > 0) {
+    universe = labCounts;
+  }
 
   const playbookRows = Array.isArray(playbook) ? (playbook as GenericRow[]) : [];
   const latestPlay = playbookRows.length ? playbookRows[playbookRows.length - 1] : {};
@@ -397,6 +440,9 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
   const shadowFusion = asObj(shadow?.fusion);
   const shadowRun = asObj(shadow?.run);
   const opPayload = asObj(opBrief?.payload);
+  const opRunContext = asObj(opPayload.run_context);
+  const opRunDir = toText(opRunContext.run_dir, "");
+  const opRunId = runIdFromRunDir(opRunDir);
   const opFreshness = asObj(opPayload.freshness);
   const opSignal = asObj(opPayload.operational_signal);
   const opSnapshot = asObj(opPayload.state_snapshot);
@@ -433,8 +479,8 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       role: "copiloto_tecnico_multidominio",
     },
     run: {
-      id: run?.runId || toText(shadowRun.run_id, "no_valid_run"),
-      status: run ? "ok" : toText(shadowRun.status, "missing"),
+      id: run?.runId || opRunId || toText(shadowRun.run_id, "no_valid_run"),
+      status: run ? "ok" : opRunId ? "latest_lab_context" : toText(shadowRun.status, "missing"),
       gate_blocked: runBlocked,
       gate_reasons: runReasons,
       policy: toText(runSummary.policy_path, toText(shadowRun.policy_path, "production_policy_lock.json")),
@@ -473,13 +519,13 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       reasons: Array.isArray(shadowModelC.reasons) ? shadowModelC.reasons.map((v) => String(v)) : [],
     },
     governance: {
-      publishable: shadowFusion.publishable === true && !runBlocked,
+      publishable: shadow ? shadowFusion.publishable === true && !runBlocked : !runBlocked,
       risk_structural: toNum(shadowFusion.risk_structural),
       confidence: toNum(shadowFusion.confidence),
       risk_level: toText(shadowFusion.risk_level, "indefinido"),
       publish_blockers: shadow
         ? [...publishBlockers, ...runReasons.filter((r) => !publishBlockers.includes(r))]
-        : [...runReasons, "shadow_artifact_missing"],
+        : [...runReasons],
     },
     instruction_core: instruction,
     platform_db: {
@@ -539,10 +585,8 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
 }
 
 function withPublishGuard(message: string, ctx: CopilotContext): string {
-  if (ctx.governance.publishable) return message;
-  const reasons = ctx.governance.publish_blockers.length
-    ? ctx.governance.publish_blockers.join(", ")
-    : "gate_or_integrity";
+  if (!ctx.run.gate_blocked) return message;
+  const reasons = ctx.run.gate_reasons.length ? ctx.run.gate_reasons.join(", ") : "gate_or_integrity";
   return `STATUS: NAO PUBLICAVEL\nMotivos: ${reasons}\n\n${message}`;
 }
 
