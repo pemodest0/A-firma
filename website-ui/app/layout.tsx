@@ -5,10 +5,10 @@ import { siteMetadataBase } from "@/lib/site/metadata";
 export const metadata: Metadata = {
   metadataBase: siteMetadataBase(),
   title: {
-    default: "Assyntrax | Diagnóstico de Regime",
+    default: "Assyntrax | Plataforma de investimentos com risco controlado",
     template: "%s | Assyntrax",
   },
-  description: "Diagnóstico causal de regime e risco estrutural com trilha auditável e governança de publicação.",
+  description: "Plataforma pessoal para finanças e cripto com Eigen Engine, diagnóstico estrutural, orçamento de risco e trilha auditável.",
   icons: {
     icon: "/assets/brand/assyntrax-mark.svg",
     shortcut: "/assets/brand/assyntrax-mark.svg",
@@ -16,22 +16,22 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: "Assyntrax | Diagnóstico de Regime",
-    title: "Assyntrax | Diagnóstico de Regime",
-    description: "Diagnóstico causal de regime e risco estrutural com trilha auditável e governança de publicação.",
+    siteName: "Assyntrax | Plataforma de investimentos com risco controlado",
+    title: "Assyntrax | Plataforma de investimentos com risco controlado",
+    description: "Plataforma pessoal para finanças e cripto com Eigen Engine, diagnóstico estrutural, orçamento de risco e trilha auditável.",
     images: [
       {
         url: "/assets/og/eigen-engine-og.svg",
         width: 1200,
         height: 630,
-        alt: "Assyntrax - Diagnóstico de Regime",
+        alt: "Assyntrax - Plataforma de investimentos com risco controlado",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Assyntrax | Diagnóstico de Regime",
-    description: "Diagnóstico causal de regime e risco estrutural com trilha auditável e governança de publicação.",
+    title: "Assyntrax | Plataforma de investimentos com risco controlado",
+    description: "Plataforma pessoal para finanças e cripto com Eigen Engine, diagnóstico estrutural, orçamento de risco e trilha auditável.",
     images: ["/assets/og/eigen-engine-og.svg"],
   },
 };

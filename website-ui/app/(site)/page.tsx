@@ -3,25 +3,31 @@ import HeroSection from "@/components/sections/HeroSection";
 import ProblemSection from "@/components/sections/ProblemSection";
 import HowItWorksSection from "@/components/sections/HowItWorksSection";
 import SectorCoverageSection from "@/components/sections/SectorCoverageSection";
+import SignalSnapshotSection from "@/components/site/SignalSnapshotSection";
 import { buildPageMetadata } from "@/lib/site/metadata";
+import { readSiteFinanceSnapshot } from "@/lib/server/data";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Diagnóstico causal de regime e risco estrutural",
+  title: "Eigen Engine para investimentos com risco controlado",
   description:
-    "Monitor de risco estrutural para equipes de risco e governança. Entrega leitura causal de regime, sem promessa de retorno.",
+    "Plataforma pessoal de diagnóstico estrutural para finanças e cripto. O Eigen Engine organiza regime, orçamento de risco e evidências auditáveis sem look-ahead.",
   path: "/",
   locale: "pt-BR",
   keywords: [
-    "diagnóstico de regime",
-    "risco estrutural",
-    "monitor de risco",
+    "eigen engine",
+    "diagnóstico estrutural",
+    "risco controlado",
+    "regime de mercado",
+    "finanças",
+    "cripto",
+    "orçamento de risco",
     "análise espectral",
     "mercado financeiro",
-    "event study",
   ],
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const snapshot = await readSiteFinanceSnapshot();
   const softwareJsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -29,7 +35,7 @@ export default function HomePage() {
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Diagnóstico causal de regime e risco estrutural com gate auditável para uso institucional.",
+      "Diagnóstico estrutural para finanças e cripto com gate auditável, shadow e controle de risco.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -57,6 +63,7 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       <HeroSection />
+      <SignalSnapshotSection snapshot={snapshot as Record<string, unknown>} />
       <ProblemSection />
       <SectorCoverageSection />
       <HowItWorksSection />

@@ -1,35 +1,42 @@
-# Assyntrax Site (Diretório Técnico)
+# Assyntrax Site e App
 
-Frontend operacional e APIs web da plataforma Assyntrax.
+Frontend e backend web da Assyntrax.
 
-## Links
-- Site oficial (Vercel): `https://assyntrax.vercel.app`
-- Repositório: `https://github.com/pemodest0/Assyntrax`
-- Licença: MIT (`../LICENSE`)
+## Escopo atual
+- Site público da plataforma
+- App operacional do Eigen Engine
+- Copiloto de uso
+- Painéis de finanças e cripto
+- Evidências, teoria e snapshots publicados
 
 ## Identidade de produto
-- Marca/empresa: **Assyntrax**
-- Motor: **Eigen Engine**
-- Copiloto: **Eigen Engine Assistant**
-- Domínios ativos: **finanças**, **energia** e **agro**
+- **Marca**: Assyntrax
+- **Motor**: Eigen Engine
+- **Copiloto**: Eigen Engine Assistant
+- **Frente principal**: finanças e cripto
 
 ## Rotas principais
-- Site institucional:
+- Site:
   - `/`
-  - `/methods` (Eigen Engine)
-  - `/research/methodology` (metodologia técnica)
-- App operacional:
+  - `/financas`
+  - `/cripto`
+  - `/evidencias`
+  - `/methods`
+  - `/product`
+- App:
   - `/app/dashboard`
-  - `/app/universo-observavel`
-  - `/app/setores`
-  - `/app/operacao`
-  - `/app/venda`
+  - `/app/aplicacoes`
+  - `/app/financas`
+  - `/app/cripto`
+  - `/app/copiloto`
+  - `/app/teoria`
 
 ## APIs principais
-- `/api/lab/corr/latest`
-- `/api/validation/latest`
-- `/api/pilot/latest`
+- `/api/platform/latest`
+- `/api/assets`
 - `/api/copilot`
+- `/api/invest/advisory`
+- `/api/invest/shadow`
 
 ## Desenvolvimento local
 ```bash
@@ -41,19 +48,10 @@ npm run dev
 ## Qualidade
 ```bash
 cd website-ui
-npm run lint
-npm run typecheck
 npm run build
 ```
 
-## Deploy
-```bash
-cd website-ui
-npx vercel --prod --yes
-```
-
-## Observacoes
-- O nome da pasta local `website-ui/` é apenas técnico; a marca e o deploy oficial são `Assyntrax`.
-- O frontend depende de artefatos gerados pelo pipeline do Eigen Engine.
-- O chat flutuante oficial é o `Eigen Engine Assistant` (`/api/copilot`).
-- Se a API retornar estado inconclusivo/sem dados, a UI exibe fallback operacional sem quebrar rota.
+## Observações
+- O frontend depende de snapshots e artefatos publicados pelo pipeline do Eigen Engine.
+- Quando o dado publicado não existe, a UI deve degradar com clareza, sem inventar número.
+- O foco do produto não é mais agro/energia como frente pública principal.

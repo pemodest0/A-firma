@@ -31,7 +31,6 @@ const nextConfig: NextConfig = {
       { source: "/app/macro", destination: "/app/dashboard", permanent: false },
       { source: "/app/setores", destination: "/app/dashboard", permanent: false },
       { source: "/app/finance", destination: "/app/financas", permanent: false },
-      { source: "/app/aplicacoes", destination: "/app/dashboard", permanent: false },
       { source: "/app/sobre", destination: "/about", permanent: false },
       { source: "/pt", destination: "/", permanent: false },
       { source: "/pt/guia", destination: "/", permanent: false },

@@ -1,6 +1,5 @@
-import AgroMonthlyDashboard from "@/components/AgroMonthlyDashboard";
+import { redirect } from "next/navigation";
 
 export default function AgroAppPage() {
-  return <AgroMonthlyDashboard />;
+  redirect("/app/financas");
 }
-

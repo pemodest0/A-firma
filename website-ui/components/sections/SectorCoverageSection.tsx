@@ -6,34 +6,37 @@ const cards = [
     id: "financas",
     title: "Finanças",
     description:
-      "Motor diário com detecção de regimes, ranking de impacto ativo/setor e validação temporal por blocos.",
-    image: "/assets/prints/walkforward-metrics.svg",
+      "Leitura diária de regime, risco estrutural, ranking por ativo e painel operacional com foco em alocação.",
+    image: "/assets/prints/dashboard-main.svg",
     href: "/financas",
+    cta: "Abrir finanças",
   },
   {
-    id: "energia",
-    title: "Energia Brasil",
+    id: "cripto",
+    title: "Cripto",
     description:
-      "Leitura estrutural diária para acoplamento e transição operacional com evidência de pré-sinal em eventos reais.",
-    image: "/visuals/hero-flow.svg",
-    href: "/energia",
-  },
-  {
-    id: "agro",
-    title: "Agro Brasil",
-    description:
-      "Pipeline mensal com macro, safra e comércio externo, usando o mesmo núcleo matemático do Eigen Engine.",
+      "Sleeve cripto líquido sob o mesmo controle estrutural, com foco em majors, meta-switch e disciplina de risco.",
     image: "/visuals/hero-embedding.svg",
-    href: "/agro",
+    href: "/cripto",
+    cta: "Abrir cripto",
+  },
+  {
+    id: "copiloto",
+    title: "Copiloto e Shadow",
+    description:
+      "Pesquisa de alpha, paper trading e trilha de evidências para testar hipóteses antes de arriscar capital.",
+    image: "/assets/prints/walkforward-metrics.svg",
+    href: "/app/copiloto",
+    cta: "Abrir copiloto",
   },
 ];
 
 export default function SectorCoverageSection() {
   return (
     <section className="rounded-[26px] border border-zinc-800/80 bg-zinc-950/55 p-8 md:p-9">
-      <div className="text-xs uppercase tracking-[0.25em] text-zinc-400">Domínios ativos</div>
+      <div className="text-xs uppercase tracking-[0.25em] text-zinc-400">Módulos ativos</div>
       <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight text-zinc-100">
-        O que já colocamos em produção por setor
+        O que já está ativo na plataforma
       </h2>
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {cards.map((card) => (
@@ -54,7 +57,7 @@ export default function SectorCoverageSection() {
                 href={card.href}
                 className="mt-4 inline-flex rounded-lg border border-cyan-300/35 bg-white/5 px-3 py-1.5 text-sm text-zinc-100 hover:border-cyan-200"
               >
-                Abrir setor
+                {card.cta}
               </Link>
             </div>
           </article>

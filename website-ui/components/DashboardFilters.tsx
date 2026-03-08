@@ -32,14 +32,12 @@ const groupLabels: Record<string, string> = {
   crypto: "Cripto",
   volatility: "Volatilidade",
   commodities_broad: "Commodities",
-  energy: "Commodities cíclicas",
   metals: "Metais",
   bonds_rates: "Juros e Bonds",
   fx: "Moedas",
   equities_us_broad: "Ações EUA - índice amplo",
   equities_us_sectors: "Ações EUA - setores",
   equities_international: "Ações internacionais",
-  realestate: "Imobiliário",
 };
 
 const helperText = {

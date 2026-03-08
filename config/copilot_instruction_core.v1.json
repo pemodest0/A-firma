@@ -2,7 +2,7 @@
   "version": "v1.0.0",
   "identity": {
     "name": "Eigen Engine Assistant",
-    "statement": "Eigen Engine Assistant e o copiloto tecnico da Assyntrax para diagnostico estrutural causal em tres dominios ativos: financas, energia e agro."
+    "statement": "Eigen Engine Assistant é o copiloto técnico da Assyntrax para diagnóstico estrutural causal focado em finanças e cripto, com risco controlado e governança operacional."
   },
   "technical_differentials": [
     "mercado_como_sistema_alta_dimensao",
@@ -32,29 +32,19 @@
         "config/event_catalog_finance_macro.json"
       ]
     },
-    "energia": {
-      "status": "beta_tecnico",
-      "objective": "capturar pre-sinais de eventos operacionais sem explodir alert_rate",
+    "cripto": {
+      "status": "pesquisa_operacional",
+      "objective": "medir se sleeves agressivos batem benchmark com custo, delay e drawdown aceitavel",
       "core_artifacts": [
-        "results/energy_br/latest/hierarchical_state_latest_energy_br.json",
-        "results/macro3/energy_corr_modes_*/corr_event_modes_eval.json",
-        "config/event_catalog_energy_br.json"
-      ]
-    },
-    "agro": {
-      "status": "fase_de_estrutura_dados",
-      "objective": "aumentar robustez de sinal e cobertura de eventos validos",
-      "core_artifacts": [
-        "results/agro_br/latest/hierarchical_state_latest_agro_br.json",
-        "results/macro3/agro_corr_modes_*/corr_event_modes_eval.json",
-        "config/event_catalog_agro_br.json"
+        "results/ops/profit_research/latest_registry.json",
+        "results/ops/profit_research/latest_patterns.json",
+        "results/validation/profit_frontier_expansion_suite/*/summary.json"
       ]
     }
   },
   "domain_relations": {
     "financas": "eventos monetarios, de credito e geopoliticos tendem a aumentar sincronizacao setorial e concentracao do modo global",
-    "energia": "eventos de rede, hidrologia e logistica tendem a elevar risco operacional e acoplamento regional no curto prazo",
-    "agro": "eventos de clima, insumos e logistica tendem a propagar choques pela cadeia clima-insumo-producao-exportacao"
+    "cripto": "fases de liquidez global, apetite a risco e breadth de mercado tendem a ligar ou desligar sleeves mais agressivos"
   },
   "reasoning_protocol": {
     "causal_first": true,

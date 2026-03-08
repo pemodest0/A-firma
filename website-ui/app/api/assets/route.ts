@@ -1,28 +1,25 @@
 import { NextResponse } from "next/server";
-import { listLatestFiles, readLatestFile, readLatestSnapshot, readRiskTruthPanel } from "@/lib/server/data";
+import { listLatestFiles, readLatestFile, readLatestSnapshot, readRiskTruthPanel, readSiteFinanceSnapshot } from "@/lib/server/data";
 import { readAssetStatusMap } from "@/lib/server/validated";
 
-function inferDomain(group?: string) {
+function inferDomain(group?: string, asset?: string) {
   const g = (group || "").toLowerCase();
-  if (g.includes("realestate") || g.includes("imob")) return "realestate";
-  if (g.includes("energy") || g.includes("carga")) return "energy";
+  const a = (asset || "").toLowerCase();
+  if (g.includes("crypto") || a.endsWith("-usd")) return "crypto";
   if (g) return "finance";
   return "finance";
 }
 
-function normalizeDomain(value?: string, group?: string) {
+function normalizeDomain(value?: string, group?: string, asset?: string) {
   const raw = (value || "").toLowerCase().trim();
-  if (!raw) return inferDomain(group);
-  if (raw.includes("realestate") || raw.includes("real_estate") || raw.includes("imob")) {
-    return "realestate";
+  if (!raw) return inferDomain(group, asset);
+  if (raw.includes("crypto")) {
+    return "crypto";
   }
-  if (raw.includes("energy") || raw.includes("logistics") || raw.includes("carga")) {
-    return "energy";
-  }
-  if (raw.includes("fin") || raw.includes("equit") || raw.includes("crypto")) {
+  if (raw.includes("fin") || raw.includes("equit") || raw.includes("macro") || raw.includes("energy") || raw.includes("realestate")) {
     return "finance";
   }
-  return inferDomain(group);
+  return inferDomain(group, asset);
 }
 
 function normalizeRecord(record: Record<string, unknown>, riskTruthStatus?: string) {
@@ -50,7 +47,7 @@ function normalizeRecord(record: Record<string, unknown>, riskTruthStatus?: stri
       : "unknown";
   return {
     asset: String(record.asset || ""),
-    domain: normalizeDomain(String(record.domain || ""), String(record.group || "")),
+    domain: normalizeDomain(String(record.domain || ""), String(record.group || ""), String(record.asset || "")),
     timestamp: String(record.timestamp || ""),
     run_id: String(record.run_id || ""),
     data_adequacy: String(record.data_adequacy || "unknown"),
@@ -66,6 +63,8 @@ function normalizeRecord(record: Record<string, unknown>, riskTruthStatus?: stri
     group: String(record.group || ""),
   };
 }
+
+type NormalizedAssetRecord = ReturnType<typeof normalizeRecord>;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -107,16 +106,20 @@ export async function GET(request: Request) {
     .filter(Boolean);
   const allowed = new Set(allowedStatus.length ? allowedStatus : ["validated", "watch"]);
 
-  const [snap, riskTruth] = await Promise.all([readLatestSnapshot(), readRiskTruthPanel()]);
-  if (!snap) {
-    return NextResponse.json({ error: "no_valid_run" }, { status: 503 });
-  }
+  const [snap, riskTruth, siteSnapshot] = await Promise.all([readLatestSnapshot(), readRiskTruthPanel(), readSiteFinanceSnapshot()]);
   const truthMap = new Map<string, string>(
     Array.isArray(riskTruth?.entries) ? riskTruth.entries.map((e: Record<string, unknown>) => [String(e.asset_id || ""), String(e.risk_truth_status || "unknown")]) : []
   );
 
-  const normalized = (Array.isArray(snap.records) ? snap.records : [])
+  const siteNormalized = (Array.isArray(siteSnapshot?.current_universe) ? siteSnapshot.current_universe : [])
+    .map((r: Record<string, unknown>) => normalizeRecord(r, String(r.risk_truth_status || "")))
+    .filter((r) => r.asset);
+
+  const latestNormalized = (Array.isArray(snap?.records) ? snap.records : [])
     .map((r: Record<string, unknown>) => normalizeRecord(r, truthMap.get(String(r.asset || ""))))
+    .filter((r) => r.asset);
+
+  const normalized = [...siteNormalized, ...latestNormalized]
     .filter((r) => (domain ? r.domain === domain : true))
     .filter((r) => {
       const rt = String(r.risk_truth_status || "unknown").toLowerCase();
@@ -124,12 +127,13 @@ export async function GET(request: Request) {
       if (rt === "inconclusive") return includeInconclusive;
       return allowed.has(rt);
     });
+  const dedup = new Map<string, NormalizedAssetRecord>();
 
-  const dedup = new Map<string, (typeof normalized)[number]>();
   for (const row of normalized) {
     const key = `${row.asset}__${row.domain}`;
     const prev = dedup.get(key);
-    if (!prev || String(row.timestamp || "") >= String(prev.timestamp || "")) {
+    const preferCurrent = String(row.source_type || "").includes("lab_corr") || String(row.source_type || "").includes("crypto_research");
+    if (!prev || preferCurrent || String(row.timestamp || "") >= String(prev.timestamp || "")) {
       dedup.set(key, row);
     }
   }
@@ -137,12 +141,17 @@ export async function GET(request: Request) {
 
   if (!records.length) {
     const files = await listLatestFiles();
-    return NextResponse.json({ files, records: [], run_id: snap.runId, summary: snap.summary });
+    return NextResponse.json({
+      files,
+      records: [],
+      run_id: snap?.runId || siteSnapshot?.finance?.lab_run_id || "",
+      summary: snap?.summary || siteSnapshot || {},
+    });
   }
 
   return NextResponse.json({
-    run_id: snap.runId,
-    summary: snap.summary,
+    run_id: snap?.runId || siteSnapshot?.finance?.lab_run_id || "",
+    summary: snap?.summary || siteSnapshot || {},
     records,
   });
 }

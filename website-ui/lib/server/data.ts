@@ -1,4 +1,4 @@
-﻿import { promises as fs } from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { readAssetStatusMap } from "@/lib/server/validated";
 import { existsSync } from "node:fs";
@@ -16,37 +16,69 @@ function resolveResultsDir() {
   return candidates[1];
 }
 
+function allowPublicLatestFallback() {
+  return String(process.env.ALLOW_PUBLIC_LATEST_FALLBACK || "").trim() === "1";
+}
+
 function resolveLatestDir() {
   if (process.env.DATA_DIR) return process.env.DATA_DIR;
-  const candidates = [path.join(process.cwd(), "public", "data", "latest"), path.join(repoRoot(), "results", "latest")];
+  const canonical = [path.join(process.cwd(), "results", "latest"), path.join(repoRoot(), "results", "latest")];
+  const publicCandidate = path.join(process.cwd(), "public", "data", "latest");
+  const candidates = allowPublicLatestFallback() ? [...canonical, publicCandidate] : [...canonical, publicCandidate];
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
   }
-  return candidates[0];
+  return canonical[0];
 }
 
 export function dataDirs() {
   const publicLatest = path.join(process.cwd(), "public", "data", "latest");
+  const publicSite = path.join(process.cwd(), "public", "data", "site");
   return {
     latest: resolveLatestDir(),
     publicLatest,
+    publicSite,
     results: resolveResultsDir(),
   };
 }
 
+function latestDirCandidates() {
+  const { latest, publicLatest } = dataDirs();
+  return Array.from(new Set([latest, publicLatest]));
+}
+
+function siteSnapshotCandidates() {
+  const { results, publicSite } = dataDirs();
+  return [
+    path.join(results, "ops", "site_data", "latest_site_snapshot.json"),
+    path.join(publicSite, "latest_site_snapshot.json"),
+  ];
+}
+
 export async function listLatestFiles() {
-  const { latest } = dataDirs();
-  const dir = latest;
-  await fs.access(dir);
-  const files = await fs.readdir(dir);
-  return files.filter((f) => f.endsWith(".json"));
+  for (const dir of latestDirCandidates()) {
+    try {
+      await fs.access(dir);
+      const files = await fs.readdir(dir);
+      return files.filter((f) => f.endsWith(".json"));
+    } catch {
+      // try next candidate
+    }
+  }
+  return [];
 }
 
 export async function readLatestFile(file: string) {
-  const { latest } = dataDirs();
-  const target = path.join(latest, file);
-  const text = await fs.readFile(target, "utf-8");
-  return JSON.parse(text);
+  for (const dir of latestDirCandidates()) {
+    const target = path.join(dir, file);
+    try {
+      const text = await fs.readFile(target, "utf-8");
+      return parseJsonText(text);
+    } catch {
+      // try next candidate
+    }
+  }
+  throw new Error(`latest_file_not_found:${file}`);
 }
 
 export async function findLatestApiRecords() {
@@ -67,6 +99,15 @@ function parseJsonLine(line: string): Record<string, unknown> {
   } catch {
     const fixed = sanitizeJsonLine(line);
     return JSON.parse(fixed);
+  }
+}
+
+function parseJsonText<T>(raw: string): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    const fixed = sanitizeJsonLine(raw);
+    return JSON.parse(fixed) as T;
   }
 }
 
@@ -164,21 +205,23 @@ export async function findLatestValidRun(): Promise<LatestRunInfo | null> {
     }
   }
 
-  const summaryPath = path.join(publicLatest, "summary.json");
-  const snapshotCandidates = [path.join(publicLatest, "api_records.jsonl"), path.join(publicLatest, "api_snapshot.jsonl")];
-  for (const snapshotPath of snapshotCandidates) {
-    try {
-      const [summaryText, snapshotStat] = await Promise.all([
-        fs.readFile(summaryPath, "utf-8"),
-        fs.stat(snapshotPath),
-      ]);
-      if (!snapshotStat.size) continue;
-      const summary = JSON.parse(summaryText) as Record<string, unknown>;
-      if (!isRunValid(summary)) continue;
-      const runId = String(summary.run_id || "published_latest");
-      return { runId, summaryPath, snapshotPath, summary };
-    } catch {
-      // try next published candidate
+  if (allowPublicLatestFallback()) {
+    const summaryPath = path.join(publicLatest, "summary.json");
+    const snapshotCandidates = [path.join(publicLatest, "api_records.jsonl"), path.join(publicLatest, "api_snapshot.jsonl")];
+    for (const snapshotPath of snapshotCandidates) {
+      try {
+        const [summaryText, snapshotStat] = await Promise.all([
+          fs.readFile(summaryPath, "utf-8"),
+          fs.stat(snapshotPath),
+        ]);
+        if (!snapshotStat.size) continue;
+        const summary = JSON.parse(summaryText) as Record<string, unknown>;
+        if (!isRunValid(summary)) continue;
+        const runId = String(summary.run_id || "published_latest");
+        return { runId, summaryPath, snapshotPath, summary };
+      } catch {
+        // try next published candidate
+      }
     }
   }
 
@@ -198,7 +241,10 @@ export async function readLatestSnapshot() {
 
 export async function readRiskTruthPanel() {
   const { results, publicLatest } = dataDirs();
-  const targets = [path.join(results, "validation", "risk_truth_panel.json"), path.join(publicLatest, "risk_truth_panel.json")];
+  const targets = [path.join(results, "validation", "risk_truth_panel.json")];
+  if (allowPublicLatestFallback()) {
+    targets.push(path.join(publicLatest, "risk_truth_panel.json"));
+  }
   for (const target of targets) {
     try {
       const text = await fs.readFile(target, "utf-8");
@@ -216,7 +262,10 @@ export async function readRiskTruthPanel() {
 
 export async function readLatestValidationSummary() {
   const { results, publicLatest } = dataDirs();
-  const targets = [path.join(results, "validation", "latest_validation.json"), path.join(publicLatest, "latest_validation.json")];
+  const targets = [path.join(results, "validation", "latest_validation.json")];
+  if (allowPublicLatestFallback()) {
+    targets.push(path.join(publicLatest, "latest_validation.json"));
+  }
   for (const target of targets) {
     try {
       const raw = await fs.readFile(target, "utf-8");
@@ -291,8 +340,92 @@ export async function readJsonlWithValidationGate(pathFile: string) {
 export async function readDashboardOverview() {
   const { results } = dataDirs();
   const overviewPath = path.join(results, "dashboard", "overview.json");
-  const text = await fs.readFile(overviewPath, "utf-8");
-  return JSON.parse(text);
+  try {
+    const text = await fs.readFile(overviewPath, "utf-8");
+    return parseJsonText(text);
+  } catch {
+    const siteSnapshot = await readSiteFinanceSnapshot();
+    const sectorPressure = Array.isArray(siteSnapshot?.charts?.sector_pressure)
+      ? (siteSnapshot.charts.sector_pressure as Record<string, unknown>[])
+      : [];
+    const universe = Array.isArray(siteSnapshot?.current_universe)
+      ? (siteSnapshot.current_universe as Record<string, unknown>[])
+      : [];
+    const total = Math.max(1, universe.length);
+    const validated = universe.filter((row) => String(row.signal_status || "") === "validated").length;
+    const watch = universe.filter((row) => String(row.signal_status || "") === "watch").length;
+    return {
+      status: "ok",
+      generated_at_utc: siteSnapshot.generated_at_utc || "",
+      summary_cards: {
+        pct_assets_mase_lt_1: validated / total,
+        pct_assets_dir_acc_gt_052: (validated + watch) / total,
+      },
+      groups: sectorPressure.map((row) => ({
+        group: String(row.sector || ""),
+        mean_mase: toFiniteNumber(row.risk_mean) ?? 0,
+        mean_dir_acc: toFiniteNumber(row.confidence_mean) ?? 0,
+      })),
+      source: "site_finance_snapshot_fallback",
+    };
+  }
+}
+
+export async function readSiteFinanceSnapshot() {
+  for (const target of siteSnapshotCandidates()) {
+    try {
+      const text = await fs.readFile(target, "utf-8");
+      return sanitizeEncoding(parseJsonText(text));
+    } catch {
+      // try next target
+    }
+  }
+  return {
+    status: "missing",
+    generated_at_utc: "",
+    as_of_date: "",
+    sources: {},
+    finance: {
+      overall_readiness: "missing",
+      data_last_date: "",
+      operational_state: "",
+      risk_level_next_month: "",
+      confidence_score: null,
+      lab_run_id: "",
+      gate_blocked: true,
+      gate_reasons: [],
+      latest_state: {},
+      latest_playbook: {},
+    },
+    profit_research: {
+      rows_total: 0,
+      status_counts: {},
+      top_candidate: {},
+      oos_best_consistent: {},
+      insights: [],
+      pattern_headlines: [],
+      event_count: 0,
+    },
+    shadow: {
+      run_id: "",
+      latest: {},
+      historical_proxy_replay: {},
+    },
+    layered_engine: {
+      best_meta_candidate: {},
+      drawdown_best_balanced: {},
+      equity_best_overall: {},
+      meta_equity_winner: {},
+      best_crypto_rule: {},
+    },
+    charts: {
+      sector_pressure: [],
+      asset_watchlist: [],
+      crypto_watchlist: [],
+      allocation_mix: [],
+    },
+    current_universe: [],
+  };
 }
 
 export type LabCorrRunInfo = {
@@ -517,23 +650,27 @@ export async function findLatestLabCorrRun(): Promise<LabCorrRunInfo | null> {
     // fallback to bundled public artifacts
   }
 
-  try {
-    const pubDir = publicLabCorrLatestDir();
-    const summaryPath = path.join(pubDir, "summary.json");
-    const compactPath = path.join(pubDir, "summary_compact.txt");
-    const summaryRaw = await fs.readFile(summaryPath, "utf-8");
-    const summary = JSON.parse(summaryRaw) as Record<string, unknown>;
-    const runId = String(summary.run_id || "public_lab_corr_latest");
-    let summaryCompact = "";
+  if (allowPublicLatestFallback()) {
     try {
-      summaryCompact = await fs.readFile(compactPath, "utf-8");
+      const pubDir = publicLabCorrLatestDir();
+      const summaryPath = path.join(pubDir, "summary.json");
+      const compactPath = path.join(pubDir, "summary_compact.txt");
+      const summaryRaw = await fs.readFile(summaryPath, "utf-8");
+      const summary = JSON.parse(summaryRaw) as Record<string, unknown>;
+      const runId = String(summary.run_id || "public_lab_corr_latest");
+      let summaryCompact = "";
+      try {
+        summaryCompact = await fs.readFile(compactPath, "utf-8");
+      } catch {
+        summaryCompact = "";
+      }
+      return { runId, runDir: pubDir, summary, summaryCompact };
     } catch {
-      summaryCompact = "";
+      return null;
     }
-    return { runId, runDir: pubDir, summary, summaryCompact };
-  } catch {
-    return null;
   }
+
+  return null;
 }
 
 export async function readLatestLabCorrTimeseries(window = 120) {
@@ -916,6 +1053,274 @@ export async function readPlatformDbRelease() {
       run_id: "",
       db_path: path.join(results, "platform", "assyntrax_platform.db"),
       latest_db_snapshot: "",
+    };
+  }
+}
+
+async function findLatestSubdirWithFiles(
+  rootDir: string,
+  selector: (name: string) => boolean,
+  requiredFiles: string[]
+) {
+  try {
+    const entries = await fs.readdir(rootDir, { withFileTypes: true });
+    const dirs = entries
+      .filter((e) => e.isDirectory() && selector(e.name))
+      .map((e) => e.name)
+      .sort()
+      .reverse();
+    for (const dirName of dirs) {
+      const full = path.join(rootDir, dirName);
+      const checks = await Promise.all(
+        requiredFiles.map(async (f) => {
+          try {
+            await fs.access(path.join(full, f));
+            return true;
+          } catch {
+            return false;
+          }
+        })
+      );
+      if (checks.every(Boolean)) return { dirName, dirPath: full };
+    }
+  } catch {
+    // ignore and return null
+  }
+  return null;
+}
+
+export async function readOverfitGuardrailsLatest() {
+  const { results } = dataDirs();
+  const latestPath = path.join(results, "ops", "overfit_guardrails", "latest", "overfit_guardrails_summary.json");
+  try {
+    const raw = await fs.readFile(latestPath, "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    const root = path.join(results, "ops", "overfit_guardrails");
+    const latestDir = await findLatestSubdirWithFiles(root, (name) => /^\d{8}T\d{6}Z$/i.test(name), ["overfit_guardrails_summary.json"]);
+    if (!latestDir) {
+      return {
+        status: "missing",
+        final_gate: { publishable: false, advisory_ready: false },
+        steps: {},
+      };
+    }
+    try {
+      const raw = await fs.readFile(path.join(latestDir.dirPath, "overfit_guardrails_summary.json"), "utf-8");
+      return sanitizeEncoding(JSON.parse(raw));
+    } catch {
+      return {
+        status: "missing",
+        final_gate: { publishable: false, advisory_ready: false },
+        steps: {},
+      };
+    }
+  }
+}
+
+export async function readPortfolioSimulationLatest() {
+  const { results } = dataDirs();
+  const root = path.join(results, "portfolio_sim");
+  let selectedRun: { dirName: string; dirPath: string; summaryFile: string; weightsFile: string } | null = null;
+  try {
+    const entries = await fs.readdir(root, { withFileTypes: true });
+    const dirs = entries
+      .filter((e) => e.isDirectory() && /^\d{8}T\d{6}Z$/i.test(e.name))
+      .map((e) => e.name)
+      .sort()
+      .reverse();
+    for (const dirName of dirs) {
+      const dirPath = path.join(root, dirName);
+      const pairs = [
+        ["simulation_summary_conservative.json", "latest_allocation_weights_conservative.csv"],
+        ["simulation_summary.json", "latest_allocation_weights.csv"],
+      ];
+      for (const [summaryFile, weightsFile] of pairs) {
+        try {
+          await Promise.all([fs.access(path.join(dirPath, summaryFile)), fs.access(path.join(dirPath, weightsFile))]);
+          selectedRun = { dirName, dirPath, summaryFile, weightsFile };
+          break;
+        } catch {
+          // try next pair
+        }
+      }
+      if (selectedRun) break;
+    }
+  } catch {
+    selectedRun = null;
+  }
+
+  if (!selectedRun) {
+    return {
+      status: "missing",
+      run_id: "",
+      summary: {},
+      top_assets: [],
+    };
+  }
+  try {
+    const [summaryRaw, weightsRaw] = await Promise.all([
+      fs.readFile(path.join(selectedRun.dirPath, selectedRun.summaryFile), "utf-8"),
+      fs.readFile(path.join(selectedRun.dirPath, selectedRun.weightsFile), "utf-8"),
+    ]);
+    const summary = sanitizeEncoding(JSON.parse(summaryRaw)) as Record<string, unknown>;
+    const top_assets = parseCsvRecords(weightsRaw)
+      .map((row) => ({
+        asset_id: String(row.asset_id || row.ticker || "").trim(),
+        ticker: String(row.ticker || "").trim(),
+        sector_gics: String(row.sector_gics || "").trim(),
+        weight: toFiniteNumber(row.weight),
+        amount_1000: toFiniteNumber(row.amount_1000),
+        amount_10000: toFiniteNumber(row.amount_10000),
+        amount_100000: toFiniteNumber(row.amount_100000),
+      }))
+      .filter((row) => row.asset_id.length > 0)
+      .slice(0, 15);
+    return {
+      status: "ok",
+      run_id: selectedRun.dirName,
+      summary,
+      top_assets,
+    };
+  } catch {
+    return {
+      status: "missing",
+      run_id: selectedRun.dirName,
+      summary: {},
+      top_assets: [],
+    };
+  }
+}
+
+export async function readPortfolioSystematicLatest() {
+  const { results } = dataDirs();
+  const root = path.join(results, "portfolio_sim");
+  const latestRun = await findLatestSubdirWithFiles(
+    root,
+    (name) => name.endsWith("_systematic_yearly"),
+    ["systematic_summary.json", "yearly_systematic_eval.csv", "monthly_systematic_eval.csv"]
+  );
+  if (!latestRun) {
+    return {
+      status: "missing",
+      run_id: "",
+      summary: {},
+    };
+  }
+  try {
+    const summaryRaw = await fs.readFile(path.join(latestRun.dirPath, "systematic_summary.json"), "utf-8");
+    return {
+      status: "ok",
+      run_id: latestRun.dirName,
+      summary: sanitizeEncoding(JSON.parse(summaryRaw)),
+    };
+  } catch {
+    return {
+      status: "missing",
+      run_id: latestRun.dirName,
+      summary: {},
+    };
+  }
+}
+
+export async function readInvestmentShadowLatest() {
+  const { results } = dataDirs();
+  const root = path.join(results, "ops", "invest_shadow");
+  const latestPath = path.join(root, "latest_summary.json");
+  try {
+    const raw = await fs.readFile(latestPath, "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    try {
+      const latestRunRaw = await fs.readFile(path.join(root, "latest_run.json"), "utf-8");
+      const latestRun = JSON.parse(latestRunRaw) as Record<string, unknown>;
+      const summaryPath = String(latestRun.summary_path || "").trim();
+      if (summaryPath) {
+        const raw = await fs.readFile(summaryPath, "utf-8");
+        return sanitizeEncoding(JSON.parse(raw));
+      }
+    } catch {
+      // ignore and return missing payload below
+    }
+    return {
+      status: "missing",
+      latest: {},
+      live: { status: "empty" },
+      historical_proxy_replay: { status: "empty" },
+      proxies: {},
+    };
+  }
+}
+
+export async function readProfitResearchLatest() {
+  const { results } = dataDirs();
+  const target = path.join(results, "ops", "profit_research", "latest_registry.json");
+  const patternsTarget = path.join(results, "ops", "profit_research", "latest_patterns.json");
+  try {
+    const raw = await fs.readFile(target, "utf-8");
+    const base = sanitizeEncoding(parseJsonText<Record<string, unknown>>(raw));
+    try {
+      const patternsRaw = await fs.readFile(patternsTarget, "utf-8");
+      const patterns = sanitizeEncoding(parseJsonText<Record<string, unknown>>(patternsRaw));
+      return {
+        ...base,
+        patterns,
+      };
+    } catch {
+      return {
+        ...base,
+        patterns: {
+          status: "missing",
+          event_count: 0,
+          events: [],
+          pattern_headlines: [],
+        },
+      };
+    }
+  } catch {
+    return {
+      status: "missing",
+      registry_path: target,
+      rows_total: 0,
+      status_counts: {},
+      methodology_counts: {},
+      top_candidate: {},
+      top_keep_candidates: [],
+      top_watch_candidates: [],
+      kill_candidates: [],
+      insights: [],
+      rows: [],
+      patterns: {
+        status: "missing",
+        event_count: 0,
+        events: [],
+        pattern_headlines: [],
+      },
+    };
+  }
+}
+
+export async function readProfitMethodAuditLatest() {
+  const { results } = dataDirs();
+  const root = path.join(results, "validation", "profit_method_failure_audit");
+  const latestDir = await findLatestSubdirWithFiles(root, (name) => /^\d{8}T\d{6}Z$/i.test(name), ["summary.json"]);
+  if (!latestDir) {
+    return {
+      status: "missing",
+      promotable_now: false,
+      findings: [],
+      verdict: {},
+    };
+  }
+  try {
+    const raw = await fs.readFile(path.join(latestDir.dirPath, "summary.json"), "utf-8");
+    return sanitizeEncoding(JSON.parse(raw));
+  } catch {
+    return {
+      status: "missing",
+      promotable_now: false,
+      findings: [],
+      verdict: {},
     };
   }
 }

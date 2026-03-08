@@ -10,8 +10,18 @@ import {
   readLatestLabCorrTimeseries,
   readLatestSnapshot,
   readPlatformDbSnapshot,
+  readProfitMethodAuditLatest,
+  readProfitResearchLatest,
   readRiskTruthPanel,
+  readSiteFinanceSnapshot,
 } from "@/lib/server/data";
+import {
+  humanizeEngineState,
+  humanizeMethodology,
+  humanizeRiskLevel,
+  humanizeStatusWord,
+  humanizeStrategyName,
+} from "@/lib/enginePresentation";
 
 type GenericRow = Record<string, unknown>;
 
@@ -33,13 +43,26 @@ function lc(value: unknown): string {
 }
 
 function yesNo(value: boolean): string {
-  return value ? "sim" : "nao";
+  return value ? "sim" : "não";
+}
+
+function pctText(value: number | null | undefined, digits = 0): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${(value * 100).toFixed(digits)}%` : "--";
 }
 
 async function readJsonFile<T>(target: string, fallback: T): Promise<T> {
   try {
     const raw = await fs.readFile(target, "utf-8");
-    return JSON.parse(raw) as T;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return JSON.parse(
+        raw
+          .replace(/\bNaN\b/g, "null")
+          .replace(/\bInfinity\b/g, "null")
+          .replace(/\b-Infinity\b/g, "null")
+      ) as T;
+    }
   } catch {
     return fallback;
   }
@@ -142,20 +165,6 @@ async function readOperationalBrief() {
   }
 }
 
-type CorrModeSummary = {
-  available: boolean;
-  domain: string;
-  best_mode: string;
-  recall: number | null;
-  f1: number | null;
-  lift_precision_vs_random: number | null;
-  pre_signal_rate: number | null;
-  alert_rate: number | null;
-  data_last_date: string;
-  run_dir: string;
-  eval_path: string;
-};
-
 type FinanceProductReady = {
   available: boolean;
   overall_readiness: string;
@@ -166,78 +175,6 @@ type FinanceProductReady = {
   warnings: string[];
   report_path: string;
 };
-
-async function readRunPeriodEnd(runDir: string): Promise<string> {
-  const clean = runDir.trim();
-  if (!clean) return "";
-  const runMeta = await readJsonFile<GenericRow | null>(path.join(clean, "run_meta.json"), null);
-  const periodEnd = toText(runMeta?.period_end, "");
-  if (periodEnd) return periodEnd;
-  const summary = await readJsonFile<GenericRow | null>(path.join(clean, "summary.json"), null);
-  return toText(summary?.period_end, "");
-}
-
-async function readLatestCorrModes(domain: "energy" | "agro"): Promise<CorrModeSummary> {
-  const { results } = dataDirs();
-  const root = path.join(results, "macro3");
-  let dirs: string[] = [];
-  try {
-    dirs = (await fs.readdir(root))
-      .filter((name) => name.startsWith(`${domain}_corr_modes_`))
-      .sort()
-      .reverse();
-  } catch {
-    return {
-      available: false,
-      domain,
-      best_mode: "",
-      recall: null,
-      f1: null,
-      lift_precision_vs_random: null,
-      pre_signal_rate: null,
-      alert_rate: null,
-      data_last_date: "",
-      run_dir: "",
-      eval_path: "",
-    };
-  }
-
-  for (const d of dirs) {
-    const evalPath = path.join(root, d, "corr_event_modes_eval.json");
-    const payload = await readJsonFile<GenericRow | null>(evalPath, null);
-    if (!payload || toText(payload.status, "") !== "ok") continue;
-    const best = asObj(payload.best_mode);
-    const runDir = toText(payload.run_dir, "");
-    const dataLastDate = await readRunPeriodEnd(runDir);
-    return {
-      available: true,
-      domain,
-      best_mode: toText(best.mode, ""),
-      recall: toNum(best.recall),
-      f1: toNum(best.f1),
-      lift_precision_vs_random: toNum(best.lift_precision_vs_random),
-      pre_signal_rate: toNum(best.pre_signal_rate),
-      alert_rate: toNum(best.test_alert_rate ?? best.alert_rate),
-      data_last_date: dataLastDate,
-      run_dir: runDir,
-      eval_path: evalPath,
-    };
-  }
-
-  return {
-    available: false,
-    domain,
-    best_mode: "",
-    recall: null,
-    f1: null,
-    lift_precision_vs_random: null,
-    pre_signal_rate: null,
-    alert_rate: null,
-    data_last_date: "",
-    run_dir: "",
-    eval_path: "",
-  };
-}
 
 async function readFinanceProductReady(): Promise<FinanceProductReady> {
   const { results } = dataDirs();
@@ -359,14 +296,34 @@ type CopilotContext = {
     operational_state: string;
     action_hint: string;
     confidence_score: number | null;
+    allocation_mode: string;
+    target_exposure: number | null;
+    target_exposure_min: number | null;
+    target_exposure_max: number | null;
+    profit_reinforcement_enabled: boolean;
     top_sector_global: string;
     top_asset_global: string;
     insight_headlines: string[];
   };
   domain_scenarios: {
     finance: FinanceProductReady;
-    energy: CorrModeSummary;
-    agro: CorrModeSummary;
+  };
+  profit_research: {
+    available: boolean;
+    top_candidate: string;
+    top_methodology: string;
+    top_net_ann_return: number | null;
+    oos_candidate: string;
+    oos_mean_test_net_ann_return: number | null;
+    promotable_now: boolean;
+    audit_findings: string[];
+    keep_count: number;
+    watch_count: number;
+    kill_count: number;
+    registry_path: string;
+    insight_headlines: string[];
+    pattern_headlines: string[];
+    event_count: number;
   };
   improvement_backlog: string[];
   watch_assets: Array<{ asset: string; confidence: number; quality: number }>;
@@ -387,9 +344,10 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
     platformSnapshot,
     opBrief,
     financeReady,
-    energyModes,
-    agroModes,
     labAssetDiagnostics,
+    profitResearch,
+    profitMethodAudit,
+    siteSnapshot,
   ] =
     await Promise.all([
       findLatestValidRun(),
@@ -403,9 +361,10 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       readPlatformDbSnapshot(),
       readOperationalBrief(),
       readFinanceProductReady(),
-      readLatestCorrModes("energy"),
-      readLatestCorrModes("agro"),
       readLatestLabCorrAssetDiagnostics(2500),
+      readProfitResearchLatest(),
+      readProfitMethodAuditLatest(),
+      readSiteFinanceSnapshot(),
     ]);
 
   const shadow = await readCopilotShadow(run?.runId || null);
@@ -419,15 +378,22 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
   const labCounts = statusCountsFromLabAssetDiagnostics(
     Array.isArray(labAssetDiagnostics) ? (labAssetDiagnostics as GenericRow[]) : []
   );
+  const siteUniverse = Array.isArray((siteSnapshot as GenericRow)?.current_universe)
+    ? ((siteSnapshot as GenericRow).current_universe as GenericRow[])
+    : [];
+  const siteCounts = statusCountsFromRecords(siteUniverse);
   const panelCounts = asObj(asObj(panel).counts);
   let universe = {
-    assets: Number(toNum(panelCounts.assets, fallbackCounts.assets) || 0),
-    validated: Number(toNum(panelCounts.validated, fallbackCounts.validated) || 0),
-    watch: Number(toNum(panelCounts.watch, fallbackCounts.watch) || 0),
-    inconclusive: Number(toNum(panelCounts.inconclusive, fallbackCounts.inconclusive) || 0),
+    assets: Number(toNum(panelCounts.assets, fallbackCounts.assets || siteCounts.assets) || 0),
+    validated: Number(toNum(panelCounts.validated, fallbackCounts.validated || siteCounts.validated) || 0),
+    watch: Number(toNum(panelCounts.watch, fallbackCounts.watch || siteCounts.watch) || 0),
+    inconclusive: Number(toNum(panelCounts.inconclusive, fallbackCounts.inconclusive || siteCounts.inconclusive) || 0),
   };
   if (universe.assets <= 0 && labCounts.assets > 0) {
     universe = labCounts;
+  }
+  if (universe.assets <= 0 && siteCounts.assets > 0) {
+    universe = siteCounts;
   }
 
   const playbookRows = Array.isArray(playbook) ? (playbook as GenericRow[]) : [];
@@ -445,6 +411,8 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
   const opRunId = runIdFromRunDir(opRunDir);
   const opFreshness = asObj(opPayload.freshness);
   const opSignal = asObj(opPayload.operational_signal);
+  const opAlloc = asObj(opPayload.allocation_policy);
+  const opAllocSignals = asObj(opAlloc.signals);
   const opSnapshot = asObj(opPayload.state_snapshot);
   const opTopSectors = Array.isArray(opSnapshot.top_sectors_global_mode)
     ? (opSnapshot.top_sectors_global_mode as GenericRow[])
@@ -461,22 +429,52 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
     .map((row) => toText(asObj(row).message, "").trim())
     .filter((txt) => txt.length > 0)
     .slice(0, 4);
+  const siteFinance = asObj(asObj(siteSnapshot).finance);
+  const sitePlaybook = asObj(siteFinance.latest_playbook);
+  const siteResearch = asObj(asObj(siteSnapshot).profit_research);
+  const siteTopCandidate = asObj(siteResearch.top_candidate);
+  const siteLayered = asObj(asObj(siteSnapshot).layered_engine);
+  const siteAttack = asObj(siteLayered.best_meta_candidate);
+  const sitePatterns = Array.isArray(asObj(siteResearch.patterns).pattern_headlines)
+    ? (asObj(siteResearch.patterns).pattern_headlines as unknown[]).map((v) => String(v)).slice(0, 4)
+    : Array.isArray(siteResearch.pattern_headlines)
+      ? (siteResearch.pattern_headlines as unknown[]).map((v) => String(v)).slice(0, 4)
+      : [];
 
   const publishBlockers = Array.isArray(shadowFusion.publish_blockers)
     ? shadowFusion.publish_blockers.map((v) => String(v))
     : [];
 
   const improvementBacklog = [
-    "manter baseline estrutural causal por dominio e budget fixo de alertas",
-    "comparar ML tabular vs baseline com split temporal e random na mesma taxa de alerta",
-    "promover DL apenas se houver ganho estavel de lift e recall entre blocos",
+    "manter baseline estrutural causal para finanças e cripto com orçamento de risco fixo",
+    "comparar novos sleeves e overlays só com benchmark explícito, custo e delay",
+    "promover alpha novo apenas se sobreviver em walk-forward e shadow",
   ];
+  const profitResearchObj = asObj(profitResearch);
+  const profitTop = asObj(profitResearchObj.top_candidate);
+  const profitOos = asObj(profitResearchObj.oos_best_consistent);
+  const profitStatusCounts = asObj(profitResearchObj.status_counts);
+  const profitAudit = asObj(profitMethodAudit);
+  const profitAuditFindings = Array.isArray(profitAudit.findings)
+    ? profitAudit.findings
+        .map((v) => asObj(v))
+        .map((row) => toText(row.message, "").trim())
+        .filter((txt) => txt.length > 0)
+        .slice(0, 3)
+    : [];
+  const profitInsights = Array.isArray(profitResearchObj.insights)
+    ? profitResearchObj.insights.map((v) => String(v)).slice(0, 4)
+    : [];
+  const profitPatterns = asObj(profitResearchObj.patterns);
+  const profitPatternHeadlines = Array.isArray(profitPatterns.pattern_headlines)
+    ? profitPatterns.pattern_headlines.map((v) => String(v)).slice(0, 4)
+    : [];
 
   const context: CopilotContext = {
     generated_at_utc: new Date().toISOString(),
     assistant: {
       name: toText(instruction.name, "Eigen Engine Assistant"),
-      role: "copiloto_tecnico_multidominio",
+      role: "copiloto_tecnico_investimentos",
     },
     run: {
       id: run?.runId || opRunId || toText(shadowRun.run_id, "no_valid_run"),
@@ -489,18 +487,18 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
     universe,
     lab: {
       run_id: labRun?.runId || "no_lab_corr_run",
-      regime: toText(latestPlay.regime, "--"),
+      regime: toText(latestPlay.regime, toText(sitePlaybook.regime, "--")),
       signal_tier: toText(latestPlay.signal_tier, "--"),
-      signal_reliability: toNum(latestPlay.signal_reliability),
+      signal_reliability: toNum(latestPlay.signal_reliability, toNum(sitePlaybook.signal_reliability)),
       structure_score: toNum(latestState.structure_score),
-      n_used: toNum(latestState.N_used),
+      n_used: toNum(latestState.N_used, toNum(sitePlaybook.N_used)),
       n_events_60d: Number(toNum(alertObj.n_events_last_60d, 0) || 0),
     },
     model_b: {
       status: shadow ? "shadow_ativo" : "fallback",
       detail: shadow
         ? "Modelo B em shadow mode com artefato operacional por run."
-        : "Shadow de B nao encontrado para este run; usando fallback.",
+        : "Shadow de B não encontrado para este run; usando fallback.",
       regime: toText(shadowModelB.predicted_regime, "transition"),
       risk_score: toNum(shadowModelB.risk_score),
       confidence: toNum(shadowModelB.probability),
@@ -510,7 +508,7 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       status: shadow ? toText(shadowModelC.status, "shadow") : "fallback",
       detail: shadow
         ? "Modelo C acoplado ao mesmo fluxo de gate (shadow proxy)."
-        : "Shadow de C nao encontrado para este run; usando fallback.",
+        : "Shadow de C não encontrado para este run; usando fallback.",
       regime: toText(shadowModelC.regime, "indefinido"),
       risk_score: toNum(shadowModelC.risk_score),
       confidence: toNum(shadowModelC.confidence),
@@ -542,13 +540,19 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       data_last_date: toText(opPayload.data_last_date, ""),
       freshness_status: toText(opFreshness.status, "unknown"),
       freshness_days_lag: toNum(opFreshness.days_lag),
-      risk_level_next_month: toText(opSignal.risk_level_next_month, "unknown"),
-      operational_state: toText(opSignal.operational_state, "monitoramento_normal"),
+      risk_level_next_month: toText(opSignal.risk_level_next_month, toText(siteFinance.risk_level_next_month, "unknown")),
+      operational_state: toText(opSignal.operational_state, toText(siteFinance.operational_state, "monitoramento_normal")),
       action_hint: toText(opSignal.action_hint, "manter monitoramento estrutural"),
-      confidence_score: toNum(opSignal.confidence_score),
+      confidence_score: toNum(opSignal.confidence_score, toNum(siteFinance.confidence_score)),
+      allocation_mode: toText(opAlloc.mode, toText(opSignal.allocation_mode, "equilibrado")),
+      target_exposure: toNum(opAlloc.target_exposure, toNum(opSignal.target_exposure, toNum(sitePlaybook.exposure))),
+      target_exposure_min: toNum(opAlloc.range_min, toNum(opSignal.target_exposure_min)),
+      target_exposure_max: toNum(opAlloc.range_max, toNum(opSignal.target_exposure_max)),
+      profit_reinforcement_enabled:
+        opAlloc.profit_reinforcement_enabled === true || (toNum(opAllocSignals.alpha_recent6, 0) ?? 0) > 0,
       top_sector_global: opTopSector,
       top_asset_global: opTopAsset,
-      insight_headlines: opInsightHeadlines,
+      insight_headlines: opInsightHeadlines.length ? opInsightHeadlines : sitePatterns,
     },
     domain_scenarios: {
       finance: {
@@ -561,12 +565,27 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
         warnings: financeReady.warnings,
         report_path: financeReady.report_path,
       },
-      energy: energyModes,
-      agro: agroModes,
+    },
+    profit_research: {
+      available: toText(profitResearchObj.status, "missing") === "ok",
+      top_candidate: toText(profitTop.candidate_id, toText(siteTopCandidate.candidate_id, "--")),
+      top_methodology: toText(profitTop.methodology, toText(siteTopCandidate.methodology, "--")),
+      top_net_ann_return: toNum(profitTop.net_ann_return, toNum(siteTopCandidate.net_ann_return)),
+      oos_candidate: toText(profitOos.candidate_id, "--"),
+      oos_mean_test_net_ann_return: toNum(profitOos.mean_test_net_ann_return),
+      promotable_now: asObj(profitAudit.verdict).promotable_now === true,
+      audit_findings: profitAuditFindings,
+      keep_count: Number(toNum(profitStatusCounts.keep, 0) || 0),
+      watch_count: Number(toNum(profitStatusCounts.watch, 0) || 0),
+      kill_count: Number(toNum(profitStatusCounts.kill, 0) || 0),
+      registry_path: toText(profitResearchObj.registry_path, ""),
+      insight_headlines: profitInsights.length ? profitInsights : sitePatterns,
+      pattern_headlines: profitPatternHeadlines.length ? profitPatternHeadlines : sitePatterns,
+      event_count: Number(toNum(profitPatterns.event_count, 0) || 0),
     },
     improvement_backlog: improvementBacklog,
-    watch_assets: sampleAssets(rows, "watch", 6),
-    inconclusive_assets: sampleAssets(rows, "inconclusive", 6),
+    watch_assets: sampleAssets(rows.length ? rows : siteUniverse, "watch", 6),
+    inconclusive_assets: sampleAssets(rows.length ? rows : siteUniverse, "inconclusive", 6),
     sources: shadow
       ? [
           ...(Array.isArray(shadow.sources) ? shadow.sources.map((v) => String(v)) : []),
@@ -587,60 +606,168 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
 function withPublishGuard(message: string, ctx: CopilotContext): string {
   if (!ctx.run.gate_blocked) return message;
   const reasons = ctx.run.gate_reasons.length ? ctx.run.gate_reasons.join(", ") : "gate_or_integrity";
-  return `STATUS: NAO PUBLICAVEL\nMotivos: ${reasons}\n\n${message}`;
+  return `Aviso importante: a publicação oficial está bloqueada por gate.\nMotivos atuais: ${reasons}.\n\n${message}`;
+}
+
+function renderSaudacao(ctx: CopilotContext): string {
+  return withPublishGuard(
+    [
+      "Oi. Eu sou o copiloto do Eigen Engine.",
+      "",
+      "Eu te ajudo a entender o que o motor está vendo agora, quanto risco ele suporta, quando faz mais sentido olhar finanças ou cripto e quando a resposta certa é simplesmente operar menor.",
+      "",
+      "Se quiser, você pode me perguntar assim:",
+      "- o que você faz",
+      "- como usar o motor hoje",
+      "- quanto vai para risco",
+      "- finanças ou cripto agora",
+    ].join("\n"),
+    ctx
+  );
+}
+
+function renderCapabilities(ctx: CopilotContext): string {
+  const exposure =
+    ctx.operational_brief.target_exposure == null
+      ? "sem faixa limpa agora"
+      : `${Math.round(ctx.operational_brief.target_exposure * 100)}% de exposição alvo`;
+  return withPublishGuard(
+    [
+      "Eu não sou um chat genérico. Eu sou um copiloto focado no motor.",
+      "",
+      "Na prática, eu faço 4 coisas:",
+      "1. Traduzo o estado do Eigen Engine para português normal.",
+      "2. Mostro se hoje o contexto está mais favorável ou mais perigoso.",
+      "3. Explico como usar a faixa de risco e exposição sem teatrinho quantitativo.",
+      "4. Te digo quando algo ainda é só pesquisa e não merece confiança operacional.",
+      "",
+      `Hoje, por exemplo, a leitura operacional está em ${humanizeEngineState(ctx.operational_brief.operational_state || "monitoramento_normal")} com ${exposure}.`,
+    ].join("\n"),
+    ctx
+  );
+}
+
+function renderHowToUse(ctx: CopilotContext): string {
+  const exposure =
+    ctx.operational_brief.target_exposure == null
+      ? null
+      : Math.round(ctx.operational_brief.target_exposure * 100);
+  const risk = humanizeRiskLevel(ctx.operational_brief.risk_level_next_month || "unknown");
+  const confidence = pctText(ctx.operational_brief.confidence_score);
+  const action = ctx.operational_brief.action_hint || "manter monitoramento estrutural";
+  return withPublishGuard(
+    [
+      "Use o app nesta ordem:",
+      "1. Veja o estado do motor.",
+      "2. Veja o risco do próximo mês.",
+      "3. Só depois olhe a exposição sugerida.",
+      "4. Se a confiança estiver fraca ou o gate estiver bloqueado, opere menor ou não opere.",
+      "",
+      `Hoje eu resumiria assim: risco ${risk}, confiança ${confidence}, ação prática '${action}'.`,
+      exposure == null
+        ? "Hoje eu não vejo uma faixa limpa de exposição publicada."
+        : `Hoje a faixa central publicada gira em torno de ${exposure}% em risco.`,
+      "",
+      "Se você quiser, eu também posso transformar isso num exemplo com R$ 1 mil, R$ 10 mil ou R$ 50 mil.",
+    ].join("\n"),
+    ctx
+  );
 }
 
 function renderResumo(ctx: CopilotContext): string {
-  const opFresh =
-    ctx.operational_brief.freshness_days_lag == null
-      ? ctx.operational_brief.freshness_status
-      : `${ctx.operational_brief.freshness_status} (${ctx.operational_brief.freshness_days_lag}d)`;
-  const lines = [
-    `${ctx.assistant.name}: leitura estrutural (fisica matematica) do run atual:`,
-    `- Run: ${ctx.run.id} | gate bloqueado: ${yesNo(ctx.run.gate_blocked)} | politica: ${ctx.run.policy}.`,
-    `- Universo: ${ctx.universe.assets} ativos (${ctx.universe.validated} validated, ${ctx.universe.watch} watch, ${ctx.universe.inconclusive} inconclusive).`,
-    `- IA operacional: estado=${ctx.operational_brief.operational_state}, risco_mes=${ctx.operational_brief.risk_level_next_month}, data_base=${ctx.operational_brief.data_last_date || "--"}, freshness=${opFresh}.`,
-    `- Macro estrutural: regime=${ctx.lab.regime}, tier=${ctx.lab.signal_tier}, confianca=${ctx.lab.signal_reliability ?? "--"}.`,
-    `- B: regime=${ctx.model_b.regime}, risco=${ctx.model_b.risk_score ?? "--"}, conf=${ctx.model_b.confidence ?? "--"} (${ctx.model_b.mode}).`,
-    `- C: regime=${ctx.model_c.regime}, risco=${ctx.model_c.risk_score ?? "--"}, conf=${ctx.model_c.confidence ?? "--"} (${ctx.model_c.mode}).`,
-    `- Fusao: risco=${ctx.governance.risk_structural ?? "--"} (${ctx.governance.risk_level}), conf=${ctx.governance.confidence ?? "--"}, publishable=${yesNo(ctx.governance.publishable)}.`,
-    `- Banco: status=${ctx.platform_db.status}, run_indexado=${ctx.platform_db.run_id || "--"}, rows=${ctx.platform_db.rows_for_run}, copilot_row=${yesNo(ctx.platform_db.copilot_row_exists)}.`,
-    "- Limite formal: diagnostico estrutural, sem recomendacao de compra/venda e sem promessa de retorno.",
-  ];
-  return withPublishGuard(lines.join("\n"), ctx);
+  const blocked = ctx.run.gate_blocked;
+  const exposure =
+    ctx.operational_brief.target_exposure == null
+      ? "--"
+      : `${Math.round(ctx.operational_brief.target_exposure * 100)}%`;
+  const topResearch = humanizeStrategyName(ctx.profit_research.top_candidate || "--");
+  const regime = humanizeEngineState(ctx.lab.regime || "monitoramento_normal");
+  const risk = humanizeRiskLevel(ctx.operational_brief.risk_level_next_month || "unknown");
+  const intro = blocked
+    ? "Hoje eu usaria o app em modo diagnóstico. O motor ainda ajuda a entender o contexto, mas não está em trilha limpa para confiar cegamente."
+    : "Hoje a trilha do motor está mais íntegra. Ainda não é certeza de lucro, mas dá para usar a leitura como apoio de decisão.";
+  return withPublishGuard(
+    [
+      "Resumo rápido do motor:",
+      "",
+      intro,
+      "",
+      `O quadro de agora é este: risco para o próximo mês em ${risk}, exposição alvo perto de ${exposure} e estado ${humanizeEngineState(ctx.operational_brief.operational_state || "monitoramento_normal")}.`,
+      `No laboratório, o modo mais forte segue ${topResearch} e o regime principal continua em ${regime}.`,
+      `Temos ${ctx.universe.assets} ativos no universo atual, com ${ctx.universe.validated} validados e ${ctx.universe.watch} em observação.`,
+      "",
+      "Se você quiser, eu posso te responder de forma bem direta sobre risco, exposição, finanças, cripto ou pesquisa.",
+    ].join("\n"),
+    ctx
+  );
+}
+
+function renderProfitResearch(ctx: CopilotContext): string {
+  const insights = ctx.profit_research.insight_headlines.length
+    ? ctx.profit_research.insight_headlines.map((line) => `  - ${line}`).join("\n")
+    : "  - sem insights consolidados";
+  const patterns = ctx.profit_research.pattern_headlines.length
+    ? ctx.profit_research.pattern_headlines.map((line) => `  - ${line}`).join("\n")
+    : "  - sem padroes consolidados";
+  const audit = ctx.profit_research.audit_findings.length
+    ? ctx.profit_research.audit_findings.map((line) => `  - ${line}`).join("\n")
+    : "  - sem findings de auditoria";
+  return withPublishGuard(
+    [
+      "Pesquisa de lucro consolidada:",
+      `- Disponível: ${yesNo(ctx.profit_research.available)}.`,
+      `- Topo atual: ${humanizeStrategyName(ctx.profit_research.top_candidate)}.`,
+      `- Método: ${humanizeMethodology(ctx.profit_research.top_methodology)}.`,
+      `- Retorno líquido anual do topo: ${pctText(ctx.profit_research.top_net_ann_return)}.`,
+      `- Candidato OOS mais consistente: ${humanizeStrategyName(ctx.profit_research.oos_candidate)} com média de ${pctText(ctx.profit_research.oos_mean_test_net_ann_return)} ao ano.`,
+      `- Promovível agora: ${yesNo(ctx.profit_research.promotable_now)}.`,
+      `- Keep: ${ctx.profit_research.keep_count} | observação: ${ctx.profit_research.watch_count} | matar: ${ctx.profit_research.kill_count}.`,
+      `- Eventos registrados: ${ctx.profit_research.event_count}.`,
+      `- Registry: ${ctx.profit_research.registry_path || "--"}.`,
+      "- Insights:",
+      insights,
+      "- Padrões recentes:",
+      patterns,
+      "- Auditoria:",
+      audit,
+      "- Leitura correta: pesquisa de alpha e alocação, com custos e impostos em proxy explícita; não é promessa de retorno.",
+    ].join("\n"),
+    ctx
+  );
 }
 
 function renderGate(ctx: CopilotContext): string {
   const reasons = ctx.governance.publish_blockers.length ? ctx.governance.publish_blockers.join(", ") : "nenhum";
   return withPublishGuard(
     [
-      "Diagnostico de publicacao (gate):",
-      `- gate_blocked=${yesNo(ctx.run.gate_blocked)}.`,
-      `- publishable=${yesNo(ctx.governance.publishable)}.`,
-      `- blockers: ${reasons}.`,
-      `- janela oficial: ${ctx.run.window_days ?? "--"} dias; politica ativa: ${ctx.run.policy}.`,
-      "- Regra operacional: se publishable=false, resposta fica em modo diagnostico.",
+      "Diagnóstico de publicação:",
+      `- Gate bloqueado: ${yesNo(ctx.run.gate_blocked)}.`,
+      `- Publicável: ${yesNo(ctx.governance.publishable)}.`,
+      `- Motivos: ${reasons}.`,
+      `- Janela oficial: ${ctx.run.window_days ?? "--"} dias; política ativa: ${ctx.run.policy}.`,
+      "- Regra operacional: se a publicação não passa, a resposta fica em modo diagnóstico.",
     ].join("\n"),
     ctx
   );
 }
 
 function renderOperationalBrief(ctx: CopilotContext): string {
-  const lag =
-    ctx.operational_brief.freshness_days_lag == null ? "--" : String(ctx.operational_brief.freshness_days_lag);
-  const insights = ctx.operational_brief.insight_headlines.length
-    ? ctx.operational_brief.insight_headlines.map((line) => `  - ${line}`).join("\n")
-    : "  - sem insights sintetizados no brief atual";
+  const lag = ctx.operational_brief.freshness_days_lag == null ? "--" : String(ctx.operational_brief.freshness_days_lag);
+  const insight = ctx.operational_brief.insight_headlines[0] || "sem destaque sintético publicado agora";
+  const exposure =
+    ctx.operational_brief.target_exposure == null
+      ? "sem faixa limpa"
+      : `${Math.round(ctx.operational_brief.target_exposure * 100)}%`;
   return withPublishGuard(
     [
-      "Brief operacional unificado (IA):",
-      `- data_last_date=${ctx.operational_brief.data_last_date || "--"} | freshness=${ctx.operational_brief.freshness_status} | lag_dias=${lag}.`,
-      `- estado=${ctx.operational_brief.operational_state} | risco_proximo_mes=${ctx.operational_brief.risk_level_next_month} | confianca=${ctx.operational_brief.confidence_score ?? "--"}.`,
-      `- acao sugerida: ${ctx.operational_brief.action_hint}.`,
-      `- top setor global=${ctx.operational_brief.top_sector_global} | top ativo global=${ctx.operational_brief.top_asset_global}.`,
-      "- insights chave:",
-      insights,
-      "- Limite formal: estado estrutural e dependencia/relacao; nao e promessa direcional de preco.",
+      `Hoje o motor está em ${humanizeEngineState(ctx.operational_brief.operational_state || "monitoramento_normal")}, com risco do próximo mês em ${humanizeRiskLevel(ctx.operational_brief.risk_level_next_month || "unknown")}.`,
+      `A faixa de exposição alvo está perto de ${exposure}, com dados até ${ctx.operational_brief.data_last_date || "--"} e frescor ${ctx.operational_brief.freshness_status} (${lag} dias).`,
+      `A ação prática sugerida pelo motor é: ${ctx.operational_brief.action_hint}.`,
+      `O destaque do momento é ${ctx.operational_brief.top_asset_global || "sem ativo dominante limpo"} no setor ${ctx.operational_brief.top_sector_global || "sem setor dominante limpo"}.`,
+      `Insight curto: ${insight}.`,
+      `Confiança publicada agora: ${pctText(ctx.operational_brief.confidence_score)}.`,
+      "",
+      "Leitura correta: usar isso como contexto para tamanho de posição e disciplina de risco, não como promessa direcional de preço.",
     ].join("\n"),
     ctx
   );
@@ -650,11 +777,11 @@ function renderCausal(ctx: CopilotContext): string {
   return withPublishGuard(
     [
       "Checagem causal e integridade:",
-      "- O copiloto le artefatos do run e do painel de validacao, sem recalibrar historico durante resposta.",
+      "- O copiloto lê artefatos do run e do painel de validação, sem recalibrar histórico durante a resposta.",
       `- O brief operacional e lido de results/ops/ai_knowledge/latest_operational_brief.json (quando disponivel).`,
-      `- Politica declarada no run: ${ctx.run.policy}.`,
+      `- Política declarada no run: ${ctx.run.policy}.`,
       `- Nucleo de instrucoes ativo: ${ctx.instruction_core.version}.`,
-      "- Se houver falha de gate/integridade, status vira NAO PUBLICAVEL.",
+      "- Se houver falha de gate ou integridade, o copiloto assume modo diagnóstico.",
     ].join("\n"),
     ctx
   );
@@ -674,7 +801,7 @@ function renderAssets(ctx: CopilotContext): string {
       "Amostra de ativos para monitorar:",
       `- Watch: ${watch}.`,
       `- Inconclusive: ${inc}.`,
-      "- Priorize queda de confianca e mudanca de regime para acionar revisao operacional.",
+      "- Priorize queda de confiança e mudança de regime para acionar revisão operacional.",
     ].join("\n"),
     ctx
   );
@@ -686,7 +813,7 @@ function renderModels(ctx: CopilotContext): string {
       "Status dos modelos B e C:",
       `- B: status=${ctx.model_b.status}, modo=${ctx.model_b.mode}, regime=${ctx.model_b.regime}, risco=${ctx.model_b.risk_score ?? "--"}, conf=${ctx.model_b.confidence ?? "--"}.`,
       `- C: status=${ctx.model_c.status}, modo=${ctx.model_c.mode}, regime=${ctx.model_c.regime}, risco=${ctx.model_c.risk_score ?? "--"}, conf=${ctx.model_c.confidence ?? "--"}, publish_ready=${yesNo(ctx.model_c.publish_ready)}.`,
-      "- Fluxo: A em producao + B/C em shadow com bloqueio de publicacao por gate/integridade.",
+      "- Fluxo: A em produção + B/C em shadow com bloqueio de publicação por gate e integridade.",
     ].join("\n"),
     ctx
   );
@@ -694,17 +821,13 @@ function renderModels(ctx: CopilotContext): string {
 
 function renderDomainScenarios(ctx: CopilotContext): string {
   const f = ctx.domain_scenarios.finance;
-  const e = ctx.domain_scenarios.energy;
-  const a = ctx.domain_scenarios.agro;
-  const energyBest = e.available ? `${e.best_mode || "--"} (recall=${e.recall ?? "--"}, lift=${e.lift_precision_vs_random ?? "--"})` : "indisponivel";
-  const agroBest = a.available ? `${a.best_mode || "--"} (recall=${a.recall ?? "--"}, lift=${a.lift_precision_vs_random ?? "--"})` : "indisponivel";
   return withPublishGuard(
     [
-      "Cenarios por dominio (copiloto):",
-      `- Financas: readiness=${f.overall_readiness}, estado=${f.operational_state || "--"}, risco_proximo_mes=${f.risk_level_next_month || "--"}, data_base=${f.data_last_date || "--"}, conf=${f.confidence_score ?? "--"}.`,
-      `- Energia: modo_mais_forte=${energyBest}, alert_rate=${e.alert_rate ?? "--"}, pre_signal_rate=${e.pre_signal_rate ?? "--"}, data_base=${e.data_last_date || "--"}.`,
-      `- Agro: modo_mais_forte=${agroBest}, alert_rate=${a.alert_rate ?? "--"}, pre_signal_rate=${a.pre_signal_rate ?? "--"}, data_base=${a.data_last_date || "--"}.`,
-      "- Uso correto: diagnosticar mudanca de estrutura e dependencia entre series; nao prever preco diretamente.",
+      `Finanças estão em ${humanizeEngineState(f.operational_state || "monitoramento_normal")} com risco ${humanizeRiskLevel(f.risk_level_next_month || "unknown")} e data-base ${f.data_last_date || "--"}.`,
+      `Na pesquisa, o topo atual é ${humanizeStrategyName(ctx.profit_research.top_candidate || "--")} com método ${humanizeMethodology(ctx.profit_research.top_methodology || "--")} e retorno líquido anual de ${pctText(ctx.profit_research.top_net_ann_return)}.`,
+      `O estado operacional combina isso com exposição alvo de ${pctText(ctx.operational_brief.target_exposure)} e ativo líder ${ctx.operational_brief.top_asset_global || "--"}.`,
+      "",
+      "Uso correto: entender qual sleeve está mais forte e qual faixa de risco faz sentido hoje. Não é um oráculo de preço.",
     ].join("\n"),
     ctx
   );
@@ -717,10 +840,22 @@ function renderImprovementPlan(ctx: CopilotContext): string {
   return withPublishGuard(
     [
       "Plano de melhoria (ML/DL com rigor causal):",
-      "- Treino em janela fixa, teste so no futuro, walk-forward por blocos de tempo.",
-      "- Sempre comparar contra alerta aleatorio com mesma taxa de alertas.",
-      "- Promover modelo novo so com ganho estavel em varios blocos; se nao houver, manter baseline estrutural.",
+      "- Treino em janela fixa, teste só no futuro, walk-forward por blocos de tempo.",
+      "- Sempre comparar contra alerta aleatório com mesma taxa de alertas.",
+      "- Promover modelo novo só com ganho estável em vários blocos; se não houver, manter baseline estrutural.",
       items,
+    ].join("\n"),
+    ctx
+  );
+}
+
+function renderGreetingFallback(ctx: CopilotContext): string {
+  return withPublishGuard(
+    [
+      "Entendi a pergunta, mas vou te responder do jeito mais útil para o produto.",
+      "",
+      `Hoje o motor está em ${humanizeEngineState(ctx.operational_brief.operational_state || "monitoramento_normal")} e a faixa de risco gira em torno de ${pctText(ctx.operational_brief.target_exposure)}.`,
+      "Se você quiser, me pergunta em linguagem simples: 'o que eu faço hoje', 'quanto vai para risco', 'finanças ou cripto', 'o que você faz' ou 'me explica sem economês'.",
     ].join("\n"),
     ctx
   );
@@ -728,24 +863,63 @@ function renderImprovementPlan(ctx: CopilotContext): string {
 
 export function buildCopilotReply(question: string, ctx: CopilotContext): string {
   const q = question.trim().toLowerCase();
-  if (!q) return renderResumo(ctx);
+  if (!q) return renderSaudacao(ctx);
+
+  if (
+    q === "oi" ||
+    q === "olá" ||
+    q === "ola" ||
+    q === "bom dia" ||
+    q === "boa tarde" ||
+    q === "boa noite" ||
+    q === "e ai" ||
+    q === "e aí"
+  ) {
+    return renderSaudacao(ctx);
+  }
+
+  if (
+    q.includes("o que você faz") ||
+    q.includes("o que vc faz") ||
+    q.includes("quem é você") ||
+    q.includes("quem e voce") ||
+    q.includes("quem é vc") ||
+    q.includes("quem e vc")
+  ) {
+    return renderCapabilities(ctx);
+  }
+
+  if (
+    q.includes("como usar") ||
+    q.includes("como eu uso") ||
+    q.includes("como usar o app") ||
+    q.includes("como usar o motor") ||
+    q.includes("me ajuda a usar")
+  ) {
+    return renderHowToUse(ctx);
+  }
 
   if (
     q.includes("estado") ||
     q.includes("operac") ||
     q.includes("acao") ||
     q.includes("brief") ||
-    q.includes("insight")
+    q.includes("insight") ||
+    q.includes("expos") ||
+    q.includes("lucro") ||
+    q.includes("perda")
   )
     return renderOperationalBrief(ctx);
+  if (q.includes("alpha") || q.includes("benchmark") || q.includes("grupo") || q.includes("pesquisa") || q.includes("metodologia"))
+    return renderProfitResearch(ctx);
   if (q.includes("gate") || q.includes("public") || q.includes("bloque")) return renderGate(ctx);
   if (q.includes("causal") || q.includes("look") || q.includes("futuro") || q.includes("leak")) return renderCausal(ctx);
   if (q.includes("ativo") || q.includes("watch") || q.includes("inconclusive") || q.includes("setor")) return renderAssets(ctx);
-  if (q.includes("agro") || q.includes("energia") || q.includes("finan")) return renderDomainScenarios(ctx);
+  if (q.includes("finan") || q.includes("cripto") || q.includes("mercado") || q.includes("dominio")) return renderDomainScenarios(ctx);
   if (q.includes("ml") || q.includes("dl") || q.includes("deep learning") || q.includes("melhor") || q.includes("padrao"))
     return renderImprovementPlan(ctx);
   if (q.includes("modelo b") || q.includes("modelo c") || q.includes("gnn") || q.includes("rede neural"))
     return renderModels(ctx);
 
-  return renderResumo(ctx);
+  return renderGreetingFallback(ctx);
 }

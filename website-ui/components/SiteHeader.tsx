@@ -21,11 +21,8 @@ export default function SiteHeader() {
         <Link className="hover:text-white transition" href="/financas">
           Finanças
         </Link>
-        <Link className="hover:text-white transition" href="/energia">
-          Energia
-        </Link>
-        <Link className="hover:text-white transition" href="/agro">
-          Agro
+        <Link className="hover:text-white transition" href="/cripto">
+          Cripto
         </Link>
         <Link className="hover:text-white transition" href="/evidencias">
           Evidências
@@ -33,8 +30,14 @@ export default function SiteHeader() {
         <Link className="hover:text-white transition" href="/methods">
           Eigen Engine
         </Link>
-        <Link className="rounded-xl border border-cyan-300/45 bg-white/5 px-3 py-2 font-medium text-zinc-100 hover:border-cyan-200 hover:bg-white/10 transition" href="/contact">
-          Solicitar demonstração
+        <Link className="hover:text-white transition" href="/product">
+          Produto
+        </Link>
+        <Link className="hover:text-white transition" href="/app/copiloto">
+          Copiloto
+        </Link>
+        <Link className="rounded-xl border border-cyan-300/45 bg-white/5 px-3 py-2 font-medium text-zinc-100 hover:border-cyan-200 hover:bg-white/10 transition" href="/app/dashboard">
+          Abrir plataforma
         </Link>
       </nav>
     </header>

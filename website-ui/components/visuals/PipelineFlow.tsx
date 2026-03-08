@@ -1,59 +1,65 @@
+import HelpHint from "@/components/ui/HelpHint";
+
 const steps = [
   {
+    step: "01",
     title: "Dados",
-    text: "Retornos por ativo com checagem de cobertura e consistência temporal.",
-    details:
-      "Ver mais: o run exige qualidade mínima de dados antes de calcular regime.",
+    helper: "Cobertura temporal, consistência e janela ativa por ativo.",
+    text: "Retornos por ativo com checagem de cobertura, consistência temporal e histórico mínimo.",
+    detail: "Sem dado limpo, o motor não entra na camada estrutural.",
   },
   {
+    step: "02",
     title: "Winsorização",
-    text: "Tratamento de outliers por janela de 252 dias (0,5% a 99,5%).",
-    details:
-      "Ver mais: reduz distorções de choques extremos na matriz de correlação.",
+    helper: "Corte de extremos em janela de 252 dias entre 0,5% e 99,5%.",
+    text: "Tratamento de outliers para reduzir distorção de choques extremos na matriz.",
+    detail: "A ideia é cortar distorção, não apagar risco real.",
   },
   {
+    step: "03",
     title: "Espectro",
+    helper: "Autovalores, autovetores, dimensão efetiva e concentração de risco.",
     text: "Análise espectral da matriz de correlação para medir estrutura do sistema.",
-    details:
-      "Ver mais: extração de métricas como concentração de risco e dimensão efetiva.",
+    detail: "É aqui que o ruído tenta se passar por sinal, e o motor tenta separar os dois.",
   },
   {
+    step: "04",
     title: "Regime",
-    text: "Classificação causal walk-forward em estável, transição ou estresse.",
-    details:
-      "Ver mais: limiares calibrados somente com histórico disponível até cada data.",
+    helper: "Classificação causal walk-forward com histerese operacional.",
+    text: "Leitura em estável, transição, estresse ou dispersão para ajustar o orçamento de risco.",
+    detail: "O motor prefere errar devagar a ficar flipando estado por barulho curto.",
   },
   {
+    step: "05",
     title: "Gate",
-    text: "Publicação automática apenas quando checks mínimos são aprovados.",
-    details:
-      "Ver mais: run bloqueado quando cobertura, universo ou QA ficam abaixo do limite.",
+    helper: "Bloqueio automático se cobertura, universo ou QA falham.",
+    text: "Publicação automática só quando os checks mínimos são aprovados.",
+    detail: "Se a integridade cai, a UI deve mostrar diagnóstico, não fantasia de produção.",
   },
 ];
 
 export default function PipelineFlow() {
   return (
-    <div className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-8">
-      <div className="text-xs uppercase tracking-[0.3em] text-zinc-400">Pipeline do motor</div>
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-5 gap-4">
-        {steps.map((s, idx) => (
-          <div
-            key={s.title}
-            className="relative rounded-2xl border border-zinc-800 bg-black/60 p-4 h-full transition hover:-translate-y-1 hover:border-zinc-600"
+    <section className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">Pipeline do motor</div>
+      <div className="mt-5 grid gap-4 lg:grid-cols-5">
+        {steps.map((item) => (
+          <article
+            key={item.step}
+            className="rounded-2xl border border-zinc-800 bg-black/20 p-4 transition hover:-translate-y-1 hover:border-zinc-600"
           >
-            <div className="absolute -top-3 left-4 text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-              {String(idx + 1).padStart(2, "0")}
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+              <span>{item.step}</span>
+              <HelpHint text={item.helper} />
             </div>
-            <div className="text-sm font-semibold">{s.title}</div>
-            <div className="mt-2 text-xs text-zinc-300">{s.text}</div>
-            <details className="mt-3">
-              <summary className="cursor-pointer text-xs text-cyan-300">Ver mais</summary>
-              <p className="mt-2 text-xs text-zinc-400">{s.details}</p>
-            </details>
-          </div>
+            <h2 className="mt-3 text-lg font-semibold text-zinc-100">{item.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-300">{item.text}</p>
+            <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950/60 px-3 py-3 text-xs leading-5 text-zinc-400">
+              {item.detail}
+            </div>
+          </article>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
-
