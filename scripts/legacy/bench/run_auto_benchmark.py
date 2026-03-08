@@ -20,7 +20,7 @@ from scripts.utils.run_with_progress import run_with_progress
 TASKS = [
     {
         "name": "Duffing (kmeans+hdbscan)",
-        "command": ["python", "scripts/sim/run_duffing_analysis.py"],
+        "command": ["python", "scripts/legacy/sim/run_duffing_analysis.py"],
         "expected_seconds": 120,
         "out_dir": "results/duffing_kmeans",
     },
@@ -28,7 +28,7 @@ TASKS = [
         "name": "Lorenz (hdbscan)",
         "command": [
             "python",
-            "scripts/sim/run_lorenz_analysis.py",
+            "scripts/legacy/sim/run_lorenz_analysis.py",
             "--method",
             "auto",
             "--outdir",
@@ -46,7 +46,7 @@ TASKS = [
         "name": "Lorenz (kmeans)",
         "command": [
             "python",
-            "scripts/sim/run_lorenz_analysis.py",
+            "scripts/legacy/sim/run_lorenz_analysis.py",
             "--method",
             "auto",
             "--outdir",
@@ -64,7 +64,7 @@ TASKS = [
         "name": "Van der Pol (heuristico)",
         "command": [
             "python",
-            "scripts/sim/run_vanderpol_analysis.py",
+            "scripts/legacy/sim/run_vanderpol_analysis.py",
             "--outdir",
             "results/vanderpol_benchmark",
             "--label-mode",
@@ -80,7 +80,7 @@ TASKS = [
         "name": "Regimes sintéticos",
         "command": [
             "python",
-            "scripts/sim/run_synthetic_regimes.py",
+            "scripts/legacy/sim/run_synthetic_regimes.py",
             "--outdir",
             "results/synthetic_benchmark",
             "--system-type",
@@ -93,7 +93,7 @@ TASKS = [
         "name": "Pendulo duplo (pesado)",
         "command": [
             "python",
-            "scripts/sim/run_pendulo_duplo_analysis.py",
+            "scripts/legacy/sim/run_pendulo_duplo_analysis.py",
             "--outdir",
             "results/pendulo_duplo_benchmark",
         ],

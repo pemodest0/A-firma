@@ -4,75 +4,56 @@
   <img src="website-ui/public/assets/brand/assyntrax-mark.svg" alt="Logo Assyntrax" width="120" />
 </p>
 
-Repositório canônico da **Assyntrax** (empresa/plataforma) e do **Eigen Engine** (motor de diagnóstico estrutural).
+Repositório canônico da **Assyntrax**, com foco em **finanças**, **cripto** e no **Eigen Engine**, o motor de diagnóstico estrutural e alocação com controle de risco.
 
-## Marca e produto
-- **Assyntrax**: empresa, site e plataforma operacional.
-- **Eigen Engine**: motor quantitativo de regimes e transições estruturais.
-- **Eigen Engine Assistant**: copiloto técnico do projeto (contextualizado por domínio).
+## O que é a Assyntrax
+- **Assyntrax**: plataforma de diagnóstico quantitativo, pesquisa de alpha e operação assistida.
+- **Eigen Engine**: motor estrutural que lê matriz de correlação, espectro, regime e pressão sistêmica.
+- **Copiloto**: camada de explicação operacional, leitura de contexto e apoio de decisão.
 
-## Setores de atuação
-- **Finanças**: estrutura de risco, concentração e transição de regime.
-- **Energia**: mudanças estruturais em séries de carga/custo/coupling.
-- **Agro**: dinâmica macro-setorial e transições em séries mensais.
+## Foco atual do produto
+- **Finanças globais**: leitura de regime, concentração, breadth e risco estrutural.
+- **Cripto líquido**: sleeves agressivos, meta-switch, shadow e comparação contra benchmark correto.
+- **Execução controlada**: guardrails, shadow, scorecard, stress test e governança de publicação.
 
-## Links oficiais
-- Repositório: `https://github.com/pemodest0/Assyntrax`
-- Branch oficial: `main`
-- App oficial (Vercel): `https://assyntrax.vercel.app`
-- Licença: MIT (`LICENSE`)
+## O que o motor faz
+- Estima correlação e covariância robusta entre ativos.
+- Extrai sinal estrutural via espectro, autovalores, autovetores e métricas de regime.
+- Combina isso com ranking, sleeves, meta-switch e regras de proteção de drawdown.
+- Publica somente quando os artefatos mínimos e os gates passam.
 
-## O que o Eigen Engine faz
-- Diagnóstico causal de estrutura com matriz de correlação dinâmica.
-- Leitura de regime com governança de publicação por gate.
-- Ranking de impacto ativo→setor e setor→global.
-- Validação temporal com split treino/teste e comparação com baseline aleatório.
-
-## Simulações e validações ativas
-- Walk-forward temporal por blocos.
-- Treino até data fixa e teste somente no futuro.
-- Comparação de alerta estrutural vs alerta aleatório na mesma taxa.
-- Controle de estabilidade entre blocos antes de promover regra/modelo.
-
-## Estrutura principal
-- `scripts/lab/run_corr_macro_offline.py`: núcleo do Eigen Engine.
-- `config/lab_corr_policy.json`: política oficial de parâmetros.
-- `scripts/ops/run_daily_master.py`: pipeline diário auditável.
-- `scripts/ops/publish_latest_if_gate_ok.py`: publicação condicionada ao gate.
-- `engine/structural/`: RMT, espectro, CSD, score e impacto.
-- `engine/core/universe.py`: seleção determinística de universo global/setorial.
-- `engine/ops/metadata.py`: contrato de metadados de ativos.
-- `website-ui/`: diretório técnico local do site Assyntrax.
-- `results/`: artefatos de execução, validação e publicação.
+## O que existe no repositório
+- `engine/structural/`: espectro, covariância robusta, limpeza RMT, estabilidade.
+- `engine/portfolio/`: Monte Carlo por regime, HRP, challenger HMM, camadas auxiliares de risco.
+- `execution/`: retornos, custos, premissas líquidas e avaliação operacional.
+- `scripts/lab/`: pipeline estrutural principal.
+- `scripts/ops/`: shadow, snapshots, registry, scorecards e automação.
+- `scripts/bench/validation/`: baterias de validação, yearbooks, stress, comparativos e pesquisa.
+- `website-ui/`: site e app do produto.
+- `results/`: artefatos auditáveis de execução, pesquisa e publicação.
 
 ## Artefatos centrais
 - `results/ops/finance_product_ready/latest_finance_product_ready.json`
-- `results/ops/ai_knowledge/latest_operational_brief.json`
+- `results/ops/profit_research/latest_registry.json`
+- `results/ops/profit_research/latest_patterns.json`
+- `results/ops/site_data/latest_site_snapshot.json`
 - `results/platform/latest_db_snapshot.json`
-- `results/validation/latest_validation.json`
 
-## Fluxo canônico por sessão
-1. `git fetch origin --prune`
-2. `git pull --ff-only origin main`
-3. `./scripts/ops/run_repo_healthcheck.sh`
-4. Implementar escopo
-5. `cd website-ui && npm run build` (quando houver mudança de frontend)
-6. Commit pequeno e objetivo
-7. `git push origin main`
+## Fluxo operacional
+1. Atualizar a `main`
+2. Rodar suites e pipelines necessários
+3. Validar gates e artefatos
+4. Atualizar snapshot/site/copiloto
+5. Fazer commit pequeno e defensável
+6. Publicar na `main`
 
-## Comandos essenciais
-- Sincronizar local com remoto (remoto vence):
-  - Mac/Linux: `./scripts/ops/git_sync_canonical.sh`
-  - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\git_sync_canonical.ps1`
-- Rodar pipeline diário local:
-  - Mac/Linux: `bash ./scripts/ops/run_daily_jobs.sh 23 80`
-  - Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\ops\\run_daily_jobs.ps1 -Seed 23 -MaxAssets 80`
+## Links
+- Repositório: `https://github.com/pemodest0/Assyntrax`
+- App: `https://assyntrax.vercel.app`
+- Licença: MIT
 
-## Documentação técnica
-- Manual mestre: `docs/motor/MANUAL_MESTRE_ASSYNTRAX.md`
-- Teoria do motor: `docs/motor/THEORY_ASSYNTRAX.md`
-- Mapa de arquivos e funções: `docs/motor/EIGEN_ENGINE_FILE_FUNCTION_MAP.md`
-- Índice geral: `docs/INDEX.md`
+## Observação importante
+O foco visível do produto hoje é **finanças e cripto**. Verticais legadas podem ainda existir no código e em artefatos históricos, mas não são a frente principal da plataforma.
 
 ## Licença
 Este projeto está licenciado sob MIT. Consulte `LICENSE`.

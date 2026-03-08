@@ -26,7 +26,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from engine.diagnostics.regime_labels import RegimeClassifier
-from scripts.sim.simulate_lorenz import generate_lorenz_series
+from scripts.legacy.sim.simulate_lorenz import generate_lorenz_series
 
 
 def plot_entropy_vs_tau(metrics: list[dict[str, float]], out_path: Path) -> None:
@@ -259,4 +259,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

@@ -6,7 +6,7 @@
 - `spa/engine/diagnostics/regime_labels.py`: `RegimeClassifier.embed`, `select_embedding`, recurrence + local features.
 - `spa/models/takens_knn.py`: `TakensKNN` + `embed` helper.
 - `spa/diagnostics_phase.py`: embedding segmentation + plotting patterns.
-- `scripts/engine/run_global_multivariate.py`: `takens_multivariate` helper.
+- `scripts/legacy/engine/run_global_multivariate.py`: `takens_multivariate` helper legado.
 
 ### Data loading (finance + generic)
 - `scripts/finance/run_daily_forecast.py`: `_load_series` (CSV or yfinance) and standardized pricing series.
@@ -21,7 +21,7 @@
 
 ### Reporting & plots
 - `spa/run.py`: `generate_report` for PDF.
-- `scripts/sim/run_lorenz_analysis.py` / `run_vanderpol_analysis.py` / `run_pendulo_duplo_analysis.py`: report.md/pdf patterns.
+- `scripts/legacy/sim/run_lorenz_analysis.py` / `run_vanderpol_analysis.py` / `run_pendulo_duplo_analysis.py`: report.md/pdf patterns legados.
 - `scripts/report/generate_figures.py`: plot utilities and embedding plots.
 
 ### Existing output schemas
@@ -66,10 +66,9 @@ scripts/bench/run_graph_regime_universe.py
 ## Reuse strategy (imports only)
 - Embedding: use `spa.models.takens_knn.embed` or `RegimeClassifier.embed`.
 - Walk-forward/sanity: copy patterns from `scripts/bench/run_finance_walkforward.py`.
-- CSV/plot exporting: mirror `scripts/sim/*analysis.py` structure.
+- CSV/plot exporting: mirror `scripts/legacy/sim/*analysis.py` structure.
 
 ## Non-conflict rule
 - No changes to `spa/` or existing `scripts/`.
 - No touching `results/latest/`.
 - All new outputs go to `results/latest_graph/`.
-

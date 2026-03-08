@@ -17,14 +17,14 @@ except Exception:  # pragma: no cover - optional dependency
 TASKS = [
     {
         "name": "Duffing (kmeans+hdbscan)",
-        "command": ["python", "scripts/sim/run_duffing_analysis.py"],
+        "command": ["python", "scripts/legacy/sim/run_duffing_analysis.py"],
         "expected_seconds": 120,
     },
     {
         "name": "Lorenz (hdbscan)",
         "command": [
             "python",
-            "scripts/sim/run_lorenz_analysis.py",
+            "scripts/legacy/sim/run_lorenz_analysis.py",
             "--method",
             "hdbscan",
             "--outdir",
@@ -36,7 +36,7 @@ TASKS = [
         "name": "Van der Pol (hdbscan)",
         "command": [
             "python",
-            "scripts/sim/run_vanderpol_analysis.py",
+            "scripts/legacy/sim/run_vanderpol_analysis.py",
             "--outdir",
             "results/vanderpol_hdbscan_curriculum",
         ],
@@ -44,7 +44,7 @@ TASKS = [
     },
     {
         "name": "Regimes sintéticos",
-        "command": ["python", "scripts/sim/run_synthetic_regimes.py"],
+        "command": ["python", "scripts/legacy/sim/run_synthetic_regimes.py"],
         "expected_seconds": 40,
     },
 ]
@@ -54,7 +54,7 @@ HEAVY_TASKS = [
         "name": "Pendulo duplo (pesado)",
         "command": [
             "python",
-            "scripts/sim/run_pendulo_duplo_analysis.py",
+            "scripts/legacy/sim/run_pendulo_duplo_analysis.py",
             "--outdir",
             "results/pendulo_duplo_curriculum",
         ],

@@ -29,6 +29,8 @@ Deixar claro o que e fluxo oficial e o que e pesquisa para evitar dead-ends e sc
   Entrypoints de experimentacao de engine legado/transicao (research).
 - `scripts/research/`
   Scripts exploratorios avulsos que nao entram no fluxo oficial.
+- `scripts/legacy/`
+  Scripts retirados do fluxo ativo; mantidos temporariamente para referencia ou exclusao futura.
 - `scripts/maintenance/`
   Utilitarios de manutencao local (sempre com modo dry-run padrao).
 

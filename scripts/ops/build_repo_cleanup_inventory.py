@@ -17,6 +17,7 @@ KEEP_TOP = {
     "data",
     "docs",
     "engine",
+    "execution",
     "features",
     "models",
     "scripts",
@@ -30,6 +31,25 @@ REVIEW_HINTS = {
     "scripts/engine",
     "scripts/bench",
     "docs/notes",
+    "output",
+}
+
+TOP_LEVEL_ACTIONS = {
+    ".github": "keep_core",
+    "config": "keep_core",
+    "contracts": "keep_core",
+    "data": "keep_data",
+    "docs": "keep_docs",
+    "engine": "keep_core",
+    "execution": "keep_core",
+    "features": "keep_contract",
+    "models": "keep_optional",
+    "output": "archive_candidate",
+    "results": "generated_only",
+    "scripts": "mixed_review",
+    "tests": "keep_core",
+    "tools": "keep_core",
+    "website-ui": "keep_core",
 }
 
 
@@ -62,35 +82,112 @@ def classification(path: str) -> str:
     return "keep"
 
 
+def dir_size_kb(path: Path) -> int:
+    proc = subprocess.run(
+        ["du", "-sk", str(path)],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return int(proc.stdout.split()[0])
+
+
+def git_status_rows() -> list[dict[str, str]]:
+    proc = subprocess.run(
+        ["git", "status", "--short"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    rows: list[dict[str, str]] = []
+    for line in proc.stdout.splitlines():
+        if not line.strip():
+            continue
+        status = line[:2]
+        path = line[3:]
+        rows.append({"status": status, "path": path, "top": top_dir(path)})
+    return rows
+
+
 def build_report() -> dict:
     tracked = git_tracked_files()
     counts = Counter(top_dir(p) for p in tracked)
+    status_rows = git_status_rows()
+    status_by_top = Counter(row["top"] for row in status_rows)
+    status_by_kind = Counter(row["status"].strip() or "??" for row in status_rows)
 
     per_top = []
-    for top, n in sorted(counts.items(), key=lambda x: (-x[1], x[0])):
-        cls = "keep" if top in KEEP_TOP else "review"
-        per_top.append({"top": top, "tracked_files": n, "classification": cls})
-
-    review_paths = [p for p in tracked if classification(p) == "review"]
-    review_sample = review_paths[:120]
-
-    untracked_top = []
-    for child in sorted(ROOT.iterdir()):
+    for child in sorted(ROOT.iterdir(), key=lambda p: p.name):
         if child.name.startswith("."):
             continue
-        if child.is_dir() and child.name not in counts:
-            untracked_top.append(child.name)
+        top = child.name
+        tracked_n = counts.get(top, 0)
+        status_n = status_by_top.get(top, 0)
+        on_disk = child.exists()
+        size_kb = dir_size_kb(child) if on_disk else 0
+        cls = "keep" if top in KEEP_TOP else "review"
+        action = TOP_LEVEL_ACTIONS.get(top, "review_manual")
+        per_top.append({"top": top, "classification": cls})
+        per_top[-1].update(
+            {
+                "tracked_files": tracked_n,
+                "dirty_paths": status_n,
+                "size_mb": round(size_kb / 1024, 1),
+                "suggested_action": action,
+            }
+        )
+
+    review_paths = [p for p in tracked if classification(p) == "review"][:120]
+
+    scripts_focus = {
+        "scripts/ops": "keep_core",
+        "scripts/lab": "keep_core",
+        "scripts/bench/validation": "keep_research_active",
+        "scripts/structural": "keep_core",
+        "scripts/legacy": "keep_legacy",
+        "scripts/data": "keep_support",
+        "scripts/energy": "keep_domain",
+        "scripts/agro": "keep_domain",
+        "scripts/realestate": "keep_domain",
+        "scripts/sim": "archive_candidate",
+        "scripts/engine": "archive_candidate",
+        "scripts/research": "archive_candidate",
+        "scripts/bench/portfolio": "archive_candidate",
+    }
+
+    focus_rows = []
+    for rel, action in scripts_focus.items():
+        path = ROOT / rel
+        if not path.exists():
+            continue
+        size_mb = round(dir_size_kb(path) / 1024, 1)
+        file_count = sum(1 for p in path.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
+        focus_rows.append(
+            {
+                "path": rel,
+                "file_count": file_count,
+                "size_mb": size_mb,
+                "suggested_action": action,
+            }
+        )
 
     return {
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "head": run(["git", "rev-parse", "--short", "HEAD"]),
         "top_level_summary": per_top,
-        "review_paths_sample": review_sample,
-        "untracked_top_dirs": untracked_top,
+        "scripts_focus": focus_rows,
+        "review_paths_sample": review_paths,
+        "git_status_summary": {
+            "dirty_total": len(status_rows),
+            "by_status": dict(status_by_kind),
+            "by_top": dict(status_by_top),
+        },
         "policy": {
             "keep_top": sorted(KEEP_TOP),
             "review_hints": sorted(REVIEW_HINTS),
-            "note": "Itens em review exigem dono e justificativa de permanencia.",
+            "note": "Itens em review exigem dono e justificativa de permanencia. Itens generated_only devem permanecer fora do commit.",
         },
     }
 
@@ -104,10 +201,21 @@ def render_md(report: dict) -> str:
     lines.append("")
     lines.append("## Top-level (tracked)")
     lines.append("")
-    lines.append("| top | tracked_files | class |")
-    lines.append("|---|---:|---|")
+    lines.append("| top | tracked_files | dirty_paths | size_mb | class | action |")
+    lines.append("|---|---:|---:|---:|---|---|")
     for row in report["top_level_summary"]:
-        lines.append(f"| `{row['top']}` | {row['tracked_files']} | `{row['classification']}` |")
+        lines.append(
+            f"| `{row['top']}` | {row['tracked_files']} | {row['dirty_paths']} | {row['size_mb']} | `{row['classification']}` | `{row['suggested_action']}` |"
+        )
+    lines.append("")
+    lines.append("## Scripts focus")
+    lines.append("")
+    lines.append("| path | file_count | size_mb | action |")
+    lines.append("|---|---:|---:|---|")
+    for row in report["scripts_focus"]:
+        lines.append(
+            f"| `{row['path']}` | {row['file_count']} | {row['size_mb']} | `{row['suggested_action']}` |"
+        )
     lines.append("")
     lines.append("## Review sample")
     lines.append("")
@@ -117,13 +225,11 @@ def render_md(report: dict) -> str:
     else:
         lines.append("- (none)")
     lines.append("")
-    lines.append("## Untracked top-level dirs")
+    lines.append("## Git status summary")
     lines.append("")
-    if report["untracked_top_dirs"]:
-        for d in report["untracked_top_dirs"]:
-            lines.append(f"- `{d}`")
-    else:
-        lines.append("- (none)")
+    lines.append(f"- dirty_total: `{report['git_status_summary']['dirty_total']}`")
+    lines.append("- by_status: " + ", ".join(f"`{k}`={v}" for k, v in sorted(report["git_status_summary"]["by_status"].items())))
+    lines.append("- by_top: " + ", ".join(f"`{k}`={v}" for k, v in sorted(report["git_status_summary"]["by_top"].items())))
     lines.append("")
     lines.append("## Policy")
     lines.append("")

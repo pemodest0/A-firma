@@ -38,6 +38,7 @@ results/market_data_events/
 results/gpt_reports/
 results_*/
 outputs/
+output/
 logs/
 
 # Notebooks checkpoints
