@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "generated_at_utc": "2026-03-04T08:10:41.710573+00:00",
+  "source_universe_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/finance_download/local_pack_20260304T081009Z/universe_fixed.csv",
+  "source_groups_csv": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_global_plus.csv",
+  "out_csv": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_metadata_global_plus.csv",
+  "n_assets": 528,
+  "n_sector_gics": 20,
+  "n_sector_internal": 20
+}

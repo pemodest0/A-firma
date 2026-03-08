@@ -1,0 +1,11 @@
+asset_id,ticker,sector_gics,sector_internal,liquidity_proxy
+BTC-USD,BTC-USD,crypto,crypto,3716
+ETH-USD,ETH-USD,crypto,crypto,3038
+SOL-USD,SOL-USD,crypto,crypto,2155
+XRP-USD,XRP-USD,crypto,crypto,3038
+BNB-USD,BNB-USD,crypto,crypto,3038
+ADA-USD,ADA-USD,crypto,crypto,3038
+DOGE-USD,DOGE-USD,crypto,crypto,3038
+LINK-USD,LINK-USD,crypto,crypto,3038
+AVAX-USD,AVAX-USD,crypto,crypto,1992
+MATIC-USD,MATIC-USD,crypto,crypto,2157
