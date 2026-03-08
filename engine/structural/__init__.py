@@ -1,3 +1,4 @@
+from .covariance_estimators import cov_to_corr, ensure_psd, estimate_corr, estimate_cov
 from .csd import ews_pack, rolling_ac1, rolling_variance
 from .forman_ricci import forman_edge_curvature, forman_summary
 from .graph import corr_to_graph
@@ -16,13 +17,25 @@ from .impact import (
 )
 from .rmt import mp_bounds, rmt_report, significant_eigs
 from .run_manifest import write_run_manifest
+from .rmt_clean import clean_correlation_mp_clip
 from .score import fit_normalizer, structural_score, transform
 from .spectral import effective_dimension, normalize_eigs, order_param_phi, spectral_entropy, spectral_pack
+from .stability_metrics import (
+    ModeStabilityThresholds,
+    apply_mode_stability_gate,
+    dominant_mode_series,
+    summarize_mode_stability,
+)
 
 __all__ = [
     "mp_bounds",
     "rmt_report",
     "significant_eigs",
+    "estimate_cov",
+    "estimate_corr",
+    "cov_to_corr",
+    "ensure_psd",
+    "clean_correlation_mp_clip",
     "normalize_eigs",
     "spectral_entropy",
     "effective_dimension",
@@ -47,4 +60,8 @@ __all__ = [
     "transform",
     "structural_score",
     "write_run_manifest",
+    "dominant_mode_series",
+    "summarize_mode_stability",
+    "ModeStabilityThresholds",
+    "apply_mode_stability_gate",
 ]
