@@ -1,14 +1,14 @@
 {
-  "version": "lab_corr_policy_pilot_v1",
+  "version": "lab_corr_policy_shadow_v1",
   "data": {
     "start": "2018-01-01",
-    "end": "2026-02-12",
-    "coverage_core": 0.5,
-    "coverage_window": 0.6,
+    "end": "2030-12-31",
+    "coverage_core": 0.50,
+    "coverage_window": 0.60,
     "min_assets": 25,
     "official_window": 120,
     "business_days_only": true,
-    "cov_estimator": "ledoit_wolf",
+    "cov_estimator": "sample",
     "cov_ewma_lambda": 0.94,
     "rmt_cleaning": true,
     "rmt_cleaning_mode": "clip",
@@ -16,31 +16,39 @@
   },
   "regime": {
     "hysteresis_days": 3,
+    "threshold_mode": "walk_forward",
+    "walkforward_min_history_days": 252,
+    "transition_weights": {
+      "dp1": 0.45,
+      "ddeff": 0.45,
+      "overlap_instability": 0.10
+    },
     "exposure": {
-      "stress": 0.1,
-      "transition": 0.4,
-      "stable": 0.7,
-      "dispersion": 0.9
+      "stress": 0.10,
+      "transition": 0.40,
+      "stable": 0.70,
+      "dispersion": 0.90
     }
   },
   "backtest": {
     "cost_bps": 5.0,
-    "max_daily_turnover": 0.1
+    "max_daily_turnover": 0.10
   },
   "gate": {
-    "min_joint_majority_60d": 0.3,
+    "min_joint_majority_60d": 0.30,
     "require_latest_majority": false,
+    "require_policy_lock_match": false,
     "max_abs_delta_p1": 0.01,
     "max_abs_delta_deff": 1.0,
     "max_active_cluster_alerts": 1,
     "min_eigvec_overlap_mean": 0.99,
     "alert_lookback": 252,
-    "max_insufficient_ratio": 0.2,
-    "min_n_used_ratio": 0.9,
+    "max_insufficient_ratio": 0.20,
+    "min_n_used_ratio": 0.90,
     "q_min": 0.12
   },
   "calibration": {
-    "enabled": true,
+    "enabled": false,
     "apply_best": false,
     "objective": "composite"
   },

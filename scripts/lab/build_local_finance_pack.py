@@ -10,6 +10,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from execution.returns import load_return_frame_csv
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -32,15 +34,15 @@ def _find_price_file(prices_dir: Path, ticker: str) -> tuple[Path | None, str | 
 
 
 def _load_returns(path: Path, business_days_only: bool) -> pd.DataFrame:
-    df = pd.read_csv(path)
-    if "date" not in df.columns or "r" not in df.columns:
+    try:
+        out = load_return_frame_csv(
+            path,
+            source_kind="log",
+            target_kind="simple",
+            business_days_only=business_days_only,
+        )
+    except ValueError:
         return pd.DataFrame(columns=["date", "r"])
-    out = df[["date", "r"]].copy()
-    out["date"] = pd.to_datetime(out["date"], errors="coerce")
-    out["r"] = pd.to_numeric(out["r"], errors="coerce")
-    out = out.dropna(subset=["date", "r"]).sort_values("date").drop_duplicates("date", keep="last")
-    if business_days_only:
-        out = out[out["date"].dt.dayofweek < 5]
     out["date"] = out["date"].dt.date.astype(str)
     return out.reset_index(drop=True)
 
@@ -132,6 +134,8 @@ def main() -> None:
         "outdir": str(outdir),
         "prices_dir": str(prices_dir),
         "asset_groups": str(groups_path),
+        "source_return_kind": "log",
+        "stored_return_kind": "simple",
         "business_days_only": bool(int(args.business_days_only)),
         "min_rows": int(args.min_rows),
         "panel_rows": int(panel.shape[0]),

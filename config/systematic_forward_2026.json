@@ -1,0 +1,73 @@
+{
+  "version": "2026.03.forward.v1",
+  "purpose": "operacao_forward_ano_corrente_sem_lookahead",
+  "data": {
+    "impact_dir": "results/lab_corr_macro_b3pure/20260304T010638Z/hierarchical/impact_learning_train2024_investtest_b3pure",
+    "returns_csv": "results/lab_corr_macro_b3pure/20260304T010638Z/returns_wide_core.csv"
+  },
+  "calibration_reference": {
+    "train_end": "2019-12-31",
+    "start_ym": "2020-01",
+    "selected_profile_from_backtest": "hardened_strict"
+  },
+  "runtime_forward": {
+    "train_end": "rolling_last_year_end",
+    "start_ym": "current_year_01",
+    "min_months": 2
+  },
+  "strategy_params": {
+    "mode": "const",
+    "top_k": 16,
+    "impact_power": 0.0,
+    "w_max": 0.06,
+    "mom_lookback": 0,
+    "mom_threshold": -0.01,
+    "risk_budget": {
+      "stress": 0.85,
+      "transition": 0.85,
+      "stable": 0.85
+    }
+  },
+  "defense": {
+    "enabled": true,
+    "multiplier": 0.65,
+    "corr_quantile": 0.8,
+    "vol_quantile": 0.8,
+    "require_both": false
+  },
+  "deceleration": {
+    "enabled": true,
+    "lookback_months": 6,
+    "alpha_threshold": 0.0,
+    "min_streak": 2,
+    "multiplier": 0.85,
+    "topk_multiplier": 0.85
+  },
+  "attack_overlay": {
+    "enabled": true,
+    "multiplier": 1.12,
+    "corr_quantile": 0.35,
+    "vol_quantile": 0.35,
+    "min_history_months": 12,
+    "require_both": true,
+    "require_positive_alpha": true,
+    "alpha_lookback_months": 3
+  },
+  "drawdown_guard_overlay": {
+    "enabled": true,
+    "soft_threshold": -0.18,
+    "hard_threshold": -0.26,
+    "soft_multiplier": 0.85,
+    "hard_multiplier": 0.6
+  },
+  "execution_safety": {
+    "rb_cap": 1.75
+  },
+  "guardrails": {
+    "max_accepted_drawdown_backtest": -0.35,
+    "target_drawdown_practical": -0.2,
+    "min_worth_it_rate_vs_eqw": 0.65,
+    "min_monthly_alpha_positive_prob_vs_eqw": 0.53
+  },
+  "operator_note": "Nao otimizar parametros no proprio ano corrente. Recalibrar apenas no fechamento de cada ano."
+}

@@ -135,6 +135,229 @@ def _load_horizon_winners(run_dir: Path) -> dict[str, Any]:
     return {"status": "ok", "path": str(p), "winners": winners}
 
 
+def _cum_return_from_series(values: pd.Series) -> float:
+    s = pd.to_numeric(values, errors="coerce").dropna().astype(float)
+    if s.empty:
+        return float("nan")
+    return float(np.prod(1.0 + s.to_numpy(dtype=float)) - 1.0)
+
+
+def _mdd_from_series(values: pd.Series) -> float:
+    s = pd.to_numeric(values, errors="coerce").dropna().astype(float)
+    if s.empty:
+        return float("nan")
+    eq = np.cumprod(1.0 + s.to_numpy(dtype=float))
+    peak = np.maximum.accumulate(eq)
+    dd = eq / np.where(peak == 0.0, np.nan, peak) - 1.0
+    dd = dd[np.isfinite(dd)]
+    return float(np.min(dd)) if dd.size else float("nan")
+
+
+def _load_latest_systematic_snapshot() -> dict[str, Any]:
+    out: dict[str, Any] = {
+        "status": "missing",
+        "run_dir": "",
+        "summary_path": "",
+        "simulation_summary_path": "",
+        "monthly_path": "",
+        "summary": {},
+        "simulation_summary": {},
+        "monthly_stats": {},
+    }
+    root = ROOT / "results" / "portfolio_sim"
+    if not root.exists():
+        return out
+
+    runs = sorted([p for p in root.iterdir() if p.is_dir() and p.name.endswith("_systematic_yearly")], key=lambda p: p.name, reverse=True)
+    for run in runs:
+        summary_path = run / "systematic_summary.json"
+        sim_path = run / "simulation_summary.json"
+        monthly_path = run / "monthly_systematic_eval.csv"
+        if not summary_path.exists():
+            continue
+        summary = _read_json(summary_path)
+        if not summary:
+            continue
+        simulation_summary = _read_json(sim_path) if sim_path.exists() else {}
+        monthly_stats: dict[str, Any] = {}
+        if monthly_path.exists():
+            try:
+                d = pd.read_csv(monthly_path)
+                if not d.empty:
+                    d["ret"] = pd.to_numeric(d.get("ret"), errors="coerce")
+                    d["eqw_ret"] = pd.to_numeric(d.get("eqw_ret"), errors="coerce")
+                    d["risk_budget"] = pd.to_numeric(d.get("risk_budget"), errors="coerce")
+                    d["alpha"] = d["ret"] - d["eqw_ret"]
+                    tail = d.tail(6).copy()
+                    monthly_stats = {
+                        "rows_total": int(d.shape[0]),
+                        "rows_tail": int(tail.shape[0]),
+                        "last_ym": str(d.iloc[-1].get("ym", "")),
+                        "alpha_mean_6m": _safe_float(tail["alpha"].mean()),
+                        "alpha_positive_rate_6m": _safe_float((tail["alpha"] > 0).mean()),
+                        "alpha_total_6m": _cum_return_from_series(tail["alpha"]),
+                        "strategy_total_6m": _cum_return_from_series(tail["ret"]),
+                        "eqw_total_6m": _cum_return_from_series(tail["eqw_ret"]),
+                        "strategy_mdd_6m": _mdd_from_series(tail["ret"]),
+                        "avg_risk_budget_6m": _safe_float(tail["risk_budget"].mean()),
+                    }
+            except Exception:
+                monthly_stats = {}
+
+        out = {
+            "status": "ok",
+            "run_dir": str(run),
+            "summary_path": str(summary_path),
+            "simulation_summary_path": str(sim_path) if sim_path.exists() else "",
+            "monthly_path": str(monthly_path) if monthly_path.exists() else "",
+            "summary": summary,
+            "simulation_summary": simulation_summary,
+            "monthly_stats": monthly_stats,
+        }
+        return out
+    return out
+
+
+def _build_dynamic_allocation_policy(
+    *,
+    risk_level: str,
+    confidence_score: float,
+    domain_gate: dict[str, Any],
+    systematic_snapshot: dict[str, Any],
+) -> dict[str, Any]:
+    rl = str(risk_level or "").strip().lower()
+    if rl in {"alto", "high", "stress"}:
+        base_exposure = 0.35
+    elif rl in {"moderado", "medium", "transition"}:
+        base_exposure = 0.55
+    else:
+        base_exposure = 0.72
+
+    summary = (systematic_snapshot.get("summary") or {}) if isinstance(systematic_snapshot, dict) else {}
+    sim_summary = (systematic_snapshot.get("simulation_summary") or {}) if isinstance(systematic_snapshot, dict) else {}
+    sim_best = (sim_summary.get("best_metrics") or {}) if isinstance(sim_summary, dict) else {}
+    monthly_stats = (systematic_snapshot.get("monthly_stats") or {}) if isinstance(systematic_snapshot, dict) else {}
+
+    prob_positive = _safe_float(summary.get("monthly_alpha_prob_positive_vs_eqw"))
+    worth_rate = _safe_float(summary.get("worth_it_rate_vs_eqw"))
+    alpha_recent6 = _safe_float(sim_best.get("full_alpha_recent6"))
+    alpha_total_6m = _safe_float(monthly_stats.get("alpha_total_6m"))
+    strategy_max_drop = _safe_float(summary.get("strategy_max_drop"))
+    conf = _safe_float(confidence_score)
+    all_domains_publishable = bool((domain_gate.get("all_domains_publishable") if isinstance(domain_gate, dict) else False))
+
+    adj = 0.0
+    rationale: list[str] = []
+
+    if np.isfinite(prob_positive):
+        if prob_positive >= 0.60:
+            adj += 0.05
+            rationale.append("probabilidade mensal positiva acima de 60%: aumentar exposicao")
+        elif prob_positive <= 0.52:
+            adj -= 0.06
+            rationale.append("probabilidade mensal positiva fraca: reduzir exposicao")
+
+    if np.isfinite(worth_rate):
+        if worth_rate >= 0.70:
+            adj += 0.05
+            rationale.append("taxa de anos vantajosos alta: aumentar exposicao")
+        elif worth_rate <= 0.50:
+            adj -= 0.05
+            rationale.append("taxa de anos vantajosos baixa: reduzir exposicao")
+
+    if np.isfinite(alpha_recent6):
+        if alpha_recent6 >= 0.004:
+            adj += 0.06
+            rationale.append("vantagem recente (6m) positiva: aumentar exposicao")
+        elif alpha_recent6 <= -0.002:
+            adj -= 0.08
+            rationale.append("vantagem recente (6m) negativa: reduzir exposicao")
+
+    if np.isfinite(alpha_total_6m):
+        if alpha_total_6m >= 0.03:
+            adj += 0.04
+            rationale.append("ganho acumulado recente acima do baseline: aumentar exposicao")
+        elif alpha_total_6m <= 0.0:
+            adj -= 0.04
+            rationale.append("ganho acumulado recente nao confirmou: reduzir exposicao")
+
+    if np.isfinite(conf):
+        if conf >= 0.80:
+            adj += 0.03
+            rationale.append("confianca operacional alta: ampliar faixa de risco")
+        elif conf < 0.60:
+            adj -= 0.04
+            rationale.append("confianca operacional baixa: reduzir faixa de risco")
+
+    if not all_domains_publishable:
+        adj -= 0.06
+        rationale.append("nem todos os dominios estao publicaveis: reduzir exposicao")
+
+    if np.isfinite(strategy_max_drop) and strategy_max_drop <= -0.35:
+        adj -= 0.06
+        rationale.append("queda historica profunda no sistematico: impor teto defensivo")
+
+    target = float(np.clip(base_exposure + adj, 0.15, 0.95))
+    hard_max = 0.95
+    if rl in {"alto", "high", "stress"}:
+        hard_max = min(hard_max, 0.45)
+    elif rl in {"moderado", "medium", "transition"}:
+        hard_max = min(hard_max, 0.75)
+    if np.isfinite(strategy_max_drop):
+        if strategy_max_drop <= -0.45:
+            hard_max = min(hard_max, 0.55)
+        elif strategy_max_drop <= -0.35:
+            hard_max = min(hard_max, 0.70)
+    if not all_domains_publishable:
+        hard_max = min(hard_max, 0.65)
+
+    target = min(target, hard_max)
+    band = 0.12 if target >= 0.70 else 0.10
+    range_min = float(max(0.10, target - band))
+    range_max = float(min(hard_max, target + band))
+
+    if target >= 0.75:
+        mode = "expansivo"
+    elif target >= 0.55:
+        mode = "equilibrado"
+    else:
+        mode = "defensivo"
+
+    should_increase_with_profit = bool(
+        (np.isfinite(alpha_recent6) and alpha_recent6 > 0.0)
+        or (np.isfinite(alpha_total_6m) and alpha_total_6m > 0.0)
+    )
+
+    return {
+        "status": "ok",
+        "update_frequency": "daily",
+        "mode": mode,
+        "target_exposure": float(target),
+        "range_min": range_min,
+        "range_max": range_max,
+        "hard_cap_max": float(hard_max),
+        "hard_cap_min": 0.10,
+        "profit_reinforcement_enabled": should_increase_with_profit,
+        "rationale": rationale[:8],
+        "signals": {
+            "risk_level_next_month": risk_level,
+            "confidence_score": conf if np.isfinite(conf) else None,
+            "monthly_alpha_prob_positive_vs_eqw": prob_positive if np.isfinite(prob_positive) else None,
+            "worth_it_rate_vs_eqw": worth_rate if np.isfinite(worth_rate) else None,
+            "alpha_recent6": alpha_recent6 if np.isfinite(alpha_recent6) else None,
+            "alpha_total_6m": alpha_total_6m if np.isfinite(alpha_total_6m) else None,
+            "strategy_max_drop": strategy_max_drop if np.isfinite(strategy_max_drop) else None,
+            "all_domains_publishable": all_domains_publishable,
+        },
+        "source": {
+            "systematic_run_dir": str(systematic_snapshot.get("run_dir", "")),
+            "systematic_summary_json": str(systematic_snapshot.get("summary_path", "")),
+            "systematic_simulation_summary_json": str(systematic_snapshot.get("simulation_summary_path", "")),
+            "systematic_monthly_csv": str(systematic_snapshot.get("monthly_path", "")),
+        },
+    }
+
+
 def _risk_to_action(risk_level: str) -> dict[str, Any]:
     rl = str(risk_level).strip().lower()
     if rl == "alto":
@@ -557,6 +780,13 @@ def main() -> None:
         else:
             confidence_parts.append(0.4)
     confidence_score = float(np.mean(confidence_parts)) if confidence_parts else float("nan")
+    systematic_snapshot = _load_latest_systematic_snapshot()
+    allocation_policy = _build_dynamic_allocation_policy(
+        risk_level=risk_level,
+        confidence_score=confidence_score,
+        domain_gate=domain_gate,
+        systematic_snapshot=systematic_snapshot,
+    )
 
     brief = {
         "status": "ok",
@@ -576,6 +806,9 @@ def main() -> None:
             "historical_structure_next_month_json": str(next_month_path),
             "rankings_latest_json": str(rankings_latest_path) if rankings_latest_path.exists() else "",
             "horizon_winners_global_csv": str(horizon_winners.get("path", "")),
+            "systematic_summary_json": str(systematic_snapshot.get("summary_path", "")),
+            "systematic_simulation_summary_json": str(systematic_snapshot.get("simulation_summary_path", "")),
+            "systematic_monthly_csv": str(systematic_snapshot.get("monthly_path", "")),
         },
         "operational_signal": {
             "risk_level_next_month": risk_level,
@@ -583,12 +816,25 @@ def main() -> None:
             "action_hint": action["action_hint"],
             "priority": action["priority"],
             "confidence_score": confidence_score,
+            "target_exposure": allocation_policy.get("target_exposure"),
+            "target_exposure_min": allocation_policy.get("range_min"),
+            "target_exposure_max": allocation_policy.get("range_max"),
+            "allocation_mode": allocation_policy.get("mode"),
         },
         "model_evidence": {
             "ground_truth_best": gt_best,
             "horizon_winners_global": horizon_winners,
             "historical_verdict_counts_expanding": (hist_summary.get("verdict_counts_expanding") or {}),
             "stress_prealert_top": (hist_summary.get("stress_prealert_summary_top10") or [])[:5],
+            "systematic_snapshot": {
+                "status": systematic_snapshot.get("status"),
+                "run_dir": systematic_snapshot.get("run_dir"),
+                "summary_metrics": {
+                    "monthly_alpha_prob_positive_vs_eqw": _safe_float((systematic_snapshot.get("summary") or {}).get("monthly_alpha_prob_positive_vs_eqw")),
+                    "worth_it_rate_vs_eqw": _safe_float((systematic_snapshot.get("summary") or {}).get("worth_it_rate_vs_eqw")),
+                    "strategy_max_drop": _safe_float((systematic_snapshot.get("summary") or {}).get("strategy_max_drop")),
+                },
+            },
         },
         "state_snapshot": {
             "next_month_indication": next_month,
@@ -597,6 +843,7 @@ def main() -> None:
             "sector_global_overlap": rankings_latest.get("sector_global_overlap", []),
             "global_state": rankings_latest.get("global_state", {}),
         },
+        "allocation_policy": allocation_policy,
         "macro_event_context": macro_event_context,
         "domain_snapshots": {
             "finance": finance_snapshot,
@@ -618,6 +865,35 @@ def main() -> None:
     run_id = _run_id()
     out_path = outdir / f"operational_brief_{run_id}.json"
     out_path.write_text(json.dumps(brief, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    exposure_policy = {
+        "status": "ok",
+        "generated_at_utc": brief["generated_at_utc"],
+        "data_last_date": brief["data_last_date"],
+        "risk_level_next_month": (brief.get("operational_signal") or {}).get("risk_level_next_month"),
+        "allocation_policy": brief.get("allocation_policy"),
+        "run_context": brief.get("run_context"),
+    }
+    exposure_policy = _sanitize_json_value(exposure_policy)
+    exposure_path = outdir / f"exposure_policy_{run_id}.json"
+    exposure_path.write_text(json.dumps(exposure_policy, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    exposure_latest_path = outdir / "latest_exposure_policy.json"
+    exposure_latest_payload = {
+        "status": "ok",
+        "generated_at_utc": brief["generated_at_utc"],
+        "data_last_date": brief["data_last_date"],
+        "allocation_mode": (brief.get("allocation_policy") or {}).get("mode"),
+        "target_exposure": (brief.get("allocation_policy") or {}).get("target_exposure"),
+        "range_min": (brief.get("allocation_policy") or {}).get("range_min"),
+        "range_max": (brief.get("allocation_policy") or {}).get("range_max"),
+        "exposure_policy_path": str(exposure_path),
+    }
+    exposure_latest_payload = _sanitize_json_value(exposure_latest_payload)
+    exposure_latest_path.write_text(
+        json.dumps(exposure_latest_payload, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
     assistant_ground_truth = {
         "status": "ok",
@@ -648,8 +924,13 @@ def main() -> None:
         "risk_level_next_month": (brief.get("operational_signal") or {}).get("risk_level_next_month"),
         "operational_state": (brief.get("operational_signal") or {}).get("operational_state"),
         "confidence_score": (brief.get("operational_signal") or {}).get("confidence_score"),
+        "allocation_mode": (brief.get("allocation_policy") or {}).get("mode"),
+        "target_exposure": (brief.get("allocation_policy") or {}).get("target_exposure"),
+        "target_exposure_min": (brief.get("allocation_policy") or {}).get("range_min"),
+        "target_exposure_max": (brief.get("allocation_policy") or {}).get("range_max"),
         "operational_brief_path": str(out_path),
         "assistant_ground_truth_path": str(assistant_pack_path),
+        "exposure_policy_path": str(exposure_path),
         "all_domains_publishable": bool((brief.get("domain_gate") or {}).get("all_domains_publishable")),
     }
     latest_payload = _sanitize_json_value(latest_payload)
@@ -678,6 +959,7 @@ def main() -> None:
                 "data_last_date": brief["data_last_date"],
                 "operational_state": brief["operational_signal"]["operational_state"],
                 "confidence_score": brief["operational_signal"]["confidence_score"],
+                "target_exposure": brief["operational_signal"].get("target_exposure"),
                 "out_path": str(out_path),
                 "latest_pointer": str(latest_path),
                 "assistant_ground_truth_path": str(assistant_pack_path),

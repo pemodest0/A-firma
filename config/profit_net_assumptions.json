@@ -1,0 +1,56 @@
+{
+  "version": "profit_net_assumptions_v1",
+  "statement": "Premissas liquidas para pesquisa de lucro da Assyntrax. Aliquotas e enquadramentos usam fontes oficiais; custos em bps sao cenarios internos conservadores, nao cotacoes de corretora.",
+  "official_sources": {
+    "br_foreign_financial_investments": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tributacao-de-aplicacoes-financeiras-no-exterior",
+    "br_bolsa_capital_gains": "https://www.gov.br/pt-br/servicos/apurar-ganhos-liquidos-em-operacoes-na-bolsa",
+    "irs_nonresident_withholding": "https://www.irs.gov/individuals/international-taxpayers/withholding-of-tax-on-nonresident-aliens-and-foreign-entities",
+    "b3_variable_income_fees": "https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/listados-a-vista-e-derivativos/renda-variavel/"
+  },
+  "profiles": {
+    "foreign_financial_brazil_resident": {
+      "label": "Residente fiscal no Brasil operando ativos financeiros no exterior",
+      "jurisdiction": "foreign",
+      "transaction_cost_bps_assumed": 10.0,
+      "fx_spread_bps_assumed": 35.0,
+      "capital_gains_tax_rate": 0.15,
+      "tax_timing": "annual_positive_proxy",
+      "dividend_withholding_mode": "not_modeled_adjusted_close",
+      "notes": [
+        "IR de 15% modelado como proxy anual sobre ganho positivo apos custos.",
+        "Retornos via adjusted close nao separam dividendo de preco; withholding de dividendos nao e modelado separadamente para evitar dupla contagem.",
+        "Custos em bps sao cenario interno conservador para pesquisa, nao tabela oficial de corretora."
+      ]
+    },
+    "br_local_equity": {
+      "label": "Acoes locais brasileiras em ambiente de pesquisa agregada",
+      "jurisdiction": "br_local",
+      "transaction_cost_bps_assumed": 15.0,
+      "fx_spread_bps_assumed": 0.0,
+      "capital_gains_tax_rate": 0.15,
+      "tax_timing": "monthly_positive_proxy",
+      "dividend_withholding_mode": "not_applicable",
+      "monthly_sales_exemption_modeled": false,
+      "notes": [
+        "IR de 15% modelado como proxy mensal sobre ganho positivo apos custos.",
+        "A isencao de vendas mensais abaixo de R$ 20 mil nao e modelada porque a simulacao nao conhece o lote do investidor nem a realizacao fiscal real.",
+        "Custos em bps sao cenario interno conservador para pesquisa, nao tabela oficial de corretora."
+      ]
+    },
+    "crypto_global_brazil_resident_conservative": {
+      "label": "Cripto em exchange global para residente fiscal no Brasil",
+      "jurisdiction": "crypto_foreign",
+      "transaction_cost_bps_assumed": 25.0,
+      "fx_spread_bps_assumed": 35.0,
+      "capital_gains_tax_rate": 0.15,
+      "tax_timing": "monthly_positive_proxy",
+      "dividend_withholding_mode": "not_applicable",
+      "monthly_sales_exemption_modeled": false,
+      "notes": [
+        "Modelo conservador para pesquisa: nao aplica a isencao de alienacoes mensais ate R$ 35 mil, para evitar inflar alpha artificialmente.",
+        "A Receita Federal esclarece que ganhos em alienacao acima de R$ 35 mil/mes estao sujeitos a ganho de capital, e a atualizacao de 2025 da DeCripto nao alterou a tributacao.",
+        "Custos em bps agregam fee de exchange, spread/slippage e friccao operacional de remessa, em cenario conservador."
+      ]
+    }
+  }
+}

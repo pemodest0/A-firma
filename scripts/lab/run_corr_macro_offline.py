@@ -28,8 +28,10 @@ except Exception:
 
 try:
     from engine.structural.csd import rolling_ac1 as structural_rolling_ac1
+    from engine.structural.covariance_estimators import estimate_corr as structural_estimate_corr
     from engine.structural.forman_ricci import forman_edge_curvature, forman_summary
     from engine.structural.graph import corr_to_graph
+    from engine.structural.rmt_clean import clean_correlation_mp_clip
     from engine.structural.score import fit_normalizer as structural_fit_normalizer
     from engine.structural.score import structural_score as structural_score_fusion
     from engine.structural.score import transform as structural_transform
@@ -37,6 +39,8 @@ try:
     STRUCTURAL_OK = True
 except Exception:
     STRUCTURAL_OK = False
+    structural_estimate_corr = None
+    clean_correlation_mp_clip = None
 
 
 ROOT = REPO_ROOT
@@ -187,6 +191,75 @@ def _block_bootstrap_matrix(x: np.ndarray, block_size: int, rng: np.random.Gener
     return y
 
 
+def _corr_condition_number(corr: np.ndarray) -> float:
+    try:
+        c = np.asarray(corr, dtype=float)
+        if c.ndim != 2 or c.shape[0] != c.shape[1]:
+            return float("nan")
+        v = np.linalg.eigvalsh(c)
+        v = np.asarray(v, dtype=float)
+        if v.size <= 0 or (not np.isfinite(v).all()):
+            return float("nan")
+        vmax = float(np.max(v))
+        vmin = float(np.min(v))
+        if vmin <= 1e-12:
+            return float("inf")
+        return float(vmax / vmin)
+    except Exception:
+        return float("nan")
+
+
+def _estimate_corr_matrix(
+    x: np.ndarray,
+    *,
+    cov_estimator: str,
+    cov_ewma_lambda: float,
+    rmt_cleaning: bool,
+    rmt_cleaning_mode: str,
+    rmt_keep_top_k: int,
+) -> tuple[np.ndarray | None, dict[str, Any]]:
+    info: dict[str, Any] = {
+        "cov_estimator": str(cov_estimator),
+        "rmt_cleaning": bool(rmt_cleaning),
+        "rmt_cleaning_mode": str(rmt_cleaning_mode),
+        "rmt_keep_top_k": int(max(0, rmt_keep_top_k)),
+    }
+    try:
+        method = str(cov_estimator).strip().lower()
+        if method == "sample":
+            corr = np.corrcoef(x, rowvar=False)
+        else:
+            if structural_estimate_corr is None:
+                return None, {**info, "error": "covariance_estimator_unavailable"}
+            corr = structural_estimate_corr(
+                x,
+                method=method,  # type: ignore[arg-type]
+                ewma_lambda=float(cov_ewma_lambda),
+            )
+        corr = np.asarray(corr, dtype=float)
+        if corr.ndim != 2 or corr.shape[0] != corr.shape[1]:
+            return None, {**info, "error": "corr_not_square"}
+        corr = 0.5 * (corr + corr.T)
+        np.fill_diagonal(corr, 1.0)
+        corr = np.clip(corr, -1.0, 1.0)
+        if not np.all(np.isfinite(corr)):
+            return None, {**info, "error": "corr_non_finite"}
+        if bool(rmt_cleaning):
+            if clean_correlation_mp_clip is None:
+                return None, {**info, "error": "rmt_cleaning_unavailable"}
+            corr, clean_info = clean_correlation_mp_clip(
+                corr,
+                T=int(x.shape[0]),
+                mode=str(rmt_cleaning_mode),
+                keep_top_k=int(max(0, rmt_keep_top_k)),
+            )
+            info.update({f"rmt_{k}": v for k, v in clean_info.items()})
+        info["corr_cond"] = _corr_condition_number(corr)
+        return corr, info
+    except Exception as exc:
+        return None, {**info, "error": str(exc)}
+
+
 def _process_window(
     returns_wide: pd.DataFrame,
     sector_by_ticker: dict[str, str],
@@ -197,6 +270,11 @@ def _process_window(
     bootstrap_block: int,
     overlap_step: int,
     seed: int,
+    cov_estimator: str = "sample",
+    cov_ewma_lambda: float = 0.94,
+    rmt_cleaning: bool = False,
+    rmt_cleaning_mode: str = "clip",
+    rmt_keep_top_k: int = 0,
     compute_forman: bool = False,
     forman_topk: int = 10,
     capture_v1: bool = False,
@@ -241,6 +319,9 @@ def _process_window(
             "structure_score_bootstrap": np.nan,
             "eigvec_overlap_1d": np.nan,
             "eigvec_instability_1d": np.nan,
+            "corr_cond": np.nan,
+            "corr_cond_shuffle": np.nan,
+            "corr_cond_bootstrap": np.nan,
             "forman_mean": np.nan,
             "forman_share_negative": np.nan,
             "insufficient_universe": True,
@@ -270,10 +351,18 @@ def _process_window(
             rec["N_used"] = int(aligned.shape[1])
             rec["Q"] = float(window) / max(float(rec["N_used"]), 1.0)
 
-        corr = np.corrcoef(x, rowvar=False)
-        if not np.all(np.isfinite(corr)):
+        corr, corr_info = _estimate_corr_matrix(
+            x,
+            cov_estimator=str(cov_estimator),
+            cov_ewma_lambda=float(cov_ewma_lambda),
+            rmt_cleaning=bool(rmt_cleaning),
+            rmt_cleaning_mode=str(rmt_cleaning_mode),
+            rmt_keep_top_k=int(rmt_keep_top_k),
+        )
+        if corr is None:
             rows.append(rec)
             continue
+        rec["corr_cond"] = float(corr_info.get("corr_cond", np.nan))
         eig, p1, deff, top5 = _spectral_metrics(corr)
         if not (np.isfinite(p1) and np.isfinite(deff) and np.isfinite(top5)):
             rows.append(rec)
@@ -364,8 +453,16 @@ def _process_window(
                 rng.shuffle(x_shuffle[:, j])
             keep_sh = np.nanstd(x_shuffle, axis=0) > 1e-12
             if int(np.sum(keep_sh)) >= 2:
-                corr_shuffle = np.corrcoef(x_shuffle[:, keep_sh], rowvar=False)
-                if np.all(np.isfinite(corr_shuffle)):
+                corr_shuffle, info_shuffle = _estimate_corr_matrix(
+                    x_shuffle[:, keep_sh],
+                    cov_estimator=str(cov_estimator),
+                    cov_ewma_lambda=float(cov_ewma_lambda),
+                    rmt_cleaning=bool(rmt_cleaning),
+                    rmt_cleaning_mode=str(rmt_cleaning_mode),
+                    rmt_keep_top_k=int(rmt_keep_top_k),
+                )
+                if corr_shuffle is not None:
+                    rec["corr_cond_shuffle"] = float(info_shuffle.get("corr_cond", np.nan))
                     _, p1_sh, deff_sh, _ = _spectral_metrics(corr_shuffle)
                     if np.isfinite(p1_sh) and np.isfinite(deff_sh):
                         rec["p1_shuffle"] = p1_sh
@@ -379,8 +476,16 @@ def _process_window(
             )
             keep_bs = np.nanstd(x_boot, axis=0) > 1e-12
             if int(np.sum(keep_bs)) >= 2:
-                corr_boot = np.corrcoef(x_boot[:, keep_bs], rowvar=False)
-                if np.all(np.isfinite(corr_boot)):
+                corr_boot, info_boot = _estimate_corr_matrix(
+                    x_boot[:, keep_bs],
+                    cov_estimator=str(cov_estimator),
+                    cov_ewma_lambda=float(cov_ewma_lambda),
+                    rmt_cleaning=bool(rmt_cleaning),
+                    rmt_cleaning_mode=str(rmt_cleaning_mode),
+                    rmt_keep_top_k=int(rmt_keep_top_k),
+                )
+                if corr_boot is not None:
+                    rec["corr_cond_bootstrap"] = float(info_boot.get("corr_cond", np.nan))
                     _, p1_bs, deff_bs, _ = _spectral_metrics(corr_boot)
                     if np.isfinite(p1_bs) and np.isfinite(deff_bs):
                         rec["p1_bootstrap"] = p1_bs
@@ -435,7 +540,7 @@ def _summary_block(ts: pd.DataFrame, sector_daily: pd.DataFrame, window: int, ou
         [
             f"[T={window}]",
             f"N_used stats: min={float(ts['N_used'].min()):.0f}, mean={float(ts['N_used'].mean()):.2f}, max={float(ts['N_used'].max()):.0f}, Q_min={float((float(window) / ts['N_used'].astype(float).clip(lower=1.0)).min()):.4f}, Q_med={float((float(window) / ts['N_used'].astype(float).clip(lower=1.0)).median()):.4f}, insufficient_days={int(ts['insufficient_universe'].sum())}",
-            f"ultimos_60_dias: p1_mean={float(tails['p1'].mean()) if not tails.empty else np.nan:.6f}, deff_mean={float(tails['deff'].mean()) if not tails.empty else np.nan:.6f}, turnover_mean={float(tails['turnover_pair_frac'].mean()) if not tails.empty else np.nan:.6f}, eigvec_overlap_mean={ov_mean:.6f}",
+            f"ultimos_60_dias: p1_mean={float(tails['p1'].mean()) if not tails.empty else np.nan:.6f}, deff_mean={float(tails['deff'].mean()) if not tails.empty else np.nan:.6f}, turnover_mean={float(tails['turnover_pair_frac'].mean()) if not tails.empty else np.nan:.6f}, eigvec_overlap_mean={ov_mean:.6f}, corr_cond_mean={float(pd.to_numeric(tails.get('corr_cond'), errors='coerce').replace([np.inf, -np.inf], np.nan).mean()) if not tails.empty else np.nan:.6f}",
             f"stress: {stress}",
             noise_line,
             f"sanity: {sanity}",
@@ -1557,6 +1662,7 @@ def _build_ui_view_model(
         "robustness": {
             "joint_majority_60d": float(robust_metrics.get("joint_majority_60d", np.nan)),
             "latest_joint_majority_5": float(robust_metrics.get("latest_joint_majority_5", np.nan)),
+            "eigvec_overlap_mean_60d": float(robust_metrics.get("eigvec_overlap_mean_60d", np.nan)),
         },
         "alerts": {
             "latest_date": str(op_payload.get("latest_date", "")),
@@ -1740,6 +1846,7 @@ def _build_deployment_gate(
     max_abs_delta_p1: float,
     max_abs_delta_deff: float,
     max_active_cluster_alerts: int,
+    min_eigvec_overlap_mean: float,
     policy_lock: dict[str, Any],
     require_policy_lock_match: bool,
 ) -> dict[str, Any]:
@@ -1758,6 +1865,12 @@ def _build_deployment_gate(
     if np.isfinite(jm60) and (jm60 < float(min_joint_majority_60d)):
         blocked = True
         reasons.append("robustness_joint_majority_below_threshold")
+
+    ov60 = float(robust_metrics.get("eigvec_overlap_mean_60d", np.nan))
+    checks["eigvec_overlap_mean_60d"] = ov60
+    if float(min_eigvec_overlap_mean) > 0.0 and np.isfinite(ov60) and (ov60 < float(min_eigvec_overlap_mean)):
+        blocked = True
+        reasons.append("eigvec_overlap_mean_below_threshold")
 
     latest_jm = float(robust_metrics.get("latest_joint_majority_5", np.nan))
     checks["latest_joint_majority_5"] = latest_jm
@@ -1805,6 +1918,7 @@ def _build_deployment_gate(
             "max_abs_delta_p1": float(max_abs_delta_p1),
             "max_abs_delta_deff": float(max_abs_delta_deff),
             "max_active_cluster_alerts": int(max_active_cluster_alerts),
+            "min_eigvec_overlap_mean": float(min_eigvec_overlap_mean),
             "require_policy_lock_match": bool(require_policy_lock_match),
         },
     }
@@ -1846,7 +1960,8 @@ def _write_compact_report(
     lines.append(
         "robustness="
         f"joint_majority_60d={float(robust_metrics.get('joint_majority_60d', np.nan)):.3f}, "
-        f"latest_joint_majority_5={int(float(robust_metrics.get('latest_joint_majority_5', np.nan))) if np.isfinite(float(robust_metrics.get('latest_joint_majority_5', np.nan))) else 'nan'}"
+        f"latest_joint_majority_5={int(float(robust_metrics.get('latest_joint_majority_5', np.nan))) if np.isfinite(float(robust_metrics.get('latest_joint_majority_5', np.nan))) else 'nan'}, "
+        f"eigvec_overlap_mean_60d={float(robust_metrics.get('eigvec_overlap_mean_60d', np.nan)):.3f}"
     )
     lines.append(
         "baseline_delta="
@@ -2007,6 +2122,16 @@ def _apply_policy_to_args(args: argparse.Namespace, policy: dict[str, Any]) -> N
         if key in data:
             setattr(args, attr, data[key])
 
+    for key, attr in [
+        ("cov_estimator", "cov_estimator"),
+        ("cov_ewma_lambda", "cov_ewma_lambda"),
+        ("rmt_cleaning", "rmt_cleaning"),
+        ("rmt_cleaning_mode", "rmt_cleaning_mode"),
+        ("rmt_keep_top_k", "rmt_keep_top_k"),
+    ]:
+        if key in data:
+            setattr(args, attr, data[key])
+
     if "hysteresis_days" in regime:
         args.hysteresis_days = regime["hysteresis_days"]
     if "threshold_mode" in regime:
@@ -2036,6 +2161,7 @@ def _apply_policy_to_args(args: argparse.Namespace, policy: dict[str, Any]) -> N
         ("max_abs_delta_p1", "max_abs_delta_p1"),
         ("max_abs_delta_deff", "max_abs_delta_deff"),
         ("max_active_cluster_alerts", "max_active_cluster_alerts"),
+        ("min_eigvec_overlap_mean", "min_eigvec_overlap_mean"),
         ("require_policy_lock_match", "require_policy_lock_match"),
         ("alert_lookback", "alert_lookback"),
         ("max_insufficient_ratio", "max_insufficient_ratio"),
@@ -2848,6 +2974,11 @@ def _run_hierarchical_diagnostics(
     noise_step: int,
     bootstrap_block: int,
     seed: int,
+    cov_estimator: str,
+    cov_ewma_lambda: float,
+    rmt_cleaning: bool,
+    rmt_cleaning_mode: str,
+    rmt_keep_top_k: int,
     compute_forman: bool,
     forman_topk: int,
     csd_window: int,
@@ -2906,6 +3037,11 @@ def _run_hierarchical_diagnostics(
         bootstrap_block=int(bootstrap_block),
         overlap_step=int(overlap_step),
         seed=int(seed),
+        cov_estimator=str(cov_estimator),
+        cov_ewma_lambda=float(cov_ewma_lambda),
+        rmt_cleaning=bool(rmt_cleaning),
+        rmt_cleaning_mode=str(rmt_cleaning_mode),
+        rmt_keep_top_k=int(rmt_keep_top_k),
         compute_forman=bool(compute_forman),
         forman_topk=int(forman_topk),
         capture_v1=bool(save_v1),
@@ -2948,6 +3084,11 @@ def _run_hierarchical_diagnostics(
             bootstrap_block=int(bootstrap_block),
             overlap_step=int(overlap_step),
             seed=int(seed),
+            cov_estimator=str(cov_estimator),
+            cov_ewma_lambda=float(cov_ewma_lambda),
+            rmt_cleaning=bool(rmt_cleaning),
+            rmt_cleaning_mode=str(rmt_cleaning_mode),
+            rmt_keep_top_k=int(rmt_keep_top_k),
             compute_forman=bool(compute_forman),
             forman_topk=int(forman_topk),
             capture_v1=bool(save_v1),
@@ -2994,6 +3135,11 @@ def _run_hierarchical_diagnostics(
                 bootstrap_block=int(bootstrap_block),
                 overlap_step=int(overlap_step),
                 seed=int(seed),
+                cov_estimator=str(cov_estimator),
+                cov_ewma_lambda=float(cov_ewma_lambda),
+                rmt_cleaning=bool(rmt_cleaning),
+                rmt_cleaning_mode=str(rmt_cleaning_mode),
+                rmt_keep_top_k=int(rmt_keep_top_k),
                 compute_forman=bool(compute_forman),
                 forman_topk=int(forman_topk),
                 capture_v1=bool(save_v1),
@@ -3061,6 +3207,11 @@ def _run_hierarchical_diagnostics(
         "gics_universes_count": int(sector_universe_df[sector_universe_df["kind"] == "gics"].shape[0]) if not sector_universe_df.empty else 0,
         "internal_universes_count": int(sector_universe_df[sector_universe_df["kind"] == "internal"].shape[0]) if not sector_universe_df.empty else 0,
         "save_v1": bool(save_v1),
+        "cov_estimator": str(cov_estimator),
+        "cov_ewma_lambda": float(cov_ewma_lambda),
+        "rmt_cleaning": bool(rmt_cleaning),
+        "rmt_cleaning_mode": str(rmt_cleaning_mode),
+        "rmt_keep_top_k": int(rmt_keep_top_k),
         "global_v1_file": str(g_v1_path),
         "cross_gics_csv": str(cross_gics_path),
         "cross_internal_csv": str(cross_internal_path),
@@ -3095,6 +3246,17 @@ def main() -> None:
     ap.add_argument("--noise-step", type=int, default=5, help="Compute shuffle/bootstrap baseline every N days.")
     ap.add_argument("--bootstrap-block", type=int, default=10)
     ap.add_argument("--overlap-step", type=int, default=5, help="Compute eigvec overlap every N days.")
+    ap.add_argument(
+        "--cov-estimator",
+        type=str,
+        default="sample",
+        choices=["sample", "ewma", "ledoit_wolf", "oas"],
+        help="Estimator for covariance/correlation matrix per rolling window.",
+    )
+    ap.add_argument("--cov-ewma-lambda", type=float, default=0.94)
+    ap.add_argument("--rmt-cleaning", type=int, default=0, help="Apply MP-based eigenvalue cleaning to correlation matrix.")
+    ap.add_argument("--rmt-cleaning-mode", type=str, default="clip", choices=["clip", "threshold"])
+    ap.add_argument("--rmt-keep-top-k", type=int, default=0, help="Keep top-K eigenvalues untouched in RMT cleaning.")
     ap.add_argument("--seed", type=int, default=123)
     ap.add_argument("--enable-structural-v1", type=int, default=0, help="Write parallel structural diagnostics files.")
     ap.add_argument("--structural-topk", type=int, default=10)
@@ -3134,6 +3296,7 @@ def main() -> None:
     ap.add_argument("--max-abs-delta-p1", type=float, default=0.01)
     ap.add_argument("--max-abs-delta-deff", type=float, default=1.00)
     ap.add_argument("--max-active-cluster-alerts", type=int, default=1)
+    ap.add_argument("--min-eigvec-overlap-mean", type=float, default=0.0)
     ap.add_argument("--require-policy-lock-match", type=int, default=0)
     ap.add_argument("--alert-lookback", type=int, default=252)
     ap.add_argument("--risk-q-yellow", type=float, default=0.70)
@@ -3188,6 +3351,11 @@ def main() -> None:
         "max_core_assets": int(args.max_core_assets),
         "windows": sorted(set([int(args.official_window)] + [int(x) for x in _parse_windows(args.windows)])),
         "overlap_step": int(args.overlap_step),
+        "cov_estimator": str(args.cov_estimator),
+        "cov_ewma_lambda": float(args.cov_ewma_lambda),
+        "rmt_cleaning": bool(int(args.rmt_cleaning)),
+        "rmt_cleaning_mode": str(args.rmt_cleaning_mode),
+        "rmt_keep_top_k": int(args.rmt_keep_top_k),
         "business_days_only": bool(int(args.business_days_only)),
         "enable_structural_v1": bool(int(args.enable_structural_v1)),
         "structural_topk": int(args.structural_topk),
@@ -3218,6 +3386,7 @@ def main() -> None:
         "max_abs_delta_p1": float(args.max_abs_delta_p1),
         "max_abs_delta_deff": float(args.max_abs_delta_deff),
         "max_active_cluster_alerts": int(args.max_active_cluster_alerts),
+        "min_eigvec_overlap_mean": float(args.min_eigvec_overlap_mean),
         "risk_q_yellow": float(args.risk_q_yellow),
         "risk_q_red": float(args.risk_q_red),
         "min_conf_yellow": float(args.min_conf_yellow),
@@ -3308,6 +3477,9 @@ def main() -> None:
         f"windows: {windows}",
         f"coverage_core_threshold: {args.coverage_core}",
         f"coverage_window_threshold: {args.coverage_window}",
+        f"cov_estimator: {str(args.cov_estimator)}",
+        f"cov_ewma_lambda: {float(args.cov_ewma_lambda):.4f}",
+        f"rmt_cleaning: {bool(int(args.rmt_cleaning))} ({str(args.rmt_cleaning_mode)}, keep_top_k={int(args.rmt_keep_top_k)})",
         f"business_days_only: {bool(int(args.business_days_only))}",
         f"max_core_assets: {int(max(0, int(args.max_core_assets)))}",
         f"N_core: {len(core)}",
@@ -3329,6 +3501,11 @@ def main() -> None:
             bootstrap_block=int(args.bootstrap_block),
             overlap_step=int(args.overlap_step),
             seed=int(args.seed),
+            cov_estimator=str(args.cov_estimator),
+            cov_ewma_lambda=float(args.cov_ewma_lambda),
+            rmt_cleaning=bool(int(args.rmt_cleaning)),
+            rmt_cleaning_mode=str(args.rmt_cleaning_mode),
+            rmt_keep_top_k=int(args.rmt_keep_top_k),
             compute_forman=bool(int(args.enable_structural_v1)),
             forman_topk=int(args.structural_topk),
             capture_v1=False,
@@ -3365,6 +3542,9 @@ def main() -> None:
             "structure_score_bootstrap",
             "eigvec_overlap_1d",
             "eigvec_instability_1d",
+            "corr_cond",
+            "corr_cond_shuffle",
+            "corr_cond_bootstrap",
             "forman_mean",
             "forman_share_negative",
             "insufficient_universe",
@@ -3402,6 +3582,14 @@ def main() -> None:
     if int(args.official_window) not in ts_map:
         raise SystemExit(f"official window {int(args.official_window)} missing")
     ts_off = ts_map[int(args.official_window)].copy()
+    if not ts_off.empty:
+        tails_off = ts_off[~ts_off["insufficient_universe"]].tail(60)
+        if not tails_off.empty and ("eigvec_overlap_1d" in tails_off.columns):
+            ov60 = pd.to_numeric(tails_off["eigvec_overlap_1d"], errors="coerce")
+            robust_metrics["eigvec_overlap_mean_60d"] = float(ov60.mean(skipna=True))
+        else:
+            robust_metrics["eigvec_overlap_mean_60d"] = float("nan")
+
     regime_df, reg_thr = _classify_regime(
         ts=ts_off,
         hysteresis_days=int(args.hysteresis_days),
@@ -3590,6 +3778,11 @@ def main() -> None:
             noise_step=int(args.noise_step),
             bootstrap_block=int(args.bootstrap_block),
             seed=int(args.seed),
+            cov_estimator=str(args.cov_estimator),
+            cov_ewma_lambda=float(args.cov_ewma_lambda),
+            rmt_cleaning=bool(int(args.rmt_cleaning)),
+            rmt_cleaning_mode=str(args.rmt_cleaning_mode),
+            rmt_keep_top_k=int(args.rmt_keep_top_k),
             compute_forman=bool(int(args.enable_structural_v1)),
             forman_topk=int(args.structural_topk),
             csd_window=int(args.structural_csd_window),
@@ -3629,6 +3822,7 @@ def main() -> None:
         ]
     else:
         summary += ["regime_mix: unavailable"]
+    summary += [f"eigvec_overlap_mean_60d={float(robust_metrics.get('eigvec_overlap_mean_60d', np.nan)):.6f}"]
     summary += [f"alerts: {alerts_txt}"]
     summary += [f"operational_alerts: {op_txt}"]
     if level_payload:
@@ -3748,6 +3942,7 @@ def main() -> None:
         max_abs_delta_p1=float(args.max_abs_delta_p1),
         max_abs_delta_deff=float(args.max_abs_delta_deff),
         max_active_cluster_alerts=int(args.max_active_cluster_alerts),
+        min_eigvec_overlap_mean=float(args.min_eigvec_overlap_mean),
         policy_lock=policy_lock,
         require_policy_lock_match=bool(int(args.require_policy_lock_match)),
     )

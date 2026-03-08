@@ -8,7 +8,12 @@
     "overlap_step": 5,
     "min_assets": 25,
     "official_window": 120,
-    "business_days_only": true
+    "business_days_only": true,
+    "cov_estimator": "sample",
+    "cov_ewma_lambda": 0.94,
+    "rmt_cleaning": false,
+    "rmt_cleaning_mode": "clip",
+    "rmt_keep_top_k": 0
   },
   "regime": {
     "hysteresis_days": 3,
@@ -37,6 +42,7 @@
     "max_abs_delta_p1": 0.01,
     "max_abs_delta_deff": 1.0,
     "max_active_cluster_alerts": 1,
+    "min_eigvec_overlap_mean": 0.0,
     "alert_lookback": 252,
     "max_insufficient_ratio": 0.05,
     "min_n_used_ratio": 0.9,

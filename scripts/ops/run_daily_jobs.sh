@@ -32,9 +32,14 @@ python3 scripts/ops/train_model_c_gnn.py
 python3 scripts/ops/build_copilot_shadow.py --run-id "$RUN_ID"
 python3 scripts/ops/build_platform_db.py --run-id "$RUN_ID"
 if python3 scripts/ops/build_ai_operational_brief.py --run-dir "results/lab_corr_macro/$RUN_ID"; then
-  echo "[ops] ai_operational_brief updated"
+  echo "[ops] ai_operational_brief updated (run local)"
 else
-  echo "[ops] WARN failed to refresh ai_operational_brief" >&2
+  echo "[ops] WARN ai_operational_brief by run_id failed; retry latest pointer" >&2
+  if python3 scripts/ops/build_ai_operational_brief.py; then
+    echo "[ops] ai_operational_brief updated (latest pointer fallback)"
+  else
+    echo "[ops] WARN failed to refresh ai_operational_brief" >&2
+  fi
 fi
 
 echo "[ops] done"

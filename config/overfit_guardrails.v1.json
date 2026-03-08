@@ -1,0 +1,80 @@
+{
+  "version": "v1",
+  "description": "Guardrails to reduce overfit risk in structural model promotion.",
+  "split": {
+    "train_end": "2023-12-31",
+    "quarantine_start": "2025-01-01",
+    "min_rows_per_split": 5000,
+    "top_assets_per_day": 80
+  },
+  "modeling": {
+    "alert_quantile": 0.85,
+    "seed": 23,
+    "random_iters": 300,
+    "null_iters": 40,
+    "null_sigma_multiplier": 1.5,
+    "leakage_metric": "auc",
+    "min_null_zscore": 1.0,
+    "lag_days": [1, 5],
+    "max_lookahead_gain": 0.005,
+    "min_delay_drop_f1": 0.0,
+    "core_features": ["global_score", "regime_now_flag"],
+    "full_features": [
+      "impact_global",
+      "impact_sector",
+      "sector_loading",
+      "overlap_sector_global",
+      "global_share_within_sector",
+      "global_score",
+      "regime_now_flag"
+    ],
+    "min_full_gain_vs_core": 0.01
+  },
+  "stability": {
+    "min_months_per_model": 18,
+    "max_f1_cv": 0.9,
+    "min_lift_mean": 1.0,
+    "min_lift_share": 0.55,
+    "min_lift_share_ge095": 0.6,
+    "label_thresholds": {
+      "regime_label": {
+        "min_lift_mean": 1.1,
+        "min_lift_share": 0.19,
+        "min_lift_share_ge095": 0.85
+      }
+    }
+  },
+  "quarantine": {
+    "max_f1_drop_vs_validation": 0.08,
+    "min_quarantine_lift": 1.0
+  },
+  "promotion_gate": {
+    "min_years_tested": 5,
+    "min_worth_it_rate_vs_eqw": 0.55,
+    "min_prob_positive_vs_eqw": 0.55,
+    "required_steps": [
+      "step1_temporal_split",
+      "step2_block_stability",
+      "step3_baseline_compare",
+      "step6_leakage_tests",
+      "step8_quarantine_holdout"
+    ]
+  },
+  "advisory_gate": {
+    "min_years_tested": 5,
+    "min_worth_it_rate_vs_eqw": 0.25,
+    "min_prob_positive_vs_eqw": 0.2,
+    "required_steps": [
+      "step1_temporal_split",
+      "step2_block_stability",
+      "step3_baseline_compare",
+      "step6_leakage_tests",
+      "step8_quarantine_holdout"
+    ]
+  },
+  "monitoring": {
+    "rolling_months": 6,
+    "min_alpha_mean_vs_eqw": -0.003,
+    "max_drawdown_floor": -0.35
+  }
+}
