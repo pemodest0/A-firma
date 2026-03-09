@@ -1,5 +1,7 @@
 const CANDIDATE_LABELS: Array<[RegExp, string]> = [
   [/^meta_v1__btc63_vs_equity$/i, "Ataque tático entre cripto e ações"],
+  [/^alpha_attack_major8_equity25$/i, "Ataque por confiança com liquidação cripto"],
+  [/^alpha_attack_major8_equity25_mc_guard$/i, "Ataque por confiança com guarda Monte Carlo"],
   [/^entry_fast14_exit63_m2_h0__wrapped$/i, "Ataque tático com entrada cripto mais rápida"],
   [/^meta_dd_conviction__25_100$/i, "Proteção por convicção"],
   [/^meta_dd_guard__12_06_reduce35$/i, "Freio global de drawdown"],
@@ -155,6 +157,12 @@ export function describeStrategy(value: unknown, fallbackNotes?: unknown) {
   if (/^meta_v1__btc63_vs_equity$/i.test(raw)) {
     return "Liga cripto quando o BTC mostra força e o sleeve cripto supera ações. Se o terreno piora, volta para ações ou caixa.";
   }
+  if (/^alpha_attack_major8_equity25$/i.test(raw)) {
+    return "Usa confiança relativa ao histórico recente para dosar o ataque e corta um pouco a mão quando o ecossistema cripto parece perto de liquidação forçada.";
+  }
+  if (/^alpha_attack_major8_equity25_mc_guard$/i.test(raw)) {
+    return "Parte do mesmo ataque por confiança, mas adiciona uma trava extra quando a simulação por regime mostra risco de cauda acima do normal.";
+  }
   if (/^entry_fast14_exit63_m2_h0__wrapped$/i.test(raw)) {
     return "Mantém a leitura por confiança, mas libera o ataque cripto mais cedo quando a aceleração aparece de forma limpa.";
   }
@@ -171,7 +179,9 @@ export function describeStrategy(value: unknown, fallbackNotes?: unknown) {
   if (notes) {
     return notes
       .replace("crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200.", "Ataca cripto quando o BTC está em regime favorável; caso contrário fica em ações e vai para caixa quando o contexto dos dois piora.")
-      .replace("scale por conviccao; piso ativo=25%", "Escala a exposição pela convicção do motor e mantém um piso de 25% para evitar zigue-zague excessivo.");
+      .replace("scale por conviccao; piso ativo=25%", "Escala a exposição pela convicção do motor e mantém um piso de 25% para evitar zigue-zague excessivo.")
+      .replace("modo ataque promovido com entrada cripto mais rapida, sizing por confianca relativa ao historico recente e overlay de liquidacao cripto", "Ataca mais cedo quando o cripto acelera, ajusta o tamanho pelo grau de confiança e reduz a mão quando o ambiente parece próximo de liquidação.")
+      .replace("modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente", "Ataca cedo quando o cripto acelera e varia o tamanho da posição conforme a confiança recente.");
   }
   return "Leitura quantitativa traduzida para uso humano: mais risco quando o contexto está limpo, menos risco quando a estrutura enfraquece.";
 }

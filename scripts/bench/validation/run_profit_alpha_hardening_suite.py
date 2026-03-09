@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[3]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from engine.portfolio.exogenous_features import adjust_confidence_with_feature, build_exogenous_feature_panel  # noqa: E402
 from engine.structural.run_manifest import write_run_manifest  # noqa: E402
 from execution.net_assumptions import load_net_assumption_profiles  # noqa: E402
 from scripts.bench.validation.run_profit_alpha_war_suite import _blended_profile  # noqa: E402
@@ -581,7 +582,7 @@ def _build_candidates(
             sort=False,
         ).dropna(how="all"),
     )
-    attack = _blend_allocation_bundles(
+    attack_legacy = _blend_allocation_bundles(
         candidate_id="alpha_attack_major8_equity25",
         notes=(
             "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa "
@@ -590,6 +591,30 @@ def _build_candidates(
         attack_alloc=raw_attack,
         protect_alloc=baseline_guard,
         attack_weight=_confidence_weight_from_score(attack_score),
+    )
+
+    exogenous_panel = build_exogenous_feature_panel(
+        prices_dir=prices_dir,
+        crypto_returns=crypto_returns,
+        crypto_prices=crypto_prices,
+        benchmark_crypto=str(benchmark_crypto),
+        macro_index=attack_score.index,
+    )
+    attack_score_exogenous = adjust_confidence_with_feature(
+        base_score=attack_score,
+        feature=exogenous_panel.panel.get("liquidation"),
+        mode="penalty",
+        weight=0.14,
+    )
+    attack = _blend_allocation_bundles(
+        candidate_id="alpha_attack_major8_equity25",
+        notes=(
+            "modo ataque promovido com entrada cripto mais rapida, sizing por confianca relativa "
+            "ao historico recente e overlay de liquidacao cripto"
+        ),
+        attack_alloc=raw_attack,
+        protect_alloc=baseline_guard,
+        attack_weight=_confidence_weight_from_score(attack_score_exogenous),
     )
 
     attack_returns = pd.concat(
@@ -619,6 +644,7 @@ def _build_candidates(
         "allocations": {
             "baseline": baseline,
             "attack": attack,
+            "attack_legacy": attack_legacy,
             "baseline_guard": baseline_guard,
             "attack_guard": attack_guard,
         },
@@ -626,6 +652,7 @@ def _build_candidates(
             "baseline": base_returns,
             "baseline_guard": base_returns,
             "attack": attack_returns,
+            "attack_legacy": attack_returns,
             "attack_guard": attack_returns,
         },
         "mc_summaries": {
@@ -652,10 +679,14 @@ def _build_candidates(
             "benchmark_crypto": str(benchmark_crypto),
             "benchmark_equity": str(benchmark_equity),
             "regime_series": regime_series,
+            "attack_score_legacy": attack_score,
+            "attack_score_exogenous": attack_score_exogenous,
+            "exogenous_panel": exogenous_panel.panel,
         },
         "research_rows": [
             _research_row(baseline.bundle.result, outdir=ROOT / "results" / "validation", status="keep", methodology="alpha_hardening_baseline", label="Base atual de lucro"),
             _research_row(attack.bundle.result, outdir=ROOT / "results" / "validation", status="watch", methodology="alpha_hardening_attack", label="Modo ataque focado em lucro"),
+            _research_row(attack_legacy.bundle.result, outdir=ROOT / "results" / "validation", status="watch", methodology="alpha_hardening_attack_legacy", label="Modo ataque anterior"),
             _research_row(baseline_guard.bundle.result, outdir=ROOT / "results" / "validation", status="watch", methodology="alpha_hardening_balanced", label="Base com guard monte carlo"),
             _research_row(attack_guard.bundle.result, outdir=ROOT / "results" / "validation", status="watch", methodology="alpha_hardening_attack_guard", label="Modo ataque com guard monte carlo"),
         ],

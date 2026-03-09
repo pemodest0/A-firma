@@ -237,8 +237,8 @@ def main() -> None:
         "confidence_score": mode_confidence.confidence_score,
     }
     operation["confidence_notes"] = [
-        "Ataque continua melhor para lucro maximo quando o ambiente esta limpo.",
-        "Protecao vira preferivel quando a dependencia do cripto forte e o atrito operacional apertam juntos.",
+        "O ataque agora combina confiança relativa com um freio leve de liquidação cripto antes de aumentar a mão.",
+        "A proteção continua preferível quando liquidez, dependência do cripto forte e atrito operacional apertam ao mesmo tempo.",
     ]
 
     registry_step = _run_step([sys.executable, "scripts/ops/build_profit_research_registry.py"], timeout_sec=1200.0)
