@@ -1,5 +1,6 @@
 const CANDIDATE_LABELS: Array<[RegExp, string]> = [
   [/^meta_v1__btc63_vs_equity$/i, "Ataque tático entre cripto e ações"],
+  [/^entry_fast14_exit63_m2_h0__wrapped$/i, "Ataque tático com entrada cripto mais rápida"],
   [/^meta_dd_conviction__25_100$/i, "Proteção por convicção"],
   [/^meta_dd_guard__12_06_reduce35$/i, "Freio global de drawdown"],
   [/^meta_dd_regime_guard__global45_crypto10$/i, "Proteção adaptativa por regime"],
@@ -66,6 +67,16 @@ const RISK_LABELS: Record<string, string> = {
   unknown: "sem leitura limpa",
 };
 
+const MODE_LABELS: Record<string, string> = {
+  ataque: "Modo ataque",
+  attack: "Modo ataque",
+  protection: "Modo principal com proteção",
+  protecao: "Modo principal com proteção",
+  proteção: "Modo principal com proteção",
+  principal: "Modo principal",
+  balanced: "Modo principal com proteção",
+};
+
 function prettifyWords(text: string) {
   return text
     .replace(/__/g, " ")
@@ -121,10 +132,31 @@ export function humanizeRiskLevel(value: unknown) {
   return prettifyWords(raw).toLowerCase();
 }
 
+export function humanizeModeName(value: unknown, fallbackLabel?: unknown) {
+  const raw = String(value || "").trim().toLowerCase();
+  const fallback = String(fallbackLabel || "").trim();
+  if (raw && MODE_LABELS[raw]) return MODE_LABELS[raw];
+  if (fallback) return fallback;
+  if (!raw || raw === "n/d" || raw === "--") return "Sem modo definido";
+  return titleCase(prettifyWords(raw));
+}
+
+export function humanizeConfidenceLevel(value: unknown) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw || raw === "n/d" || raw === "--") return "sem leitura";
+  if (raw === "alta" || raw === "high") return "alta";
+  if (raw === "média" || raw === "media" || raw === "medium") return "média";
+  if (raw === "baixa" || raw === "low") return "baixa";
+  return prettifyWords(raw).toLowerCase();
+}
+
 export function describeStrategy(value: unknown, fallbackNotes?: unknown) {
   const raw = String(value || "").trim();
   if (/^meta_v1__btc63_vs_equity$/i.test(raw)) {
     return "Liga cripto quando o BTC mostra força e o sleeve cripto supera ações. Se o terreno piora, volta para ações ou caixa.";
+  }
+  if (/^entry_fast14_exit63_m2_h0__wrapped$/i.test(raw)) {
+    return "Mantém a leitura por confiança, mas libera o ataque cripto mais cedo quando a aceleração aparece de forma limpa.";
   }
   if (/^meta_dd_conviction__25_100$/i.test(raw)) {
     return "Usa o mesmo motor agressivo, mas reduz o tamanho quando a convicção cai. Mantém um piso para não desligar tarde demais.";

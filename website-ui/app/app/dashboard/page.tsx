@@ -1,8 +1,10 @@
 import SectorDashboard from "@/components/SectorDashboard";
 import SignalSnapshotSection from "@/components/site/SignalSnapshotSection";
 import {
+  humanizeConfidenceLevel,
   humanizeEngineState,
   humanizeMethodology,
+  humanizeModeName,
   humanizeRiskLevel,
   humanizeStatusWord,
   humanizeStrategyName,
@@ -48,6 +50,17 @@ function describeExposure(exposure: number | null | undefined) {
   return `Exposição alvo perto de ${formatPct(exposure)}. O motor aceita mais risco, mas ainda com disciplina.`;
 }
 
+function describeRecommendedMode(mode: string) {
+  const normalized = String(mode || "").toLowerCase();
+  if (normalized.includes("ataque")) {
+    return "Hoje o motor ainda aceita uma postura mais ofensiva, mas sem tratar isso como certeza.";
+  }
+  if (normalized.includes("prote")) {
+    return "Hoje faz mais sentido usar a versão protegida do motor e evitar heroísmo.";
+  }
+  return "Hoje a melhor postura é seguir o modo que o motor está recomendando e monitorar a vigilância.";
+}
+
 export default async function DashboardPage() {
   const snapshot = (await readSiteFinanceSnapshot()) as Record<string, unknown>;
   const finance = ((snapshot.finance as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
@@ -56,6 +69,12 @@ export default async function DashboardPage() {
   const topCandidate = ((research.top_candidate as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const shadow = ((snapshot.shadow as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const shadowLatest = ((shadow.latest as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const confidence = ((snapshot.confidence as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const recommendedLiveMode = ((confidence.recommended_live_mode as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const modeConfidence = ((confidence.mode_confidence as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const vigilanceAlerts = Array.isArray(confidence.vigilance_alerts)
+    ? (confidence.vigilance_alerts as Array<Record<string, unknown>>)
+    : [];
   const exposure =
     typeof playbook.exposure === "number"
       ? playbook.exposure
@@ -77,6 +96,21 @@ export default async function DashboardPage() {
       : typeof finance.confidence_score === "number"
         ? finance.confidence_score
         : null;
+  const recommendedModeLabel = humanizeModeName(recommendedLiveMode.mode, recommendedLiveMode.label);
+  const confidenceLevel = humanizeConfidenceLevel(
+    recommendedLiveMode.confidence_level || modeConfidence.confidence_level || "sem leitura",
+  );
+  const confidenceScore =
+    typeof recommendedLiveMode.confidence_score === "number"
+      ? recommendedLiveMode.confidence_score
+      : typeof modeConfidence.confidence_score === "number"
+        ? modeConfidence.confidence_score
+        : null;
+  const vigilanceStatus = humanizeStatusWord(confidence.vigilance_status || "n/d");
+  const scenarioBase = String(modeConfidence.scenario_base || "").trim();
+  const confidenceReasons = Array.isArray(modeConfidence.reasons)
+    ? (modeConfidence.reasons as unknown[]).map((item) => String(item || "").trim()).filter(Boolean)
+    : [];
 
   return (
     <div className="space-y-5">
@@ -144,6 +178,41 @@ export default async function DashboardPage() {
             {" · "}
             Status: <span className="text-zinc-200">{humanizeStatusWord(topCandidate.status || "n/d")}</span>
           </p>
+        </article>
+
+        <article className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">
+          <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Modo recomendado hoje</div>
+          <div className="mt-2 text-xl font-semibold text-zinc-100">{recommendedModeLabel}</div>
+          <p className="mt-3 text-sm text-zinc-300">{describeRecommendedMode(recommendedModeLabel)}</p>
+          <p className="mt-3 text-sm text-zinc-400">
+            Confiança: <span className="text-zinc-200">{confidenceLevel}</span>
+            {" · "}
+            Score: <span className="text-zinc-200">{confidenceScore == null ? "n/d" : `${Math.round(confidenceScore * 100)}%`}</span>
+          </p>
+          {scenarioBase ? <p className="mt-2 text-sm text-zinc-400">{scenarioBase}</p> : null}
+        </article>
+
+        <article className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">
+          <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Vigilância diária</div>
+          <div className="mt-2 text-xl font-semibold text-zinc-100">{vigilanceStatus}</div>
+          <p className="mt-3 text-sm text-zinc-300">
+            O agente diário vigia se o modo está ficando perigoso, se o dado envelheceu ou se a leitura perdeu força.
+          </p>
+          {vigilanceAlerts.length ? (
+            <div className="mt-3 space-y-2 text-sm text-zinc-400">
+              {vigilanceAlerts.slice(0, 3).map((alert, idx) => (
+                <p key={`${String(alert.code || idx)}`}>- {String(alert.message || "Alerta sem detalhe.")}</p>
+              ))}
+            </div>
+          ) : confidenceReasons.length ? (
+            <div className="mt-3 space-y-2 text-sm text-zinc-400">
+              {confidenceReasons.slice(0, 3).map((reason) => (
+                <p key={reason}>- {reason}</p>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-zinc-400">Sem alerta aberto no momento.</p>
+          )}
         </article>
       </section>
 

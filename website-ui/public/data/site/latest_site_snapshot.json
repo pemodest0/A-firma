@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-08T06:37:05.560144+00:00",
+  "generated_at_utc": "2026-03-09T11:13:45.634488+00:00",
   "as_of_date": "2026-02-27",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
@@ -15,6 +15,40 @@
     "operational_state": "monitoramento_normal",
     "risk_level_next_month": "baixo",
     "confidence_score": 1.0,
+    "mode_confidence": {
+      "recommended_mode": "ataque",
+      "confidence_score": 0.6514102943919164,
+      "confidence_level": "média",
+      "attack_score": 0.7465751935256706,
+      "protection_score": 0.7114775536305648,
+      "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
+      "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
+      "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
+      "reasons": [
+        "O ganho continua dependente dos nomes cripto mais fortes.",
+        "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
+        "Os alertas diários pedem leitura mais defensiva.",
+        "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
+      ],
+      "metrics": {
+        "structural_risk_level": "stable",
+        "structural_confidence_score": 1.0,
+        "vigilance_status": "warn",
+        "vigilance_alert_count": 2,
+        "pbo_verdict": "robusto",
+        "attack_underperform_prob_63": 0.5626666666666666,
+        "attack_top3_retention": 0.2872230995558317,
+        "attack_drawdown_abs": 0.8101786931028258,
+        "protection_drawdown_abs": 0.5865018104017784,
+        "execution_winner": "Modo principal com guarda"
+      }
+    },
+    "recommended_live_mode": {
+      "mode": "ataque",
+      "label": "Modo ataque",
+      "confidence_level": "média",
+      "confidence_score": 0.6514102943919164
+    },
     "lab_run_id": "20260301T095915Z",
     "gate_blocked": true,
     "gate_reasons": [
@@ -77,11 +111,11 @@
     }
   },
   "profit_research": {
-    "rows_total": 308,
+    "rows_total": 344,
     "status_counts": {
-      "keep": 160,
-      "watch": 109,
-      "kill": 37,
+      "keep": 164,
+      "watch": 139,
+      "kill": 39,
       "stale_shadow": 2
     },
     "top_candidate": {
@@ -125,7 +159,7 @@
     },
     "insights": [
       "Top candidato atual: static_equities_us_other__materials__technology com net_ann_return=0.2401095330621581.",
-      "Metodologias mais recorrentes: {'asset_concentrated_momentum_10x': 148, 'group_static_combo': 68, 'layered_equities_meta': 34, 'layered_drawdown_control': 17, 'group_dynamic_momentum': 9}."
+      "Metodologias mais recorrentes: {'asset_concentrated_momentum_10x': 148, 'group_static_combo': 68, 'layered_equities_meta': 34, 'layered_drawdown_control': 17, 'alpha_war_search': 9}."
     ],
     "pattern_headlines": [
       "Cripto ampliado manteve edge contra BTC-USD, mas com drawdown extremo.",
@@ -141,6 +175,223 @@
       "Controles que valeram a pena nesta rodada: meta_dd_conviction__25_100, meta_dd_conviction__40_100, meta_dd_guard__12_06_reduce35."
     ],
     "event_count": 14
+  },
+  "agents": {
+    "daily_operation": {
+      "status": "ok",
+      "generated_at_utc": "2026-03-09T06:47:06.178852+00:00",
+      "mode_attack": {
+        "label": "Modo ataque",
+        "candidate_id": "alpha_attack_major8_equity25",
+        "latest_date": "2026-03-05",
+        "latest_source": "equity25",
+        "weights": {
+          "crypto": 0.0,
+          "equity": 0.25,
+          "cash": 0.75
+        },
+        "gross_exposure": 0.25,
+        "net_ann_return": 0.756071145228637,
+        "net_total_return": 351.625417432301,
+        "net_sharpe": 1.0619221368594252,
+        "net_max_drawdown": -0.8101786931028258,
+        "avg_turnover_daily": 0.0820952380952381,
+        "notes": "entry_lb=21;exit_lb=63;entry_margin=0.05;exit_margin=0.05;risk_off=equity25;hold=0"
+      },
+      "mode_main": {
+        "label": "Modo principal",
+        "candidate_id": "meta_major8_eq_a2r1",
+        "latest_date": "2026-03-05",
+        "latest_source": "cash",
+        "weights": {
+          "crypto": 0.0,
+          "equity": 0.0,
+          "cash": 1.0
+        },
+        "gross_exposure": 0.0,
+        "net_ann_return": 0.6527763073411557,
+        "net_total_return": 186.52678953029644,
+        "net_sharpe": 1.2128750564414243,
+        "net_max_drawdown": -0.6941257278393255,
+        "avg_turnover_daily": 0.06895238095238095,
+        "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
+      },
+      "mode_attack_guard": {
+        "label": "Modo ataque com guarda",
+        "candidate_id": "alpha_attack_major8_equity25_mc_guard",
+        "latest_date": "2026-03-05",
+        "latest_source": "equity25",
+        "weights": {
+          "crypto": 0.0,
+          "equity": 0.25,
+          "cash": 0.75
+        },
+        "gross_exposure": 0.25,
+        "net_ann_return": 0.6404737069762716,
+        "net_total_return": 172.4855355904459,
+        "net_sharpe": 1.0735709936191282,
+        "net_max_drawdown": -0.7144346621184046,
+        "avg_turnover_daily": 0.07653333333333333,
+        "notes": "regime_conditioned_mc_guard;base=alpha_attack_major8_equity25;horizon=21;step=42"
+      },
+      "mode_main_guard": {
+        "label": "Modo principal com guarda",
+        "candidate_id": "meta_major8_eq_a2r1_mc_guard",
+        "latest_date": "2026-03-05",
+        "latest_source": "cash",
+        "weights": {
+          "crypto": 0.0,
+          "equity": 0.0,
+          "cash": 1.0
+        },
+        "gross_exposure": 0.0,
+        "net_ann_return": 0.5610995142941797,
+        "net_total_return": 102.49085254620778,
+        "net_sharpe": 1.219924645827686,
+        "net_max_drawdown": -0.5865018104017784,
+        "avg_turnover_daily": 0.06276190476190477,
+        "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
+      },
+      "artifacts": {
+        "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
+        "crypto_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_crypto_top_liquid_plus.csv",
+        "equity_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_target_800_clean_plus.csv"
+      },
+      "mode_confidence": {
+        "recommended_mode": "ataque",
+        "confidence_score": 0.6514102943919164,
+        "confidence_level": "média",
+        "attack_score": 0.7465751935256706,
+        "protection_score": 0.7114775536305648,
+        "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
+        "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
+        "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
+        "reasons": [
+          "O ganho continua dependente dos nomes cripto mais fortes.",
+          "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
+          "Os alertas diários pedem leitura mais defensiva.",
+          "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
+        ],
+        "metrics": {
+          "structural_risk_level": "stable",
+          "structural_confidence_score": 1.0,
+          "vigilance_status": "warn",
+          "vigilance_alert_count": 2,
+          "pbo_verdict": "robusto",
+          "attack_underperform_prob_63": 0.5626666666666666,
+          "attack_top3_retention": 0.2872230995558317,
+          "attack_drawdown_abs": 0.8101786931028258,
+          "protection_drawdown_abs": 0.5865018104017784,
+          "execution_winner": "Modo principal com guarda"
+        }
+      },
+      "recommended_live_mode": {
+        "mode": "ataque",
+        "label": "Modo ataque",
+        "confidence_level": "média",
+        "confidence_score": 0.6514102943919164
+      },
+      "confidence_notes": [
+        "Ataque continua melhor para lucro maximo quando o ambiente esta limpo.",
+        "Protecao vira preferivel quando a dependencia do cripto forte e o atrito operacional apertam juntos."
+      ],
+      "post_steps": {
+        "registry": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/build_profit_research_registry.py"
+          ],
+          "returncode": 0,
+          "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 340}\n",
+          "stderr": "",
+          "ok": true
+        },
+        "site_snapshot": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/build_site_finance_snapshot.py"
+          ],
+          "returncode": 0,
+          "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
+          "stderr": "",
+          "ok": true
+        }
+      },
+      "publish_ready": true
+    },
+    "daily_vigilance": {
+      "status": "warn",
+      "generated_at_utc": "2026-03-09T11:10:01.264230+00:00",
+      "operation_age_days": 0.1825819976736111,
+      "snapshot_as_of_date": "2026-02-27",
+      "research_rows_total": 344,
+      "pbo_verdict": "robusto",
+      "alerts": [
+        {
+          "level": "warn",
+          "code": "attack_deep_drawdown",
+          "message": "Modo ataque continua muito agressivo no histórico."
+        },
+        {
+          "level": "warn",
+          "code": "main_deep_drawdown",
+          "message": "Modo principal ainda tem tombo histórico pesado."
+        }
+      ],
+      "notes": [
+        "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
+        "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham."
+      ]
+    }
+  },
+  "confidence": {
+    "recommended_live_mode": {
+      "mode": "ataque",
+      "label": "Modo ataque",
+      "confidence_level": "média",
+      "confidence_score": 0.6514102943919164
+    },
+    "mode_confidence": {
+      "recommended_mode": "ataque",
+      "confidence_score": 0.6514102943919164,
+      "confidence_level": "média",
+      "attack_score": 0.7465751935256706,
+      "protection_score": 0.7114775536305648,
+      "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
+      "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
+      "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
+      "reasons": [
+        "O ganho continua dependente dos nomes cripto mais fortes.",
+        "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
+        "Os alertas diários pedem leitura mais defensiva.",
+        "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
+      ],
+      "metrics": {
+        "structural_risk_level": "stable",
+        "structural_confidence_score": 1.0,
+        "vigilance_status": "warn",
+        "vigilance_alert_count": 2,
+        "pbo_verdict": "robusto",
+        "attack_underperform_prob_63": 0.5626666666666666,
+        "attack_top3_retention": 0.2872230995558317,
+        "attack_drawdown_abs": 0.8101786931028258,
+        "protection_drawdown_abs": 0.5865018104017784,
+        "execution_winner": "Modo principal com guarda"
+      }
+    },
+    "vigilance_status": "warn",
+    "vigilance_alerts": [
+      {
+        "level": "warn",
+        "code": "attack_deep_drawdown",
+        "message": "Modo ataque continua muito agressivo no histórico."
+      },
+      {
+        "level": "warn",
+        "code": "main_deep_drawdown",
+        "message": "Modo principal ainda tem tombo histórico pesado."
+      }
+    ]
   },
   "shadow": {
     "run_id": "20260306T043129Z",
@@ -193,19 +444,28 @@
   },
   "layered_engine": {
     "best_meta_candidate": {
-      "suite": "meta_switch",
-      "candidate_id": "meta_v1__btc63_vs_equity",
-      "family": "meta_switch",
-      "benchmark_ticker": "BTC_SPY_50_50",
-      "net_ann_return": 0.5729759131829952,
-      "net_total_return": 110.99232319134613,
-      "net_sharpe": 1.0950070380572103,
-      "net_max_drawdown": -0.5846182102163391,
-      "edge_vs_benchmark_net_total_return": 110.25444886143505,
-      "avg_turnover_daily": 0.053714285714285714,
-      "hit_rate_10x_5y": 0.5040650406504065,
-      "years_to_10x_full": 2.001368925393566,
-      "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
+      "generated_at_utc": "2026-03-09T10:58:07.905444+00:00",
+      "candidate_id": "alpha_attack_major8_equity25",
+      "label": "Modo ataque validado no fechamento histórico",
+      "methodology": "historical_closure_attack",
+      "status": "keep",
+      "gross_ann_return": 0.9901582456608427,
+      "net_ann_return": 0.9901582456608427,
+      "gross_total_return": 963.1216945971346,
+      "net_total_return": 963.1216945971346,
+      "sharpe": 1.217783171551663,
+      "max_drawdown": -0.7377852584276814,
+      "edge_vs_spy_net_total_return": null,
+      "avg_foreign_share": 1.0,
+      "groups": "meta_switch,sector_pressure",
+      "artifacts": {
+        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z",
+        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/summary.json",
+        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/profit_research_rows.json"
+      },
+      "notes": "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente",
+      "edge_vs_benchmark_net_total_return": 962.4748891535872,
+      "benchmark_ticker": "BTC_SPY_50_50"
     },
     "drawdown_best_balanced": {
       "suite": "drawdown_control",
@@ -288,19 +548,28 @@
       "end": "2026-02-27"
     },
     "attack_mode": {
-      "suite": "meta_switch",
-      "candidate_id": "meta_v1__btc63_vs_equity",
-      "family": "meta_switch",
-      "benchmark_ticker": "BTC_SPY_50_50",
-      "net_ann_return": 0.5729759131829952,
-      "net_total_return": 110.99232319134613,
-      "net_sharpe": 1.0950070380572103,
-      "net_max_drawdown": -0.5846182102163391,
-      "edge_vs_benchmark_net_total_return": 110.25444886143505,
-      "avg_turnover_daily": 0.053714285714285714,
-      "hit_rate_10x_5y": 0.5040650406504065,
-      "years_to_10x_full": 2.001368925393566,
-      "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
+      "generated_at_utc": "2026-03-09T10:58:07.905444+00:00",
+      "candidate_id": "alpha_attack_major8_equity25",
+      "label": "Modo ataque validado no fechamento histórico",
+      "methodology": "historical_closure_attack",
+      "status": "keep",
+      "gross_ann_return": 0.9901582456608427,
+      "net_ann_return": 0.9901582456608427,
+      "gross_total_return": 963.1216945971346,
+      "net_total_return": 963.1216945971346,
+      "sharpe": 1.217783171551663,
+      "max_drawdown": -0.7377852584276814,
+      "edge_vs_spy_net_total_return": null,
+      "avg_foreign_share": 1.0,
+      "groups": "meta_switch,sector_pressure",
+      "artifacts": {
+        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z",
+        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/summary.json",
+        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/profit_research_rows.json"
+      },
+      "notes": "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente",
+      "edge_vs_benchmark_net_total_return": 962.4748891535872,
+      "benchmark_ticker": "BTC_SPY_50_50"
     },
     "robust_mode": {
       "suite": "drawdown_control",

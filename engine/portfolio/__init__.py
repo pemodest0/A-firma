@@ -1,4 +1,5 @@
 from .hmm_challenger import HMMChallengerResult, build_hmm_feature_frame, fit_hmm_challenger
+from .mode_confidence import ModeConfidenceDecision, decide_attack_vs_protection
 from .hrp import hrp_weights
 from .risk_gates import (
     TailRiskThresholds,
@@ -20,10 +21,12 @@ from .scenario_simulation import (
 
 __all__ = [
     "HMMChallengerResult",
+    "ModeConfidenceDecision",
     "RegimeMoments",
     "TailRiskThresholds",
     "apply_tail_gate",
     "build_hmm_feature_frame",
+    "decide_attack_vs_protection",
     "covariance_cholesky",
     "evaluate_tail_risk",
     "estimate_regime_moments",

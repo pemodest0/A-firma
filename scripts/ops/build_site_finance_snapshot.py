@@ -104,6 +104,51 @@ def first_list_item(value: Any) -> Any:
     return {}
 
 
+def select_attack_mode_from_registry(profit_registry: dict[str, Any]) -> dict[str, Any]:
+    rows = profit_registry.get("rows", []) if isinstance(profit_registry, dict) else []
+    if not isinstance(rows, list):
+        return {}
+    candidates: list[dict[str, Any]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        methodology = str(row.get("methodology") or "").strip().lower()
+        status = str(row.get("status") or "").strip().lower()
+        if status not in {"keep", "watch"}:
+            continue
+        if not any(
+            token in methodology
+            for token in [
+                "historical_closure_attack",
+                "alpha_hardening",
+                "attack_entry_ranking",
+                "confidence_calibration",
+                "alpha_improvement",
+                "alpha_hardening_attack",
+            ]
+        ):
+            continue
+        candidates.append(row)
+    if not candidates:
+        return {}
+    candidates.sort(
+        key=lambda row: (
+            1 if str(row.get("status") or "").strip().lower() == "keep" else 0,
+            1
+            if any(
+                token in str(row.get("methodology") or "").strip().lower()
+                for token in ["historical_closure_attack", "alpha_hardening"]
+            )
+            else 0,
+            to_num(row.get("net_total_return")) if to_num(row.get("net_total_return")) is not None else -1e18,
+            to_num(row.get("net_ann_return")) if to_num(row.get("net_ann_return")) is not None else -1e18,
+            to_num(row.get("sharpe")) if to_num(row.get("sharpe")) is not None else -1e18,
+        ),
+        reverse=True,
+    )
+    return candidates[0]
+
+
 def count_volume_support(universe_rows: list[dict[str, Any]]) -> tuple[int, int]:
     source_root = REPO_ROOT / "data" / "raw" / "finance" / "yfinance_daily"
     total = 0
@@ -149,6 +194,10 @@ def build_snapshot() -> dict[str, Any]:
     )
     group_method_summary = latest_json_summary("profit_group_methodology_suite")
     group_oos_summary = latest_json_summary("profit_group_oos_validation")
+    operation_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json", {})
+    vigilance_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json", {})
+    operation_confidence = operation_agent.get("mode_confidence", {}) if isinstance(operation_agent, dict) else {}
+    recommended_live_mode = operation_agent.get("recommended_live_mode", {}) if isinstance(operation_agent, dict) else {}
     group_top_candidates = group_method_summary.get("top_candidates", {}) if isinstance(group_method_summary, dict) else {}
     group_best_net_blended = group_top_candidates.get("best_net_blended", {}) if isinstance(group_top_candidates, dict) else {}
     group_oos_best_list = group_oos_summary.get("best_consistent_candidates", {}) if isinstance(group_oos_summary, dict) else {}
@@ -262,6 +311,7 @@ def build_snapshot() -> dict[str, Any]:
 
     top_candidate = profit_registry.get("top_candidate", {}) if isinstance(profit_registry, dict) else {}
     oos_best = profit_registry.get("oos_best_consistent", {}) if isinstance(profit_registry, dict) else {}
+    attack_mode_from_registry = select_attack_mode_from_registry(profit_registry)
     shadow_latest = invest_shadow.get("latest", {}) if isinstance(invest_shadow, dict) else {}
     shadow_replay = invest_shadow.get("historical_proxy_replay", {}) if isinstance(invest_shadow, dict) else {}
     shadow_portfolio = shadow_replay.get("portfolio", {}) if isinstance(shadow_replay, dict) else {}
@@ -287,6 +337,8 @@ def build_snapshot() -> dict[str, Any]:
             "operational_state": finance_ready.get("operational_state"),
             "risk_level_next_month": finance_ready.get("risk_level_next_month"),
             "confidence_score": finance_ready.get("confidence_score"),
+            "mode_confidence": operation_confidence,
+            "recommended_live_mode": recommended_live_mode,
             "lab_run_id": lab_summary.get("run_id"),
             "gate_blocked": gate.get("blocked"),
             "gate_reasons": gate.get("reasons") or [],
@@ -301,6 +353,16 @@ def build_snapshot() -> dict[str, Any]:
             "insights": profit_registry.get("insights") or [],
             "pattern_headlines": profit_patterns.get("pattern_headlines") or [],
             "event_count": profit_patterns.get("event_count") or 0,
+        },
+        "agents": {
+            "daily_operation": operation_agent,
+            "daily_vigilance": vigilance_agent,
+        },
+        "confidence": {
+            "recommended_live_mode": recommended_live_mode,
+            "mode_confidence": operation_confidence,
+            "vigilance_status": vigilance_agent.get("status"),
+            "vigilance_alerts": vigilance_agent.get("alerts") or [],
         },
         "shadow": {
             "run_id": invest_shadow.get("run_id"),
@@ -344,7 +406,7 @@ def build_snapshot() -> dict[str, Any]:
             },
         },
         "layered_engine": {
-            "best_meta_candidate": layered_summary.get("best_meta_candidate"),
+            "best_meta_candidate": attack_mode_from_registry or layered_summary.get("best_meta_candidate"),
             "drawdown_best_balanced": drawdown_summary.get("best_balanced_candidate"),
             "equity_best_overall": equity_summary.get("best_overall_candidate"),
             "meta_equity_winner": meta_injection_summary.get("winner"),
@@ -359,7 +421,7 @@ def build_snapshot() -> dict[str, Any]:
                 ),
                 "end": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
             },
-            "attack_mode": layered_summary.get("best_meta_candidate") or {},
+            "attack_mode": attack_mode_from_registry or layered_summary.get("best_meta_candidate") or {},
             "robust_mode": drawdown_summary.get("best_balanced_candidate") or {},
             "research_best": top_candidate,
             "research_oos": oos_best or group_oos_best,
