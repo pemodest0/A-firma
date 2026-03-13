@@ -787,6 +787,7 @@ def build_snapshot() -> dict[str, Any]:
     group_oos_summary = latest_json_summary("profit_group_oos_validation")
     operation_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json", {})
     vigilance_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json", {})
+    data_quality_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json", {})
     operation_confidence = operation_agent.get("mode_confidence", {}) if isinstance(operation_agent, dict) else {}
     recommended_live_mode = operation_agent.get("recommended_live_mode", {}) if isinstance(operation_agent, dict) else {}
     group_top_candidates = group_method_summary.get("top_candidates", {}) if isinstance(group_method_summary, dict) else {}
@@ -995,6 +996,7 @@ def build_snapshot() -> dict[str, Any]:
             "daily_ingestion": ingestion_agent,
             "daily_operation": operation_agent,
             "daily_vigilance": vigilance_agent,
+            "daily_data_quality": data_quality_agent,
         },
         "confidence": {
             "recommended_live_mode": recommended_live_mode,
@@ -1112,6 +1114,15 @@ def build_snapshot() -> dict[str, Any]:
             "ingestion_stale_days": ingestion_agent.get("stale_days"),
             "ingestion_fatal_reason": ingestion_agent.get("fatal_reason"),
             "ingestion_warning_reasons": ingestion_agent.get("warning_reasons") or [],
+            "quality_status": data_quality_agent.get("status"),
+            "quality_reference_date": data_quality_agent.get("reference_data_date"),
+            "quality_critical_stale_assets": data_quality_agent.get("critical_stale_assets"),
+            "quality_core_stale_assets": data_quality_agent.get("core_stale_assets"),
+            "quality_peripheral_stale_assets": data_quality_agent.get("peripheral_stale_assets"),
+            "quality_prune_candidate_count": data_quality_agent.get("prune_candidate_count"),
+            "quality_alerts": data_quality_agent.get("alerts") or [],
+            "quality_sample_critical_stale": data_quality_agent.get("sample_critical_stale") or [],
+            "quality_sample_prune_candidates": data_quality_agent.get("sample_prune_candidates") or [],
             "volume_supported_assets": volume_supported_assets,
             "volume_total_assets": volume_total_assets,
             "volume_coverage_ratio": (volume_supported_assets / volume_total_assets) if volume_total_assets else 0.0,

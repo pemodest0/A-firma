@@ -54,6 +54,8 @@ fi
 # Recalcula modos oficiais e vigilância com os preços recém-ingestados.
 "$PYTHON_BIN" scripts/ops/run_daily_operation_agent.py
 "$PYTHON_BIN" scripts/ops/run_daily_vigilance_agent.py
+"$PYTHON_BIN" scripts/ops/run_daily_data_quality_agent.py
+"$PYTHON_BIN" scripts/ops/build_site_finance_snapshot.py
 
 # Atualiza artefatos públicos do motor para o frontend no deploy.
 bash scripts/sync_lab_corr_to_website.sh

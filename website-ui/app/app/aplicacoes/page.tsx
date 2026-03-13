@@ -76,6 +76,9 @@ export default async function AplicacoesPage() {
   const ingestionStaleDays =
     typeof dataQuality.ingestion_stale_days === "number" ? dataQuality.ingestion_stale_days : null;
   const ingestionFatalReason = String(dataQuality.ingestion_fatal_reason || "").trim();
+  const qualityAlerts = Array.isArray(dataQuality.quality_alerts)
+    ? (dataQuality.quality_alerts as Array<Record<string, unknown>>)
+    : [];
   const exposure =
     !playbookStale && typeof playbook.exposure === "number"
       ? playbook.exposure
@@ -178,8 +181,16 @@ export default async function AplicacoesPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Dias de atraso: <span className="text-zinc-200">{ingestionStaleDays == null ? "n/d" : String(ingestionStaleDays)}</span>
           </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Críticos atrasados: <span className="text-zinc-200">{String(dataQuality.quality_critical_stale_assets ?? "n/d")}</span>
+            {" · "}
+            Núcleo atrasado: <span className="text-zinc-200">{String(dataQuality.quality_core_stale_assets ?? "n/d")}</span>
+          </p>
           {ingestionFatalReason ? (
             <p className="mt-2 text-sm text-amber-300">Motivo do alerta: {ingestionFatalReason}</p>
+          ) : null}
+          {qualityAlerts.length ? (
+            <p className="mt-2 text-sm text-amber-300">{String(qualityAlerts[0]?.message || "")}</p>
           ) : null}
         </article>
       </section>

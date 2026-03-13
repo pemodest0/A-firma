@@ -1,0 +1,412 @@
+{
+  "status": "warn",
+  "generated_at_utc": "2026-03-13T23:52:09.429324+00:00",
+  "reference_data_date": "2026-03-13",
+  "site_as_of_date": "2026-03-13",
+  "site_lag_days": 0,
+  "operation_generated_at_utc": "2026-03-13T23:10:10.156902+00:00",
+  "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
+  "total_assets": 853,
+  "fresh_assets": 669,
+  "stale_assets": 184,
+  "critical_stale_assets": 23,
+  "core_stale_assets": 29,
+  "peripheral_stale_assets": 132,
+  "prune_candidate_count": 54,
+  "sample_critical_stale": [
+    {
+      "ticker": "MATIC-USD",
+      "latest_date": "2025-03-24",
+      "stale_days": 354,
+      "role": "critical"
+    },
+    {
+      "ticker": "LQD",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "QQQ",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "RSP",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "SHY",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "SLV",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "SPY",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "USO",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "VT",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "VTI",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLB",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLE",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLF",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLI",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLK",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLP",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLRE",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLU",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLV",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    },
+    {
+      "ticker": "XLY",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "critical"
+    }
+  ],
+  "sample_core_stale": [
+    {
+      "ticker": "ZD",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "core"
+    },
+    {
+      "ticker": "LREN3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "MRVE3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "MULT3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "PCAR3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "PRIO3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "RADL3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "RAIL3.SA",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "XOP",
+      "latest_date": "2026-03-02",
+      "stale_days": 11,
+      "role": "core"
+    },
+    {
+      "ticker": "STAG",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "STX",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "SU",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TAP",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TD",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TEL",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TIGO",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TLK",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TM",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TRP",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    },
+    {
+      "ticker": "TSCO",
+      "latest_date": "2026-03-05",
+      "stale_days": 8,
+      "role": "core"
+    }
+  ],
+  "sample_prune_candidates": [
+    {
+      "ticker": "SOJD",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "SOJE",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "SOMN",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "SONO",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "SREA",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "STEM",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "STI",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "SYM",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "TBB",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "TLN",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "TRI",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "TTGT",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "TW",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "UBER",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "USAR",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "USGO",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "USGOW",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "UTZ",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "UZD",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    },
+    {
+      "ticker": "UZE",
+      "latest_date": "2026-02-12",
+      "stale_days": 29,
+      "role": "peripheral"
+    }
+  ],
+  "ingestion_status": "warn",
+  "ingestion_warning_reasons": [
+    "assets_without_remote_data"
+  ],
+  "ingestion_provider_counts": {
+    "local_fresh": 667,
+    "brapi": 3,
+    "binance": 2
+  },
+  "notes": [
+    "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
+    "Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda."
+  ],
+  "alerts": [
+    {
+      "level": "warn",
+      "code": "critical_assets_stale",
+      "message": "23 ativos críticos estão atrasados frente à data-base mais nova."
+    },
+    {
+      "level": "warn",
+      "code": "core_assets_stale",
+      "message": "29 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+    },
+    {
+      "level": "info",
+      "code": "peripheral_prune_candidates",
+      "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
+    }
+  ]
+}
