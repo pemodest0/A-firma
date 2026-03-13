@@ -180,8 +180,8 @@ export function describeStrategy(value: unknown, fallbackNotes?: unknown) {
     return notes
       .replace("crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200.", "Ataca cripto quando o BTC está em regime favorável; caso contrário fica em ações e vai para caixa quando o contexto dos dois piora.")
       .replace("scale por conviccao; piso ativo=25%", "Escala a exposição pela convicção do motor e mantém um piso de 25% para evitar zigue-zague excessivo.")
-      .replace("modo ataque promovido com entrada cripto mais rapida, sizing por confianca relativa ao historico recente e overlay de liquidacao cripto", "Ataca mais cedo quando o cripto acelera, ajusta o tamanho pelo grau de confiança e reduz a mão quando o ambiente parece próximo de liquidação.")
-      .replace("modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente", "Ataca cedo quando o cripto acelera e varia o tamanho da posição conforme a confiança recente.");
+      .replace("modo ataque promovido com entrada cripto mais rápida, sizing por confiança relativa ao histórico recente e overlay de liquidação cripto", "Ataca mais cedo quando o cripto acelera, ajusta o tamanho pelo grau de confiança e reduz a mão quando o ambiente parece próximo de liquidação.")
+      .replace("modo ataque promovido com entrada cripto mais rápida e sizing por confiança relativa ao histórico recente", "Ataca cedo quando o cripto acelera e varia o tamanho da posição conforme a confiança recente.");
   }
   return "Leitura quantitativa traduzida para uso humano: mais risco quando o contexto está limpo, menos risco quando a estrutura enfraquece.";
 }

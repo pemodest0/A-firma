@@ -1,12 +1,12 @@
 {
   "status": "ok",
-  "run_id": "20260220T192149Z",
-  "run_dir": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z",
+  "run_id": "20260223T202847Z",
+  "run_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z",
   "period_start": "2018-01-01",
   "period_end": "2026-02-12",
   "n_core": 470,
   "official_window": 120,
-  "policy_path": "/Users/PedroHenrique/Desktop/A-firma/config/lab_corr_policy.json",
+  "policy_path": "config/lab_corr_policy.json",
   "policy_loaded": true,
   "deployment_gate": {
     "blocked": false,
@@ -16,10 +16,10 @@
       "joint_majority_60d": 0.31666666666666665,
       "latest_joint_majority_5": 0.0,
       "same_universe_vs_previous": true,
-      "abs_delta_p1_vs_previous": 5.551115123125783e-17,
-      "abs_delta_deff_vs_previous": 7.105427357601002e-15,
+      "abs_delta_p1_vs_previous": NaN,
+      "abs_delta_deff_vs_previous": NaN,
       "active_cluster_alerts": 0,
-      "policy_lock_matches_previous_release": false
+      "policy_lock_matches_previous_release": true
     },
     "thresholds": {
       "min_joint_majority_60d": 0.3,
@@ -31,11 +31,11 @@
     }
   },
   "policy_lock": {
-    "policy_hash": "52a46c29a1b836f08de4d66db59b3b3de02b7d6bbd0b5469735a60e349437a52",
-    "previous_policy_hash": "c3934eac713b02a7903ce6f0d2dfa2f13fe504b3c371dea5eab06508f70c5721",
-    "matches_previous_release": false,
-    "previous_release_run_dir": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T174540Z",
-    "generated_at_utc": "2026-02-20T19:21:49.921678+00:00"
+    "policy_hash": "a188c91e584faa32e1ccaacf33a4aa21bf15ec7a91f9aa6aec56e5e431bc6d4d",
+    "previous_policy_hash": "",
+    "matches_previous_release": true,
+    "previous_release_run_dir": "",
+    "generated_at_utc": "2026-02-23T20:28:47.636915+00:00"
   },
   "checks": {
     "qa_ok": true,
@@ -56,12 +56,12 @@
       "dispersion": 1.0
     },
     "metrics": {
-      "score": 0.244947179490618,
-      "ann_return": 0.025769686438000372,
-      "sharpe": 0.21726601348932842,
-      "max_drawdown": -0.23273664155621032,
-      "ann_vol": 0.11860891643444324,
-      "avg_turnover": 0.01504424778761062
+      "score": 0.41099093587225555,
+      "ann_return": 0.04444823352048166,
+      "sharpe": 0.3587258577557641,
+      "max_drawdown": -0.21260961966522307,
+      "ann_vol": 0.1239058533403631,
+      "avg_turnover": 0.011608537220197813
     },
     "n_candidates": 6
   },
@@ -71,12 +71,12 @@
       "DISPERSION_CONFIRM",
       "SIGNAL_UNCONFIRMED"
     ],
-    "n_events_total": 564,
+    "n_events_total": 546,
     "n_events_last_60d": 42,
     "event_counts": {
-      "DISPERSION_CONFIRM": 362,
-      "TRANSITION_SPIKE": 105,
-      "REGIME_CHANGE": 88,
+      "DISPERSION_CONFIRM": 397,
+      "TRANSITION_SPIKE": 73,
+      "REGIME_CHANGE": 67,
       "STRESS_ENTER": 4,
       "STRESS_EXIT": 4,
       "SIGNAL_UNCONFIRMED": 1
@@ -85,13 +85,13 @@
       {
         "date": "2026-02-12",
         "event_code": "DISPERSION_CONFIRM",
-        "severity": 0.6447440368846731,
+        "severity": 0.6447440368846735,
         "regime": "dispersion",
         "message": "dispersao confirmada: priorizar rotacao e selecao.",
         "p1": 0.14993580346829766,
-        "deff": 24.661154230901175,
-        "dp1_5": 8.262811690759597e-05,
-        "ddeff_5": 0.07841346034825136
+        "deff": 24.661154230901182,
+        "dp1_5": 8.262811690748495e-05,
+        "ddeff_5": 0.07841346034825847
       },
       {
         "date": "2026-02-12",
@@ -100,15 +100,15 @@
         "regime": "dispersion",
         "message": "direcao recente ainda sem confirmacao entre janelas.",
         "p1": 0.14993580346829766,
-        "deff": 24.661154230901175,
-        "dp1_5": 8.262811690759597e-05,
-        "ddeff_5": 0.07841346034825136
+        "deff": 24.661154230901182,
+        "dp1_5": 8.262811690748495e-05,
+        "ddeff_5": 0.07841346034825847
       }
     ]
   },
   "alert_levels": {
-    "risk_threshold_yellow": 0.6428162415408643,
-    "risk_threshold_red": 0.7652524726704841,
+    "risk_threshold_yellow": 0.6688443519000521,
+    "risk_threshold_red": 0.7568714211348256,
     "risk_q_yellow": 0.7,
     "risk_q_red": 0.9,
     "min_conf_yellow": 0.35,
@@ -118,35 +118,35 @@
     "latest_level": "green",
     "latest_level_raw": "green",
     "counts": {
-      "green": 1469,
-      "yellow": 318,
-      "red": 134
+      "green": 1444,
+      "yellow": 358,
+      "red": 119
     }
   },
   "significance": {
     "count": 6,
-    "file_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/significance_summary_by_window.csv"
+    "file_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/significance_summary_by_window.csv"
   },
   "era_evaluation": {
     "count": 4,
-    "file_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/era_evaluation_T120.csv",
-    "file_json": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/era_evaluation_T120.json"
+    "file_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/era_evaluation_T120.csv",
+    "file_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/era_evaluation_T120.json"
   },
   "action_playbook": {
     "count": 1921,
     "horizon_days": 20,
-    "file_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/action_playbook_T120.csv",
-    "file_json": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/action_playbook_T120.json"
+    "file_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/action_playbook_T120.csv",
+    "file_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/action_playbook_T120.json"
   },
   "asset_sector_diagnostics": {
     "assets_count": 470,
     "sectors_count": 14,
     "files": {
-      "assets_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/asset_regime_diagnostics.csv",
-      "sectors_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/sector_regime_diagnostics.csv",
-      "top_sensitive_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/asset_top_sensitive.csv",
-      "top_stable_csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/asset_top_stable.csv",
-      "summary_json": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/asset_sector_summary.json"
+      "assets_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/asset_regime_diagnostics.csv",
+      "sectors_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/sector_regime_diagnostics.csv",
+      "top_sensitive_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/asset_top_sensitive.csv",
+      "top_stable_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/asset_top_stable.csv",
+      "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/asset_sector_summary.json"
     }
   },
   "case_studies": {
@@ -158,13 +158,13 @@
     ],
     "horizon_days": 20,
     "files": {
-      "csv": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/case_studies_T120.csv",
-      "json": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/case_studies_T120.json",
-      "demo_txt": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/case_studies_demo.txt"
+      "csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/case_studies_T120.csv",
+      "json": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/case_studies_T120.json",
+      "demo_txt": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/case_studies_demo.txt"
     }
   },
   "ui_view_model": {
     "schema_version": "lab_corr_view_v1",
-    "file_json": "/Users/PedroHenrique/Desktop/A-firma/results/lab_corr_macro/20260220T192149Z/ui_view_model_T120.json"
+    "file_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260223T202847Z/ui_view_model_T120.json"
   }
 }

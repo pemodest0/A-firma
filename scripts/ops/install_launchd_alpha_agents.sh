@@ -7,6 +7,7 @@ mkdir -p "$AGENTS_DIR"
 mkdir -p "$REPO/results/ops/agents/logs"
 
 for name in \
+  com.assyntrax.daily-ingestion-agent \
   com.assyntrax.daily-operation-agent \
   com.assyntrax.daily-vigilance-agent
 do
@@ -18,6 +19,7 @@ do
 done
 
 echo "[ok] agentes carregados:"
+echo " - com.assyntrax.daily-ingestion-agent"
 echo " - com.assyntrax.daily-operation-agent"
 echo " - com.assyntrax.daily-vigilance-agent"
 echo "check: launchctl list | grep assyntrax"

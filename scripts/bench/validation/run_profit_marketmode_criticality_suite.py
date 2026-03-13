@@ -209,6 +209,86 @@ def _state_ecosystem_compare(structure_daily: pd.DataFrame, weight: pd.Series, l
     return rows
 
 
+def build_official_mode_allocations(
+    *,
+    prices_dir: Path,
+    crypto_groups: Path,
+    crypto_meta: Path,
+    equity_groups: Path,
+    equity_meta: Path,
+    benchmark_crypto: str,
+    benchmark_equity: str,
+) -> dict[str, Any]:
+    built = _build_candidates(
+        prices_dir=prices_dir,
+        crypto_groups=crypto_groups,
+        crypto_meta=crypto_meta,
+        equity_groups=equity_groups,
+        equity_meta=equity_meta,
+        benchmark_crypto=str(benchmark_crypto),
+        benchmark_equity=str(benchmark_equity),
+    )
+    context = dict(built["context"])
+    attack_alloc: AllocationBundle = built["allocations"]["attack"]
+    protect_alloc: AllocationBundle = built["allocations"]["baseline_guard"]
+
+    base_score = pd.to_numeric(context["attack_score_exogenous"], errors="coerce").fillna(0.0).clip(0.0, 1.0).astype(float)
+    structure_daily, _spectral_panel, criticality, _structural_stress = _build_structure_layers(context)
+    criticality_pct = _rolling_percentile(criticality, 120).reindex(base_score.index).fillna(0.5).clip(0.0, 1.0)
+    market_mode_share_pct = pd.to_numeric(
+        structure_daily.get("market_mode_share_pct"),
+        errors="coerce",
+    ).reindex(base_score.index).fillna(0.5)
+    criticality_rel_score = (
+        base_score
+        - 0.18 * criticality_pct
+        - 0.05 * market_mode_share_pct
+    ).clip(0.0, 1.0)
+    criticality_rel_weight = _confidence_weight_from_score(criticality_rel_score)
+    criticality_bundle = _blend_allocation_bundles(
+        candidate_id="criticality_guard_attack",
+        notes="reduz a mao quando a criticidade e a concentracao estrutural entram no pior bloco recente",
+        attack_alloc=attack_alloc,
+        protect_alloc=protect_alloc,
+        attack_weight=criticality_rel_weight,
+    )
+
+    instability = (
+        0.60 * pd.to_numeric(criticality, errors="coerce").reindex(base_score.index).fillna(0.5)
+        + 0.40 * market_mode_share_pct
+    ).clip(0.0, 1.0)
+    free_rel_score = apply_free_energy_penalty(
+        base_score=criticality_rel_score,
+        turnover=attack_alloc.bundle.result.turnover,
+        instability=instability,
+        gamma=0.06,
+        eta=0.08,
+    )
+    free_rel_weight = _confidence_weight_from_score(free_rel_score)
+    free_rel_bundle = _blend_allocation_bundles(
+        candidate_id="criticality_free_energy_attack",
+        notes="combina criticidade relativa com penalidade leve de reorganizacao",
+        attack_alloc=attack_alloc,
+        protect_alloc=protect_alloc,
+        attack_weight=free_rel_weight,
+    )
+
+    return {
+        "context": context,
+        "built": built,
+        "official_attack": free_rel_bundle,
+        "official_attack_guard": criticality_bundle,
+        "official_main": built["allocations"]["baseline"],
+        "official_main_guard": built["allocations"]["baseline_guard"],
+        "official_notes": {
+            "attack": "Ataque com criticidade estrutural e reorganizacao leve.",
+            "attack_guard": "Ataque com freio de criticidade mais direto.",
+            "main": "Modo principal equilibrado.",
+            "main_guard": "Modo principal com protecao reforcada.",
+        },
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Testa market mode, criticality, assimetria e energia livre sobre o melhor ataque atual.")
     ap.add_argument("--crypto-asset-groups", default="data/asset_groups_crypto_top_liquid_plus.csv")

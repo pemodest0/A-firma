@@ -70,10 +70,21 @@ export default async function DashboardPage() {
   const shadow = ((snapshot.shadow as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const shadowLatest = ((shadow.latest as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const confidence = ((snapshot.confidence as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastHorizons = ((snapshot.forecast_horizons as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const dataQuality = ((snapshot.data_quality as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const recommendedLiveMode = ((confidence.recommended_live_mode as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const modeConfidence = ((confidence.mode_confidence as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastDaily = ((forecastHorizons.daily as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastWeekly = ((forecastHorizons.weekly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastMonthly = ((forecastHorizons.monthly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const vigilanceAlerts = Array.isArray(confidence.vigilance_alerts)
     ? (confidence.vigilance_alerts as Array<Record<string, unknown>>)
+    : [];
+  const ingestionStaleDays =
+    typeof dataQuality.ingestion_stale_days === "number" ? dataQuality.ingestion_stale_days : null;
+  const ingestionFatalReason = String(dataQuality.ingestion_fatal_reason || "").trim();
+  const ingestionWarningReasons = Array.isArray(dataQuality.ingestion_warning_reasons)
+    ? (dataQuality.ingestion_warning_reasons as unknown[]).map((item) => String(item || "").trim()).filter(Boolean)
     : [];
   const exposure =
     typeof playbook.exposure === "number"
@@ -222,6 +233,51 @@ export default async function DashboardPage() {
             <p className="mt-3 text-sm text-zinc-400">Sem alerta aberto no momento.</p>
           )}
         </article>
+      </section>
+
+      <section className="grid gap-4 px-5 md:grid-cols-4 md:px-6">
+        <article className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5 md:col-span-1">
+          <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Ingestão de dados</div>
+          <div className="mt-2 text-xl font-semibold text-zinc-100">
+            {humanizeStatusWord(dataQuality.ingestion_status || "n/d")}
+          </div>
+          <p className="mt-3 text-sm text-zinc-300">
+            Último dado conhecido:{" "}
+            <span className="text-zinc-100">{String(dataQuality.last_ingestion_data_date || dataBase || "n/d")}</span>
+          </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Atualizados: <span className="text-zinc-200">{String(dataQuality.ingestion_refreshed_assets ?? dataQuality.ingestion_updated_assets ?? "n/d")}</span>
+            {" · "}
+            Falhas: <span className="text-zinc-200">{String(dataQuality.ingestion_failed_assets ?? "n/d")}</span>
+          </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Dias de atraso: <span className="text-zinc-200">{ingestionStaleDays == null ? "n/d" : String(ingestionStaleDays)}</span>
+          </p>
+          {ingestionFatalReason ? (
+            <p className="mt-2 text-sm text-amber-300">Motivo do alerta: {ingestionFatalReason}</p>
+          ) : ingestionWarningReasons.length ? (
+            <p className="mt-2 text-sm text-amber-300">Alertas: {ingestionWarningReasons.join(", ")}</p>
+          ) : null}
+        </article>
+
+        {[forecastDaily, forecastWeekly, forecastMonthly].map((forecast, idx) => (
+          <article key={`forecast-${idx}`} className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">
+            <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+              {String(forecast.label || `Horizonte ${idx + 1}`)}
+            </div>
+            <div className="mt-2 text-lg font-semibold text-zinc-100">
+              {String(forecast.mode || recommendedModeLabel || "Sem leitura")}
+            </div>
+            <p className="mt-3 text-sm text-zinc-300">
+              {String(forecast.summary || "Sem resumo publicado para este horizonte.")}
+            </p>
+            <p className="mt-3 text-sm text-zinc-400">
+              Exposição: <span className="text-zinc-200">{formatPct(typeof forecast.exposure_target === "number" ? forecast.exposure_target : exposure)}</span>
+              {" · "}
+              Confiança: <span className="text-zinc-200">{humanizeConfidenceLevel(forecast.confidence_level || confidenceLevel)}</span>
+            </p>
+          </article>
+        ))}
       </section>
 
       <div className="px-5 md:px-6">

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${1:-$HOME/A-firma}"
+REPO="${1:-$HOME/Downloads/Assyntrax}"
 PLIST_SRC="$REPO/scripts/ops/launchd/com.assyntrax.daily-publish.plist"
 PLIST_DST="$HOME/Library/LaunchAgents/com.assyntrax.daily-publish.plist"
 
@@ -16,4 +16,3 @@ launchctl load "$PLIST_DST"
 echo "[ok] launchd job loaded: com.assyntrax.daily-publish"
 echo "check: launchctl list | grep assyntrax"
 echo "logs:  tail -f $REPO/results/ops/logs/daily_publish.out.log"
-

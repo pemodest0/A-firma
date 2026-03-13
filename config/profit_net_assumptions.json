@@ -1,6 +1,6 @@
 {
   "version": "profit_net_assumptions_v1",
-  "statement": "Premissas liquidas para pesquisa de lucro da Assyntrax. Aliquotas e enquadramentos usam fontes oficiais; custos em bps sao cenarios internos conservadores, nao cotacoes de corretora.",
+  "statement": "Premissas líquidas para pesquisa de lucro da Assyntrax. Alíquotas e enquadramentos usam fontes oficiais; custos em bps são cenários internos conservadores, não cotações de corretora.",
   "official_sources": {
     "br_foreign_financial_investments": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tributacao-de-aplicacoes-financeiras-no-exterior",
     "br_bolsa_capital_gains": "https://www.gov.br/pt-br/servicos/apurar-ganhos-liquidos-em-operacoes-na-bolsa",
@@ -18,8 +18,8 @@
       "dividend_withholding_mode": "not_modeled_adjusted_close",
       "notes": [
         "IR de 15% modelado como proxy anual sobre ganho positivo apos custos.",
-        "Retornos via adjusted close nao separam dividendo de preco; withholding de dividendos nao e modelado separadamente para evitar dupla contagem.",
-        "Custos em bps sao cenario interno conservador para pesquisa, nao tabela oficial de corretora."
+        "Retornos via adjusted close não separam dividendo de preço; withholding de dividendos não é modelado separadamente para evitar dupla contagem.",
+        "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora."
       ]
     },
     "br_local_equity": {
@@ -33,8 +33,8 @@
       "monthly_sales_exemption_modeled": false,
       "notes": [
         "IR de 15% modelado como proxy mensal sobre ganho positivo apos custos.",
-        "A isencao de vendas mensais abaixo de R$ 20 mil nao e modelada porque a simulacao nao conhece o lote do investidor nem a realizacao fiscal real.",
-        "Custos em bps sao cenario interno conservador para pesquisa, nao tabela oficial de corretora."
+        "A isenção de vendas mensais abaixo de R$ 20 mil não é modelada porque a simulação não conhece o lote do investidor nem a realização fiscal real.",
+        "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora."
       ]
     },
     "crypto_global_brazil_resident_conservative": {
@@ -47,8 +47,8 @@
       "dividend_withholding_mode": "not_applicable",
       "monthly_sales_exemption_modeled": false,
       "notes": [
-        "Modelo conservador para pesquisa: nao aplica a isencao de alienacoes mensais ate R$ 35 mil, para evitar inflar alpha artificialmente.",
-        "A Receita Federal esclarece que ganhos em alienacao acima de R$ 35 mil/mes estao sujeitos a ganho de capital, e a atualizacao de 2025 da DeCripto nao alterou a tributacao.",
+        "Modelo conservador para pesquisa: não aplica a isenção de alienações mensais até R$ 35 mil, para evitar inflar alpha artificialmente.",
+        "A Receita Federal esclarece que ganhos em alienação acima de R$ 35 mil/mês estão sujeitos a ganho de capital, e a atualização de 2025 da DeCripto não alterou a tributação.",
         "Custos em bps agregam fee de exchange, spread/slippage e friccao operacional de remessa, em cenario conservador."
       ]
     }

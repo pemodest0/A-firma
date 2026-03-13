@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import re
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,12 +13,20 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RESULTS_ROOT = REPO_ROOT / "results"
+READ_WARNINGS: list[dict[str, str]] = []
 
 
 def read_json(path: Path, fallback: Any = None) -> Any:
     try:
         raw = path.read_text(encoding="utf-8")
-    except Exception:
+    except Exception as exc:
+        READ_WARNINGS.append(
+            {
+                "path": str(path),
+                "reason": "missing_or_unreadable",
+                "detail": str(exc),
+            }
+        )
         return fallback
     try:
         return json.loads(raw)
@@ -28,8 +37,22 @@ def read_json(path: Path, fallback: Any = None) -> Any:
             .replace("-null", "null")
         )
         try:
+            READ_WARNINGS.append(
+                {
+                    "path": str(path),
+                    "reason": "json_repaired",
+                    "detail": "replaced_nan_or_infinity",
+                }
+            )
             return json.loads(fixed)
-        except Exception:
+        except Exception as exc:
+            READ_WARNINGS.append(
+                {
+                    "path": str(path),
+                    "reason": "invalid_json",
+                    "detail": str(exc),
+                }
+            )
             return fallback
 
 
@@ -48,6 +71,92 @@ def to_num(value: Any) -> float | None:
     return num if num == num and abs(num) != float("inf") else None
 
 
+def normalize_ingestion_summary(summary: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(summary, dict):
+        return {}
+
+    attempted_assets = int(to_num(summary.get("attempted_assets")) or 0)
+    updated_assets = int(to_num(summary.get("updated_assets")) or 0)
+    unchanged_assets = int(to_num(summary.get("unchanged_assets")) or 0)
+    failed_assets = int(to_num(summary.get("failed_assets")) or 0)
+    no_remote_data_assets = int(to_num(summary.get("no_remote_data_assets")) or 0)
+    skipped_remote_assets = int(to_num(summary.get("skipped_remote_assets")) or 0)
+
+    refreshed_assets = to_num(summary.get("refreshed_assets"))
+    if refreshed_assets is None:
+        refreshed_assets = updated_assets + unchanged_assets
+        if (
+            refreshed_assets == 0
+            and attempted_assets > 0
+            and failed_assets == 0
+            and no_remote_data_assets == 0
+            and skipped_remote_assets == 0
+            and summary.get("max_latest_date")
+        ):
+            # Backward compatibility for summaries generated before the refreshed/no_remote/skipped
+            # breakdown existed.
+            refreshed_assets = attempted_assets
+
+    max_latest_date = str(summary.get("max_latest_date") or "").strip() or None
+    stale_days = to_num(summary.get("stale_days"))
+    if stale_days is None and max_latest_date:
+        try:
+            latest_dt = datetime.fromisoformat(max_latest_date).date()
+            stale_days = max((datetime.now(timezone.utc).date() - latest_dt).days, 0)
+        except Exception:
+            stale_days = None
+
+    warning_reasons = summary.get("warning_reasons")
+    if not isinstance(warning_reasons, list):
+        warning_reasons = []
+    warning_reasons = [str(item or "").strip() for item in warning_reasons if str(item or "").strip()]
+
+    fatal_reason = str(summary.get("fatal_reason") or "").strip() or None
+    status = str(summary.get("status") or "").strip().lower() or "missing"
+
+    if fatal_reason is None:
+        if bool(summary.get("skip_remote")):
+            fatal_reason = "skip_remote_enabled"
+            status = "fail"
+        elif attempted_assets > 0 and refreshed_assets == 0 and max_latest_date is None:
+            fatal_reason = "missing_latest_date"
+            status = "fail"
+        elif stale_days is not None and stale_days > 4:
+            fatal_reason = "stale_price_history"
+            status = "fail"
+
+    if fatal_reason is None and stale_days is not None and stale_days > 2 and "data_getting_stale" not in warning_reasons:
+        warning_reasons.append("data_getting_stale")
+    if no_remote_data_assets > 0 and "assets_without_remote_data" not in warning_reasons:
+        warning_reasons.append("assets_without_remote_data")
+    if skipped_remote_assets > 0 and "assets_skipped_remote" not in warning_reasons:
+        warning_reasons.append("assets_skipped_remote")
+
+    if status == "ok" and fatal_reason:
+        status = "fail"
+    elif status == "ok" and warning_reasons:
+        status = "warn"
+
+    normalized = dict(summary)
+    normalized.update(
+        {
+            "attempted_assets": attempted_assets,
+            "updated_assets": updated_assets,
+            "unchanged_assets": unchanged_assets,
+            "refreshed_assets": int(refreshed_assets) if refreshed_assets is not None else None,
+            "failed_assets": failed_assets,
+            "no_remote_data_assets": no_remote_data_assets,
+            "skipped_remote_assets": skipped_remote_assets,
+            "max_latest_date": max_latest_date,
+            "stale_days": int(stale_days) if stale_days is not None else None,
+            "fatal_reason": fatal_reason,
+            "warning_reasons": warning_reasons,
+            "status": status,
+        }
+    )
+    return normalized
+
+
 def deep_clean(value: Any) -> Any:
     if isinstance(value, float):
         return value if math.isfinite(value) else None
@@ -56,6 +165,48 @@ def deep_clean(value: Any) -> Any:
     if isinstance(value, dict):
         return {key: deep_clean(item) for key, item in value.items()}
     return value
+
+
+def normalize_visible_text(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    text = value
+    phrase_replacements = {
+        "Campeao atual": "Campeão atual",
+        "campeao atual: criticidade com reorganizacao leve": "campeão atual: criticidade com reorganização leve",
+        "combina criticidade relativa com penalidade leve de reorganizacao": "combina criticidade relativa com penalidade leve de reorganização",
+        "reduz a mao quando a criticidade e a concentracao estrutural entram no pior bloco recente": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente",
+        "O ataque agora combina criticidade estrutural com um freio leve de reorganizacao": "O ataque agora combina criticidade estrutural com um freio leve de reorganização",
+        "Stops e overlays no cripto puro reduziram retorno anual; nao resolveram o drawdown estrutural.": "Stops e overlays no cripto puro reduziram retorno anual; não resolveram o drawdown estrutural.",
+        "Tiers mostraram que o edge cripto vem do universo amplo; midcaps isolados nao sustentaram o resultado.": "Tiers mostraram que o edge cripto vem do universo amplo; midcaps isolados não sustentaram o resultado.",
+    }
+    word_replacements = {
+        r"\bconfianca\b": "confiança",
+        r"\breorganizacao\b": "reorganização",
+        r"\bprotecao\b": "proteção",
+        r"\bconcentracao\b": "concentração",
+        r"\bhistorico\b": "histórico",
+        r"\bnao\b": "não",
+        r"\bmao\b": "mão",
+        r"\bso\b": "só",
+        r"\bproprio\b": "próprio",
+        r"\brapida\b": "rápida",
+        r"\bperiodo\b": "período",
+        r"\bmes\b": "mês",
+    }
+    for src, dst in phrase_replacements.items():
+        text = text.replace(src, dst)
+    for pattern, replacement in word_replacements.items():
+        text = re.sub(pattern, replacement, text)
+    return text
+
+
+def normalize_visible_payload(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: normalize_visible_payload(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [normalize_visible_payload(item) for item in value]
+    return normalize_visible_text(value)
 
 
 def latest_validation_dir(name: str) -> Path | None:
@@ -125,6 +276,9 @@ def select_attack_mode_from_registry(profit_registry: dict[str, Any]) -> dict[st
                 "confidence_calibration",
                 "alpha_improvement",
                 "alpha_hardening_attack",
+                "criticality",
+                "marketmode",
+                "free_energy",
             ]
         ):
             continue
@@ -147,6 +301,17 @@ def select_attack_mode_from_registry(profit_registry: dict[str, Any]) -> dict[st
         reverse=True,
     )
     return candidates[0]
+
+
+def select_top_candidate(profit_registry: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(profit_registry, dict):
+        return {}
+    keep = profit_registry.get("top_keep_candidates")
+    if isinstance(keep, list) and keep:
+        row = keep[0]
+        return row if isinstance(row, dict) else {}
+    top = profit_registry.get("top_candidate")
+    return top if isinstance(top, dict) else {}
 
 
 def count_volume_support(universe_rows: list[dict[str, Any]]) -> tuple[int, int]:
@@ -246,6 +411,83 @@ def human_shadow_forecast(mode_key: str, recommended_live_mode: dict[str, Any], 
     if mode_key in {"paper_live", "paper_replay"}:
         return "Serve para acompanhar se a lógica continua coerente sem precisar colocar dinheiro real."
     return "Use este modo como comparação e contexto, não como ordem automática."
+
+
+def normalize_confidence_level(value: Any) -> str:
+    raw = str(value or "").strip().lower()
+    if raw in {"alta", "high"}:
+        return "alta"
+    if raw in {"média", "media", "medium", "moderada", "moderado"}:
+        return "média"
+    if raw in {"baixa", "low"}:
+        return "baixa"
+    return "sem leitura"
+
+
+def build_forecast_horizons(
+    finance_ready: dict[str, Any],
+    latest_playbook: dict[str, Any],
+    recommended_live_mode: dict[str, Any],
+    mode_confidence: dict[str, Any],
+    vigilance_agent: dict[str, Any],
+) -> dict[str, Any]:
+    recommended_label = human_shadow_label(
+        str(recommended_live_mode.get("mode") or ""),
+        str(recommended_live_mode.get("candidate_id") or ""),
+        str(recommended_live_mode.get("label") or "Modo sugerido"),
+    )
+    confidence_level = normalize_confidence_level(
+        recommended_live_mode.get("confidence_level") or mode_confidence.get("confidence_level")
+    )
+    confidence_score = to_num(
+        recommended_live_mode.get("confidence_score") or mode_confidence.get("confidence_score")
+    )
+    exposure_target = to_num(
+        latest_playbook.get("exposure")
+        or recommended_live_mode.get("gross_exposure")
+        or finance_ready.get("target_exposure")
+    )
+    risk_level = str(finance_ready.get("risk_level_next_month") or "").strip() or "monitoramento"
+    vigilance_status = str(vigilance_agent.get("status") or "").strip().lower()
+
+    def _base_summary(horizon: str) -> str:
+        if vigilance_status in {"warn", "error"}:
+            return f"No horizonte {horizon}, o motor pede mais disciplina: operar menor e respeitar os alertas."
+        if "ataque" in recommended_label.lower() and confidence_level in {"alta", "média"}:
+            return f"No horizonte {horizon}, a leitura ainda favorece ataque disciplinado."
+        if "prote" in recommended_label.lower():
+            return f"No horizonte {horizon}, a prioridade é proteger capital e aceitar menos risco."
+        return f"No horizonte {horizon}, o melhor é operar pequeno e acompanhar a leitura estrutural."
+
+    return {
+        "daily": {
+            "label": "Leitura diária",
+            "mode": recommended_label,
+            "confidence_level": confidence_level,
+            "confidence_score": confidence_score,
+            "risk_level": risk_level,
+            "exposure_target": exposure_target,
+            "summary": _base_summary("diário"),
+        },
+        "weekly": {
+            "label": "Leitura semanal",
+            "mode": recommended_label,
+            "confidence_level": confidence_level,
+            "confidence_score": confidence_score,
+            "risk_level": risk_level,
+            "exposure_target": exposure_target,
+            "summary": _base_summary("semanal"),
+        },
+        "monthly": {
+            "label": "Leitura mensal",
+            "mode": recommended_label,
+            "confidence_level": confidence_level,
+            "confidence_score": confidence_score,
+            "risk_level": risk_level,
+            "exposure_target": exposure_target,
+            "summary": _base_summary("mensal"),
+        },
+    }
 
 
 def parse_weights(value: Any) -> dict[str, float]:
@@ -453,7 +695,7 @@ def build_shadow_modes(
         },
     )
 
-    top_candidate = profit_registry.get("top_candidate") if isinstance(profit_registry.get("top_candidate"), dict) else {}
+    top_candidate = select_top_candidate(profit_registry)
     if top_candidate:
         append_mode(
             slug="research_top",
@@ -532,6 +774,9 @@ def build_snapshot() -> dict[str, Any]:
     group_oos_best = first_list_item(group_oos_best_list)
     universe_summary = universe_expansion_verdict.get("summary", {}) if isinstance(universe_expansion_verdict, dict) else {}
     universe_verdict = universe_expansion_verdict.get("verdict", {}) if isinstance(universe_expansion_verdict, dict) else {}
+    ingestion_agent = normalize_ingestion_summary(
+        read_json(RESULTS_ROOT / "ops" / "agents" / "daily_ingestion" / "latest_summary.json", {})
+    )
 
     latest_lab_row = lab_timeseries[-1] if lab_timeseries else {}
     latest_playbook = action_playbook[-1] if isinstance(action_playbook, list) and action_playbook else {}
@@ -637,7 +882,7 @@ def build_snapshot() -> dict[str, Any]:
         )
     )
 
-    top_candidate = profit_registry.get("top_candidate", {}) if isinstance(profit_registry, dict) else {}
+    top_candidate = select_top_candidate(profit_registry)
     oos_best = profit_registry.get("oos_best_consistent", {}) if isinstance(profit_registry, dict) else {}
     attack_mode_from_registry = select_attack_mode_from_registry(profit_registry)
     shadow_latest = invest_shadow.get("latest", {}) if isinstance(invest_shadow, dict) else {}
@@ -665,6 +910,13 @@ def build_snapshot() -> dict[str, Any]:
     )
 
     volume_supported_assets, volume_total_assets = count_volume_support(current_universe)
+    forecast_horizons = build_forecast_horizons(
+        finance_ready if isinstance(finance_ready, dict) else {},
+        latest_playbook if isinstance(latest_playbook, dict) else {},
+        recommended_live_mode if isinstance(recommended_live_mode, dict) else {},
+        operation_confidence if isinstance(operation_confidence, dict) else {},
+        vigilance_agent if isinstance(vigilance_agent, dict) else {},
+    )
 
     snapshot = {
         "status": "ok",
@@ -703,6 +955,7 @@ def build_snapshot() -> dict[str, Any]:
             "event_count": profit_patterns.get("event_count") or 0,
         },
         "agents": {
+            "daily_ingestion": ingestion_agent,
             "daily_operation": operation_agent,
             "daily_vigilance": vigilance_agent,
         },
@@ -712,6 +965,7 @@ def build_snapshot() -> dict[str, Any]:
             "vigilance_status": vigilance_agent.get("status"),
             "vigilance_alerts": vigilance_agent.get("alerts") or [],
         },
+        "forecast_horizons": forecast_horizons,
         "shadow": {
             "run_id": invest_shadow.get("run_id"),
             "latest": shadow_latest,
@@ -790,8 +1044,8 @@ def build_snapshot() -> dict[str, Any]:
             "group_suite_best": group_best_net_blended,
             "physics_math_why": [
                 "A matriz de correlacao mostra quando os ativos deixam de andar sozinhos e passam a obedecer um movimento coletivo.",
-                "O espectro ajuda a medir concentracao de risco. Quando um fator domina tudo, o motor reduz confianca e corta agressividade.",
-                "Momentum e persistencia medem inercia do mercado. A ideia nao e prever cada candle, e sim explorar padroes que costumam durar mais de um dia.",
+                "O espectro ajuda a medir concentração de risco. Quando um fator domina tudo, o motor reduz confiança e corta agressividade.",
+                "Momentum e persistência medem a inércia do mercado. A ideia não é prever cada candle, e sim explorar padrões que costumam durar mais de um dia.",
                 "O meta-switch junta essas leituras para escolher entre ataque, robustez e caixa sem fingir certeza absoluta.",
             ],
         },
@@ -804,11 +1058,28 @@ def build_snapshot() -> dict[str, Any]:
         "data_quality": {
             "price_source": "yfinance_daily_bundle",
             "price_history_start": "2016-01-05",
-            "price_history_end": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
+            "price_history_end": str(
+                ingestion_agent.get("max_latest_date")
+                or finance_ready.get("data_last_date")
+                or latest_lab_row.get("date")
+                or ""
+            ),
+            "ingestion_status": ingestion_agent.get("status"),
+            "last_ingestion_at": ingestion_agent.get("generated_at_utc"),
+            "last_ingestion_data_date": ingestion_agent.get("max_latest_date"),
+            "ingestion_updated_assets": ingestion_agent.get("updated_assets"),
+            "ingestion_refreshed_assets": ingestion_agent.get("refreshed_assets"),
+            "ingestion_no_remote_data_assets": ingestion_agent.get("no_remote_data_assets"),
+            "ingestion_skipped_remote_assets": ingestion_agent.get("skipped_remote_assets"),
+            "ingestion_failed_assets": ingestion_agent.get("failed_assets"),
+            "ingestion_stale_days": ingestion_agent.get("stale_days"),
+            "ingestion_fatal_reason": ingestion_agent.get("fatal_reason"),
+            "ingestion_warning_reasons": ingestion_agent.get("warning_reasons") or [],
             "volume_supported_assets": volume_supported_assets,
             "volume_total_assets": volume_total_assets,
             "volume_coverage_ratio": (volume_supported_assets / volume_total_assets) if volume_total_assets else 0.0,
-            "volume_note": "Os CSVs publicados hoje nao trazem volume. O site deve usar confianca, drawdown e volatilidade em vez de fingir volume.",
+            "volume_note": "Os CSVs publicados hoje não trazem volume. O site deve usar confiança, drawdown e volatilidade em vez de fingir volume.",
+            "snapshot_read_warnings": READ_WARNINGS[:20],
         },
         "charts": {
             "sector_pressure": sector_pressure[:8],
@@ -896,8 +1167,8 @@ def bundle_price_history(snapshot: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
-    snapshot = deep_clean(build_snapshot())
-    dashboard_overview = deep_clean(build_dashboard_overview(snapshot))
+    snapshot = normalize_visible_payload(deep_clean(build_snapshot()))
+    dashboard_overview = normalize_visible_payload(deep_clean(build_dashboard_overview(snapshot)))
 
     site_root = RESULTS_ROOT / "ops" / "site_data"
     site_root.mkdir(parents=True, exist_ok=True)

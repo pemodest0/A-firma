@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,6 +26,49 @@ def _safe_float(value: Any) -> float | None:
     except (TypeError, ValueError):
         return None
     return out if pd.notna(out) else None
+
+
+def _normalize_visible_text(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    text = value
+    phrase_replacements = {
+        "Campeao atual": "Campeão atual",
+        "Campeao atual de confianca": "Campeão atual de confiança",
+        "campeao atual: criticidade com reorganizacao leve": "campeão atual: criticidade com reorganização leve",
+        "campeao atual com": "campeão atual com",
+        "blend ataque/protecao por peso historico de confianca": "blend ataque/proteção por peso histórico de confiança",
+        "nao resolveram": "não resolveram",
+        "nao sustentaram": "não sustentaram",
+        "nao venceram": "não venceram",
+        "nao superou": "não superou",
+        "freio so em criticidade extrema": "freio só em criticidade extrema",
+        "usa criticidade relativa ao proprio historico recente": "usa criticidade relativa ao próprio histórico recente",
+        "modo ataque promovido com entrada cripto mais rapida": "modo ataque promovido com entrada cripto mais rápida",
+        "troca o bloco nao cripto": "troca o bloco não cripto",
+    }
+    word_replacements = {
+        r"\bconfianca\b": "confiança",
+        r"\breorganizacao\b": "reorganização",
+        r"\bprotecao\b": "proteção",
+        r"\breducao\b": "redução",
+        r"\bhistorico\b": "histórico",
+        r"\bfavoravel\b": "favorável",
+        r"\breforco\b": "reforço",
+        r"\bperiodo\b": "período",
+        r"\bmes\b": "mês",
+        r"\bnao\b": "não",
+        r"\bmao\b": "mão",
+        r"\bso\b": "só",
+        r"\bproprio\b": "próprio",
+        r"\brapida\b": "rápida",
+        r"\balpha historico\b": "alpha histórico",
+    }
+    for src, dst in phrase_replacements.items():
+        text = text.replace(src, dst)
+    for pattern, replacement in word_replacements.items():
+        text = re.sub(pattern, replacement, text)
+    return text
 
 
 def _shadow_rows_from_lock(lock_path: Path) -> list[dict[str, Any]]:
@@ -87,6 +131,10 @@ def _scan_research_rows(results_root: Path) -> list[dict[str, Any]]:
             if not isinstance(row, dict):
                 continue
             clean = dict(row)
+            if "label" in clean:
+                clean["label"] = _normalize_visible_text(clean.get("label"))
+            if "notes" in clean:
+                clean["notes"] = _normalize_visible_text(clean.get("notes"))
             if "edge_vs_benchmark_net_total_return" not in clean and "edge_vs_spy_net_total_return" in clean:
                 clean["edge_vs_benchmark_net_total_return"] = clean.get("edge_vs_spy_net_total_return")
             clean.setdefault("artifacts", {})
@@ -278,6 +326,9 @@ def main() -> None:
     df = pd.DataFrame(rows)
     if "candidate_id" not in df.columns:
         raise SystemExit("registry rows missing candidate_id")
+    for col in ["label", "notes", "methodology"]:
+        if col in df.columns:
+            df[col] = df[col].map(_normalize_visible_text)
     if "generated_at_utc" in df.columns:
         df = df.sort_values(["generated_at_utc", "candidate_id"], ascending=[False, True])
     df = df.drop_duplicates(subset=["candidate_id"], keep="first").reset_index(drop=True)
@@ -298,12 +349,19 @@ def main() -> None:
         best = oos.get("best_consistent_candidates", [])
         if isinstance(best, list) and best:
             oos_best = best[0] if isinstance(best[0], dict) else {}
+    keep_mask = df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "keep"
+    keep_df = df.loc[keep_mask].reset_index(drop=True)
+    if not keep_df.empty:
+        top = {**keep_df.iloc[0].to_dict(), "selection_basis": "current_keep"}
+    else:
+        top = {**top, "selection_basis": "current_best"}
+    top_oos = {}
     if oos_best:
         match = df[df["candidate_id"].astype(str) == str(oos_best.get("candidate_id", ""))]
         if not match.empty:
-            top = {**match.iloc[0].to_dict(), "selection_basis": "oos_consistency", "oos": oos_best}
+            top_oos = {**match.iloc[0].to_dict(), "selection_basis": "oos_consistency", "oos": oos_best}
         else:
-            top = {"selection_basis": "oos_consistency", "oos": oos_best}
+            top_oos = {"selection_basis": "oos_consistency", "oos": oos_best}
     summary = {
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -312,12 +370,14 @@ def main() -> None:
         "status_counts": dict(status_counts),
         "methodology_counts": dict(methodology_counts),
         "top_candidate": top,
+        "top_oos_candidate": top_oos,
         "oos_best_consistent": oos_best,
-        "top_keep_candidates": df[df.get("status", "") == "keep"].head(10).to_dict(orient="records"),
-        "top_watch_candidates": df[df.get("status", "") == "watch"].head(10).to_dict(orient="records"),
-        "kill_candidates": df[df.get("status", "") == "kill"].head(10).to_dict(orient="records"),
+        "top_keep_candidates": keep_df.head(10).to_dict(orient="records"),
+        "top_watch_candidates": df[df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "watch"].head(10).to_dict(orient="records"),
+        "kill_candidates": df[df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "kill"].head(10).to_dict(orient="records"),
         "insights": [
-            f"Top candidato atual: {top.get('candidate_id', top.get('oos', {}).get('candidate_id', '--'))} com net_ann_return={top.get('net_ann_return', top.get('oos', {}).get('mean_test_net_ann_return'))}.",
+            f"Top candidato atual: {top.get('candidate_id', '--')} com net_ann_return={top.get('net_ann_return')}.",
+            f"Melhor fora da amostra: {oos_best.get('candidate_id', '--')} com media de teste={oos_best.get('mean_test_net_ann_return')}.",
             f"Metodologias mais recorrentes: {dict(methodology_counts.most_common(5))}.",
         ],
         "rows": df.to_dict(orient="records"),
@@ -418,11 +478,11 @@ def main() -> None:
         if isinstance(improvement, dict) and improvement:
             delta_ann = _safe_float(improvement.get("delta_net_ann_return"))
             if np.isfinite(delta_ann) and delta_ann < 0:
-                pattern_headlines.append("Stops e overlays no cripto puro reduziram retorno anual; nao resolveram o drawdown estrutural.")
+                pattern_headlines.append("Stops e overlays no cripto puro reduziram o retorno anual; não resolveram o drawdown estrutural.")
         if isinstance(best_eq, dict) and best_eq:
             pattern_headlines.append("Sleeve causal de equities ficou metodologicamente mais honesto, mas o alpha segue modesto.")
         if isinstance(best_crypto, dict) and best_crypto:
-            pattern_headlines.append("Tiers mostraram que o edge cripto vem do universo amplo; midcaps isolados nao sustentaram o resultado.")
+            pattern_headlines.append("Tiers mostraram que o ganho do cripto vem do universo amplo; midcaps isolados não sustentaram o resultado.")
     if layered:
         best_meta = layered.get("best_meta_candidate", {})
         frozen = layered.get("frozen_walkforward_winner", {})
@@ -442,24 +502,24 @@ def main() -> None:
             elif action == "keep_current":
                 pattern_headlines.append(f"O torneio robusto manteve {promoted.get('candidate_id', 'o candidato atual')} como principal.")
             elif action == "hold_previous":
-                pattern_headlines.append("As ideias novas trouxeram aprendizado, mas ainda nao venceram a barra de promocao do stack atual.")
+                pattern_headlines.append("As ideias novas trouxeram aprendizado, mas ainda não venceram a barra de promoção do stack atual.")
         if isinstance(promotion_decision, dict) and promotion_decision:
             action = str(promotion_decision.get("action", ""))
             if action == "promote_first":
-                pattern_headlines.append("A primeira versao com score de fragilidade ja saiu com candidato promovido.")
+                pattern_headlines.append("A primeira versão com score de fragilidade já saiu com candidato promovido.")
         if isinstance(improvement, dict) and improvement:
             delta_ann = _safe_float(improvement.get("delta_net_ann_return"))
             if delta_ann is not None:
                 if delta_ann > 0:
                     pattern_headlines.append("O stack em camadas melhorou o retorno anual sobre a melhor fronteira anterior.")
                 elif delta_ann < 0:
-                    pattern_headlines.append("O stack em camadas ficou mais honesto, mas nao superou a melhor fronteira anterior em retorno anual.")
+                    pattern_headlines.append("O stack em camadas ficou mais honesto, mas não superou a melhor fronteira anterior em retorno anual.")
     if drawdown_control:
         verdict = drawdown_control.get("verdict", {})
         winner = drawdown_control.get("best_balanced_candidate", {})
         if isinstance(winner, dict) and winner:
             if bool((verdict or {}).get("winner_is_base", False)):
-                pattern_headlines.append("Os controles anti-drawdown trouxeram reducao de risco, mas nenhum bateu o campeao atual no custo-beneficio.")
+                pattern_headlines.append("Os controles anti-drawdown trouxeram redução de risco, mas nenhum bateu o campeão atual no custo-benefício.")
             else:
                 pattern_headlines.append(f"O melhor controle anti-drawdown foi {winner.get('candidate_id', 'novo overlay')}, sinal de que deu para fechar dano sem desmontar o motor.")
         worthwhile = drawdown_control.get("worth_it_candidates", [])

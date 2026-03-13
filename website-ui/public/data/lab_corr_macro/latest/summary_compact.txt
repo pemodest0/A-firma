@@ -1,11 +1,14 @@
-run_id=20260220T192149Z
+run_id=20260223T202847Z
 period=2018-01-01->2026-02-12
 N_core=470
 official_window=T120
 latest=2026-02-12 N_used=465 p1=0.149936 deff=24.661154
 regime_now=dispersion exposure=0.90
 robustness=joint_majority_60d=0.317, latest_joint_majority_5=0
-baseline_delta=dp1=0.000000, ddeff=-0.000000
-backtest=str_ann=0.0175, str_mdd=-0.1917, bench_ann=0.0825, bench_mdd=-0.4145
+baseline_delta=dp1=nan, ddeff=nan
+backtest=str_ann=0.0361, str_mdd=-0.1898, bench_ann=0.0825, bench_mdd=-0.4145
 deployment_gate_blocked=False
 deployment_gate_reasons=none
+
+
+

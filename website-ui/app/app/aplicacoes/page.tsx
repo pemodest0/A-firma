@@ -65,11 +65,21 @@ export default async function AplicacoesPage() {
   const playbook = ((finance.latest_playbook as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const shadow = ((snapshot.shadow as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const shadowLatest = ((shadow.latest as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastHorizons = ((snapshot.forecast_horizons as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const dataQuality = ((snapshot.data_quality as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastDaily = ((forecastHorizons.daily as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastWeekly = ((forecastHorizons.weekly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const forecastMonthly = ((forecastHorizons.monthly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const ingestionStaleDays =
+    typeof dataQuality.ingestion_stale_days === "number" ? dataQuality.ingestion_stale_days : null;
+  const ingestionFatalReason = String(dataQuality.ingestion_fatal_reason || "").trim();
   const exposure =
     typeof playbook.exposure === "number"
       ? playbook.exposure
       : typeof shadowLatest.target_exposure === "number"
         ? shadowLatest.target_exposure
+        : typeof forecastMonthly.exposure_target === "number"
+          ? forecastMonthly.exposure_target
         : null;
   const rows = buildAllocationRows(exposure);
   const gateBlocked = finance.gate_blocked === true;
@@ -153,7 +163,51 @@ export default async function AplicacoesPage() {
             {" · "}
             Data-base: <span className="text-zinc-200">{dataLastDate}</span>
           </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Última ingestão válida: <span className="text-zinc-200">{String(dataQuality.last_ingestion_data_date || dataLastDate || "n/d")}</span>
+          </p>
+          <p className="mt-2 text-sm text-zinc-400">
+            Dias de atraso: <span className="text-zinc-200">{ingestionStaleDays == null ? "n/d" : String(ingestionStaleDays)}</span>
+          </p>
+          {ingestionFatalReason ? (
+            <p className="mt-2 text-sm text-amber-300">Motivo do alerta: {ingestionFatalReason}</p>
+          ) : null}
         </article>
+      </section>
+
+      <section className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">
+        <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Horizontes do motor</div>
+        <h2 className="mt-2 text-lg font-semibold text-zinc-100">Como a leitura muda do dia para a semana e para o mês</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {[forecastDaily, forecastWeekly, forecastMonthly].map((horizon, index) => {
+            const horizonExposure =
+              typeof horizon.exposure_target === "number" ? horizon.exposure_target : null;
+            return (
+              <article key={`horizon-${index}`} className="rounded-xl border border-zinc-800 bg-black/20 p-4">
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                  {String(horizon.label || "Horizonte")}
+                </div>
+                <div className="mt-2 text-base font-semibold text-zinc-100">
+                  {humanizeEngineState(String(horizon.mode || "monitoramento_normal"))}
+                </div>
+                <p className="mt-3 text-sm text-zinc-300">
+                  {String(horizon.summary || "Sem leitura adicional publicada para este horizonte.")}
+                </p>
+                <div className="mt-4 space-y-1 text-sm text-zinc-400">
+                  <p>
+                    Confiança: <span className="text-zinc-200">{String(horizon.confidence_level || "n/d")}</span>
+                  </p>
+                  <p>
+                    Risco: <span className="text-zinc-200">{String(horizon.risk_level || "n/d")}</span>
+                  </p>
+                  <p>
+                    Exposição: <span className="text-zinc-200">{formatPct(horizonExposure)}</span>
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">

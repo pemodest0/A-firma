@@ -149,7 +149,7 @@ def main() -> None:
     )
     champion_bundle = _blend_allocation_bundles(
         candidate_id="criticality_free_energy_attack",
-        notes="campeao atual: criticidade com reorganizacao leve",
+        notes="campeão atual: criticidade com reorganização leve",
         attack_alloc=attack_alloc,
         protect_alloc=protect_alloc,
         attack_weight=champion_weight,
@@ -252,7 +252,7 @@ def main() -> None:
         year_cmp.to_csv(outdir / "year_improvement.csv", index=False)
 
     research_rows = [
-        _research_row(champion_bundle.bundle.result, outdir=outdir, status="keep", methodology="criticality_plus_free_energy", label="Campeao atual"),
+        _research_row(champion_bundle.bundle.result, outdir=outdir, status="keep", methodology="criticality_plus_free_energy", label="Campeão atual"),
         _research_row(direction_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_direction_light", label="Campeao + direcao leve"),
         _research_row(persistence_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_persistence_light", label="Campeao + persistencia leve"),
         _research_row(combo_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_direction_persistence", label="Campeao + direcao + persistencia"),

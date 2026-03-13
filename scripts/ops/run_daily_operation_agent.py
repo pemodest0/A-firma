@@ -16,7 +16,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from engine.portfolio import decide_attack_vs_protection  # noqa: E402
-from scripts.bench.validation.run_profit_alpha_hardening_suite import _build_candidates  # noqa: E402
+from scripts.bench.validation.run_profit_marketmode_criticality_suite import (  # noqa: E402
+    build_official_mode_allocations,
+)
 
 
 def _run_id() -> str:
@@ -187,7 +189,7 @@ def main() -> None:
     outdir = (ROOT / args.outdir_root / _run_id()).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    built = _build_candidates(
+    official = build_official_mode_allocations(
         prices_dir=(ROOT / args.prices_dir).resolve(),
         crypto_groups=(ROOT / args.crypto_asset_groups).resolve(),
         crypto_meta=(ROOT / args.crypto_asset_metadata).resolve(),
@@ -196,14 +198,15 @@ def main() -> None:
         benchmark_crypto=str(args.benchmark_crypto),
         benchmark_equity=str(args.benchmark_equity),
     )
+    built = official["built"]
 
     operation = {
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "mode_attack": _mode_payload(label="Modo ataque", allocation=built["allocations"]["attack"]),
-        "mode_main": _mode_payload(label="Modo principal", allocation=built["allocations"]["baseline"]),
-        "mode_attack_guard": _mode_payload(label="Modo ataque com guarda", allocation=built["allocations"]["attack_guard"]),
-        "mode_main_guard": _mode_payload(label="Modo principal com guarda", allocation=built["allocations"]["baseline_guard"]),
+        "mode_attack": _mode_payload(label="Modo ataque", allocation=official["official_attack"]),
+        "mode_main": _mode_payload(label="Modo principal", allocation=official["official_main"]),
+        "mode_attack_guard": _mode_payload(label="Modo ataque com guarda", allocation=official["official_attack_guard"]),
+        "mode_main_guard": _mode_payload(label="Modo principal com guarda", allocation=official["official_main_guard"]),
         "artifacts": {
             "prices_dir": str((ROOT / args.prices_dir).resolve()),
             "crypto_asset_groups": str((ROOT / args.crypto_asset_groups).resolve()),
@@ -237,8 +240,8 @@ def main() -> None:
         "confidence_score": mode_confidence.confidence_score,
     }
     operation["confidence_notes"] = [
-        "O ataque agora combina confiança relativa com um freio leve de liquidação cripto antes de aumentar a mão.",
-        "A proteção continua preferível quando liquidez, dependência do cripto forte e atrito operacional apertam ao mesmo tempo.",
+        "O ataque agora combina criticidade estrutural com um freio leve de reorganizacao para evitar euforia e giro desnecessario.",
+        "A protecao continua preferivel quando o mercado inteiro aperta junto, a confianca cai e o atrito operacional sobe.",
     ]
 
     registry_step = _run_step([sys.executable, "scripts/ops/build_profit_research_registry.py"], timeout_sec=1200.0)

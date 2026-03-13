@@ -161,7 +161,7 @@ def main() -> None:
 
     champion_bundle, champion_score, champion_weight = _build_criticality_free_energy_bundle(
         candidate_id="criticality_free_energy_attack",
-        notes="campeao atual: criticidade com reorganizacao leve",
+        notes="campeão atual: criticidade com reorganização leve",
         attack_alloc=attack_alloc,
         protect_alloc=protect_alloc,
         base_score=context["attack_score_exogenous"],
@@ -280,7 +280,7 @@ def main() -> None:
     worth_promoting = bool(best_id != champion_bundle.bundle.result.candidate_id and _safe_float(best_row.get("net_total_return", 0.0)) > _safe_float(champion_bundle.bundle.result.net_total_return))
 
     research_rows = [
-        _research_row(champion_bundle.bundle.result, outdir=outdir, status="keep", methodology="criticality_plus_free_energy", label="Campeao atual"),
+        _research_row(champion_bundle.bundle.result, outdir=outdir, status="keep", methodology="criticality_plus_free_energy", label="Campeão atual"),
         _research_row(u800_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_u800_support", label="Campeao com apoio das acoes do universo 800"),
         _research_row(fragility_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_fragility_decile", label="Campeao com redutor so no pior decil de fragilidade"),
         _research_row(profit_lock_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_profit_lock_partial", label="Campeao com trava parcial de lucro"),

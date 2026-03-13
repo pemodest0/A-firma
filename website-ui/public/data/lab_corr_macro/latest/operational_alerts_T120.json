@@ -4,12 +4,12 @@
     "DISPERSION_CONFIRM",
     "SIGNAL_UNCONFIRMED"
   ],
-  "n_events_total": 564,
+  "n_events_total": 546,
   "n_events_last_60d": 42,
   "event_counts": {
-    "DISPERSION_CONFIRM": 362,
-    "TRANSITION_SPIKE": 105,
-    "REGIME_CHANGE": 88,
+    "DISPERSION_CONFIRM": 397,
+    "TRANSITION_SPIKE": 73,
+    "REGIME_CHANGE": 67,
     "STRESS_ENTER": 4,
     "STRESS_EXIT": 4,
     "SIGNAL_UNCONFIRMED": 1
@@ -18,13 +18,13 @@
     {
       "date": "2026-02-12",
       "event_code": "DISPERSION_CONFIRM",
-      "severity": 0.6447440368846731,
+      "severity": 0.6447440368846735,
       "regime": "dispersion",
       "message": "dispersao confirmada: priorizar rotacao e selecao.",
       "p1": 0.14993580346829766,
-      "deff": 24.661154230901175,
-      "dp1_5": 8.262811690759597e-05,
-      "ddeff_5": 0.07841346034825136
+      "deff": 24.661154230901182,
+      "dp1_5": 8.262811690748495e-05,
+      "ddeff_5": 0.07841346034825847
     },
     {
       "date": "2026-02-12",
@@ -33,9 +33,9 @@
       "regime": "dispersion",
       "message": "direcao recente ainda sem confirmacao entre janelas.",
       "p1": 0.14993580346829766,
-      "deff": 24.661154230901175,
-      "dp1_5": 8.262811690759597e-05,
-      "ddeff_5": 0.07841346034825136
+      "deff": 24.661154230901182,
+      "dp1_5": 8.262811690748495e-05,
+      "ddeff_5": 0.07841346034825847
     }
   ]
 }
