@@ -25,6 +25,15 @@ import {
 
 type GenericRow = Record<string, unknown>;
 
+const jsonRepairWarnings = new Set<string>();
+
+function warnJsonRepair(scope: string, detail: string) {
+  const key = `${scope}:${detail}`;
+  if (jsonRepairWarnings.has(key)) return;
+  jsonRepairWarnings.add(key);
+  console.warn(`[copilot] JSON reparado em leitura: ${scope} (${detail})`);
+}
+
 function asObj(value: unknown): GenericRow {
   return value && typeof value === "object" ? (value as GenericRow) : {};
 }
@@ -56,6 +65,7 @@ async function readJsonFile<T>(target: string, fallback: T): Promise<T> {
     try {
       return JSON.parse(raw) as T;
     } catch {
+      warnJsonRepair(target, "nan_or_infinity");
       return JSON.parse(
         raw
           .replace(/\bNaN\b/g, "null")

@@ -240,8 +240,8 @@ def main() -> None:
         "confidence_score": mode_confidence.confidence_score,
     }
     operation["confidence_notes"] = [
-        "O ataque agora combina criticidade estrutural com um freio leve de reorganizacao para evitar euforia e giro desnecessario.",
-        "A protecao continua preferivel quando o mercado inteiro aperta junto, a confianca cai e o atrito operacional sobe.",
+        "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",
+        "A proteção continua preferível quando o mercado inteiro aperta junto, a confiança cai e o atrito operacional sobe.",
     ]
 
     registry_step = _run_step([sys.executable, "scripts/ops/build_profit_research_registry.py"], timeout_sec=1200.0)

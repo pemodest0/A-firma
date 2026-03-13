@@ -20,6 +20,15 @@ function allowPublicLatestFallback() {
   return String(process.env.ALLOW_PUBLIC_LATEST_FALLBACK || "").trim() === "1";
 }
 
+const jsonRepairWarnings = new Set<string>();
+
+function warnJsonRepair(scope: string, detail: string) {
+  const key = `${scope}:${detail}`;
+  if (jsonRepairWarnings.has(key)) return;
+  jsonRepairWarnings.add(key);
+  console.warn(`[site-data] JSON reparado em leitura: ${scope} (${detail})`);
+}
+
 function resolveLatestDir() {
   if (process.env.DATA_DIR) return process.env.DATA_DIR;
   const canonical = [path.join(process.cwd(), "results", "latest"), path.join(repoRoot(), "results", "latest")];
@@ -98,15 +107,17 @@ function parseJsonLine(line: string): Record<string, unknown> {
     return JSON.parse(line);
   } catch {
     const fixed = sanitizeJsonLine(line);
+    warnJsonRepair("jsonl_line", "nan_or_infinity");
     return JSON.parse(fixed);
   }
 }
 
-function parseJsonText<T>(raw: string): T {
+function parseJsonText<T>(raw: string, scope = "json_text"): T {
   try {
     return JSON.parse(raw) as T;
   } catch {
     const fixed = sanitizeJsonLine(raw);
+    warnJsonRepair(scope, "nan_or_infinity");
     return JSON.parse(fixed) as T;
   }
 }
@@ -120,7 +131,7 @@ export async function readJsonl(pathFile: string): Promise<Record<string, unknow
     try {
       out.push(parseJsonLine(line));
     } catch {
-      // ignore malformed line instead of breaking entire snapshot read
+      warnJsonRepair(pathFile, "malformed_jsonl_line_ignored");
     }
   }
   return out;
@@ -342,7 +353,7 @@ export async function readDashboardOverview() {
   const overviewPath = path.join(results, "dashboard", "overview.json");
   try {
     const text = await fs.readFile(overviewPath, "utf-8");
-    return parseJsonText(text);
+    return parseJsonText(text, overviewPath);
   } catch {
     const siteSnapshot = await readSiteFinanceSnapshot();
     const sectorPressure = Array.isArray(siteSnapshot?.charts?.sector_pressure)
@@ -375,7 +386,7 @@ export async function readSiteFinanceSnapshot() {
   for (const target of siteSnapshotCandidates()) {
     try {
       const text = await fs.readFile(target, "utf-8");
-      return sanitizeEncoding(parseJsonText(text));
+      return sanitizeEncoding(parseJsonText(text, target));
     } catch {
       // try next target
     }

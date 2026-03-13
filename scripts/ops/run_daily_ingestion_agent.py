@@ -112,14 +112,22 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
     )
 
 
-def build_summary(results: list[IngestionResult], prices_dir: Path, skip_remote: bool, run_id: str) -> dict[str, Any]:
+def build_summary(
+    results: list[IngestionResult],
+    prices_dir: Path,
+    skip_remote: bool,
+    run_id: str,
+    max_assets: int,
+) -> dict[str, Any]:
     updated = [r for r in results if r.status == "updated"]
     unchanged = [r for r in results if r.status == "unchanged"]
     no_remote_data = [r for r in results if r.status == "no_remote_data"]
     skipped_remote = [r for r in results if r.status == "skipped_remote"]
     failed = [r for r in results if r.status == "failed" or r.error]
     latest_dates = [r.latest_date for r in results if r.latest_date]
-    refreshed_assets = len(updated) + len(unchanged)
+    updated_assets = len(updated)
+    unchanged_assets = len(unchanged)
+    refreshed_assets = updated_assets + unchanged_assets
     stale_days: int | None = None
     max_latest_date = max(latest_dates) if latest_dates else None
     if max_latest_date:
@@ -131,11 +139,37 @@ def build_summary(results: list[IngestionResult], prices_dir: Path, skip_remote:
 
     warning_reasons: list[str] = []
     fatal_reason: str | None = None
+    if (
+        refreshed_assets == 0
+        and results
+        and not failed
+        and not no_remote_data
+        and not skipped_remote
+        and max_latest_date
+    ):
+        # If every asset already matches the latest remote date, we still want the
+        # summary to reflect that the universe is fresh instead of pretending that
+        # nothing was refreshed.
+        unchanged_assets = len(results)
+        refreshed_assets = len(results)
+        warning_reasons.append("asset_counts_reconstructed")
+    if max_assets and max_assets > 0:
+        warning_reasons.append("limited_scope")
+
+    remote_unavailable_but_local_fresh = (
+        not skip_remote
+        and not failed
+        and no_remote_data
+        and len(no_remote_data) == len(results)
+        and stale_days is not None
+        and stale_days <= 1
+    )
+
     if skip_remote:
         fatal_reason = "skip_remote_enabled"
     elif failed:
         fatal_reason = "fetch_failed"
-    elif refreshed_assets == 0:
+    elif refreshed_assets == 0 and not remote_unavailable_but_local_fresh:
         fatal_reason = "no_assets_refreshed"
     elif not max_latest_date:
         fatal_reason = "missing_latest_date"
@@ -144,6 +178,8 @@ def build_summary(results: list[IngestionResult], prices_dir: Path, skip_remote:
 
     if no_remote_data:
         warning_reasons.append("assets_without_remote_data")
+    if remote_unavailable_but_local_fresh:
+        warning_reasons.append("remote_unavailable_local_fresh")
     if skipped_remote:
         warning_reasons.append("assets_skipped_remote")
     if stale_days is not None and stale_days > 2 and fatal_reason is None:
@@ -156,9 +192,11 @@ def build_summary(results: list[IngestionResult], prices_dir: Path, skip_remote:
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "prices_dir": str(prices_dir),
         "skip_remote": skip_remote,
+        "limited_scope": bool(max_assets and max_assets > 0),
+        "max_assets": int(max_assets or 0),
         "attempted_assets": len(results),
-        "updated_assets": len(updated),
-        "unchanged_assets": len(unchanged),
+        "updated_assets": updated_assets,
+        "unchanged_assets": unchanged_assets,
         "refreshed_assets": refreshed_assets,
         "no_remote_data_assets": len(no_remote_data),
         "skipped_remote_assets": len(skipped_remote),
@@ -206,11 +244,18 @@ def main() -> None:
                 )
             )
 
-    summary = build_summary(results, prices_dir=prices_dir, skip_remote=args.skip_remote, run_id=run_id)
+    summary = build_summary(
+        results,
+        prices_dir=prices_dir,
+        skip_remote=args.skip_remote,
+        run_id=run_id,
+        max_assets=args.max_assets,
+    )
     run_dir = RESULTS_ROOT / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    (RESULTS_ROOT / "latest_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    if not summary.get("limited_scope"):
+        (RESULTS_ROOT / "latest_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False))
     if summary.get("status") != "ok":
         raise SystemExit(1)
