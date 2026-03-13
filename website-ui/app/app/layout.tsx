@@ -8,6 +8,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/app/aplicacoes", label: "Como usar", enabled: true },
     { href: "/app/financas", label: "Finanças", enabled: true },
     { href: "/app/cripto", label: "Cripto", enabled: true },
+    { href: "/app/shadow-mode", label: "Shadow mode", enabled: true },
     { href: "/app/copiloto", label: "Copiloto", enabled: true },
     { href: "/app/teoria", label: "Teoria", enabled: true },
   ].filter((item) => item.enabled);

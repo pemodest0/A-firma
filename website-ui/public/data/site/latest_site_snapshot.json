@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-09T13:57:00.717294+00:00",
+  "generated_at_utc": "2026-03-13T01:16:16.075961+00:00",
   "as_of_date": "2026-02-27",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
@@ -17,10 +17,10 @@
     "confidence_score": 1.0,
     "mode_confidence": {
       "recommended_mode": "ataque",
-      "confidence_score": 0.5992546207188945,
+      "confidence_score": 0.6011835396547573,
       "confidence_level": "média",
-      "attack_score": 0.6167102743801909,
-      "protection_score": 0.5387903414695476,
+      "attack_score": 0.6181022777359682,
+      "protection_score": 0.537597195736024,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
@@ -34,11 +34,11 @@
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
         "vigilance_status": "warn",
-        "vigilance_alert_count": 2,
-        "pbo_verdict": "",
+        "vigilance_alert_count": 1,
+        "pbo_verdict": "provavel_overfit",
         "attack_underperform_prob_63": 0.5626666666666666,
         "attack_top3_retention": 0.2872230995558317,
-        "attack_drawdown_abs": 0.7377852584276814,
+        "attack_drawdown_abs": 0.7278423773149856,
         "protection_drawdown_abs": 0.5865018104017784,
         "execution_winner": ""
       }
@@ -47,7 +47,7 @@
       "mode": "ataque",
       "label": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5992546207188945
+      "confidence_score": 0.6011835396547573
     },
     "lab_run_id": "20260301T095915Z",
     "gate_blocked": true,
@@ -111,11 +111,11 @@
     }
   },
   "profit_research": {
-    "rows_total": 344,
+    "rows_total": 365,
     "status_counts": {
-      "keep": 164,
-      "watch": 139,
-      "kill": 39,
+      "keep": 165,
+      "watch": 158,
+      "kill": 40,
       "stale_shadow": 2
     },
     "top_candidate": {
@@ -159,7 +159,7 @@
     },
     "insights": [
       "Top candidato atual: static_equities_us_other__materials__technology com net_ann_return=0.2401095330621581.",
-      "Metodologias mais recorrentes: {'asset_concentrated_momentum_10x': 148, 'group_static_combo': 68, 'layered_equities_meta': 34, 'layered_drawdown_control': 17, 'alpha_war_search': 9}."
+      "Metodologias mais recorrentes: {'asset_concentrated_momentum_10x': 148, 'group_static_combo': 68, 'layered_equities_meta': 34, 'layered_drawdown_control': 17, 'pbo_audit': 9}."
     ],
     "pattern_headlines": [
       "Cripto ampliado manteve edge contra BTC-USD, mas com drawdown extremo.",
@@ -172,14 +172,103 @@
       "O torneio robusto manteve meta_v1__btc63_vs_equity como principal.",
       "O stack em camadas melhorou o retorno anual sobre a melhor fronteira anterior.",
       "O melhor controle anti-drawdown foi meta_dd_conviction__25_100, sinal de que deu para fechar dano sem desmontar o motor.",
-      "Controles que valeram a pena nesta rodada: meta_dd_conviction__25_100, meta_dd_conviction__40_100, meta_dd_guard__12_06_reduce35."
+      "Controles que valeram a pena nesta rodada: meta_dd_conviction__25_100, meta_dd_conviction__40_100, meta_dd_guard__12_06_reduce35.",
+      "Manter agora: Tamanho da aposta guiado por confiança relativa, Entrada mais rápida nas explosões do cripto, Travas leves por mês e trimestre.",
+      "Descartar como modo principal: Redução condicional de concentração no cripto, Usar transição crítica, crowding e estresse estrutural para mandar no ataque.",
+      "Fila atual do laboratório: Usar o universo de 800 ativos como apoio das ações, Confiança relativa com inércia curta, Troca entre ataque e proteção conforme dificuldade de execução."
+    ],
+    "hypothesis_headlines": [
+      "Manter agora: Tamanho da aposta guiado por confiança relativa, Entrada mais rápida nas explosões do cripto, Travas leves por mês e trimestre.",
+      "Descartar como modo principal: Redução condicional de concentração no cripto, Usar transição crítica, crowding e estresse estrutural para mandar no ataque.",
+      "Fila atual do laboratório: Usar o universo de 800 ativos como apoio das ações, Confiança relativa com inércia curta, Troca entre ataque e proteção conforme dificuldade de execução."
+    ],
+    "hypotheses": [
+      {
+        "id": "confidence_relative_sizing",
+        "label": "Tamanho da aposta guiado por confiança relativa",
+        "status": "keep",
+        "role": "attack",
+        "priority": "alta",
+        "candidate_id": "confidence_sizing__high100_mid70_low20",
+        "evidence": "Melhorou lucro e ainda reduziu o pior tombo.",
+        "ann_return_improvement_pct": 12.030538415811607,
+        "total_return_improvement_pct": 29.861610361543274
+      },
+      {
+        "id": "crypto_fast_entry",
+        "label": "Entrada mais rápida nas explosões do cripto",
+        "status": "keep",
+        "role": "attack",
+        "priority": "alta",
+        "candidate_id": "entry_fast14_exit63_m2_h0__wrapped",
+        "evidence": "O ranking já era bom; o ganho veio de entrar antes quando a força apareceu.",
+        "ann_return_improvement_pct": 8.095359109710486,
+        "total_return_improvement_pct": 44.874401495612695
+      },
+      {
+        "id": "period_loss_guards",
+        "label": "Travas leves por mês e trimestre",
+        "status": "keep",
+        "role": "protection",
+        "priority": "média",
+        "candidate_id": "period_loss_guards_light",
+        "evidence": "Foi a melhor forma de reduzir o pior ano sem desmontar o restante do motor.",
+        "net_total_return": 1038.840987599541
+      },
+      {
+        "id": "crypto_conditional_relief",
+        "label": "Redução condicional de concentração no cripto",
+        "status": "discard",
+        "role": "robustness",
+        "priority": "média",
+        "candidate_id": "conditional_relief_fast14",
+        "evidence": "Reduziu fragilidade, mas sacrificou lucro demais para virar modo principal.",
+        "net_total_return": 10.647209330813027
+      },
+      {
+        "id": "structural_signals_as_attack_driver",
+        "label": "Usar transição crítica, crowding e estresse estrutural para mandar no ataque",
+        "status": "discard",
+        "role": "context",
+        "priority": "baixa",
+        "candidate_id": "baseline_fast_entry",
+        "evidence": "Ajudaram a entender o risco, mas não superaram o ataque atual em dinheiro no fim."
+      },
+      {
+        "id": "u800_equity_support",
+        "label": "Usar o universo de 800 ativos como apoio das ações",
+        "status": "watch",
+        "role": "support",
+        "priority": "média",
+        "candidate_id": "alpha_attack_major8_equity25",
+        "evidence": "Melhora robustez e breadth, mas não venceu o modo ataque em lucro puro.",
+        "ann_return_improvement_pct": null
+      },
+      {
+        "id": "confidence_plus_short_inertia",
+        "label": "Confiança relativa com inércia curta",
+        "status": "testing",
+        "role": "attack",
+        "priority": "alta",
+        "candidate_id": "pending",
+        "evidence": "Próximo refinamento lógico para reduzir trocas nervosas sem estragar o campeão."
+      },
+      {
+        "id": "execution_quality_switch",
+        "label": "Troca entre ataque e proteção conforme dificuldade de execução",
+        "status": "queued",
+        "role": "risk",
+        "priority": "média",
+        "candidate_id": "pending",
+        "evidence": "Hipótese para capital maior, liquidez pior e atraso por ativo sem mexer no coração do motor."
+      }
     ],
     "event_count": 14
   },
   "agents": {
     "daily_operation": {
       "status": "ok",
-      "generated_at_utc": "2026-03-09T11:13:42.902245+00:00",
+      "generated_at_utc": "2026-03-12T23:03:29.509002+00:00",
       "mode_attack": {
         "label": "Modo ataque",
         "candidate_id": "alpha_attack_major8_equity25",
@@ -191,12 +280,12 @@
           "cash": 0.0
         },
         "gross_exposure": 1.0,
-        "net_ann_return": 0.9901582456608427,
-        "net_total_return": 963.1216945971346,
-        "net_sharpe": 1.217783171551663,
-        "net_max_drawdown": -0.7377852584276814,
-        "avg_turnover_daily": 0.11298787758346583,
-        "notes": "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente"
+        "net_ann_return": 1.0194411715681762,
+        "net_total_return": 1114.4937019219183,
+        "net_sharpe": 1.2376844906794908,
+        "net_max_drawdown": -0.7278423773149856,
+        "avg_turnover_daily": 0.10893779809220985,
+        "notes": "modo ataque promovido com entrada cripto mais rapida, sizing por confianca relativa ao historico recente e overlay de liquidacao cripto"
       },
       "mode_main": {
         "label": "Modo principal",
@@ -227,11 +316,11 @@
           "cash": 0.0
         },
         "gross_exposure": 1.0,
-        "net_ann_return": 0.7592512185734337,
-        "net_total_return": 280.43915111346786,
-        "net_sharpe": 1.2009937199924299,
-        "net_max_drawdown": -0.6623153208509917,
-        "avg_turnover_daily": 0.10388995429252781,
+        "net_ann_return": 0.7871719229427798,
+        "net_total_return": 328.35229113980256,
+        "net_sharpe": 1.228513746639168,
+        "net_max_drawdown": -0.6495847869570608,
+        "avg_turnover_daily": 0.09985159976152624,
         "notes": "regime_conditioned_mc_guard;base=alpha_attack_major8_equity25;horizon=21;step=42"
       },
       "mode_main_guard": {
@@ -259,10 +348,10 @@
       },
       "mode_confidence": {
         "recommended_mode": "ataque",
-        "confidence_score": 0.5992546207188945,
+        "confidence_score": 0.6011835396547573,
         "confidence_level": "média",
-        "attack_score": 0.6167102743801909,
-        "protection_score": 0.5387903414695476,
+        "attack_score": 0.6181022777359682,
+        "protection_score": 0.537597195736024,
         "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
         "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
         "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
@@ -276,11 +365,11 @@
           "structural_risk_level": "stable",
           "structural_confidence_score": 1.0,
           "vigilance_status": "warn",
-          "vigilance_alert_count": 2,
-          "pbo_verdict": "",
+          "vigilance_alert_count": 1,
+          "pbo_verdict": "provavel_overfit",
           "attack_underperform_prob_63": 0.5626666666666666,
           "attack_top3_retention": 0.2872230995558317,
-          "attack_drawdown_abs": 0.7377852584276814,
+          "attack_drawdown_abs": 0.7278423773149856,
           "protection_drawdown_abs": 0.5865018104017784,
           "execution_winner": ""
         }
@@ -289,11 +378,11 @@
         "mode": "ataque",
         "label": "Modo ataque",
         "confidence_level": "média",
-        "confidence_score": 0.5992546207188945
+        "confidence_score": 0.6011835396547573
       },
       "confidence_notes": [
-        "Ataque continua melhor para lucro maximo quando o ambiente esta limpo.",
-        "Protecao vira preferivel quando a dependencia do cripto forte e o atrito operacional apertam juntos."
+        "O ataque agora combina confiança relativa com um freio leve de liquidação cripto antes de aumentar a mão.",
+        "A proteção continua preferível quando liquidez, dependência do cripto forte e atrito operacional apertam ao mesmo tempo."
       ],
       "post_steps": {
         "registry": {
@@ -302,7 +391,7 @@
             "scripts/ops/build_profit_research_registry.py"
           ],
           "returncode": 0,
-          "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 344}\n",
+          "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 357}\n",
           "stderr": "",
           "ok": true
         },
@@ -321,10 +410,10 @@
     },
     "daily_vigilance": {
       "status": "warn",
-      "generated_at_utc": "2026-03-09T13:54:50.486922+00:00",
-      "operation_age_days": 0.11189333703703704,
+      "generated_at_utc": "2026-03-12T12:25:09.577621+00:00",
+      "operation_age_days": 0.8883071531944444,
       "snapshot_as_of_date": "2026-02-27",
-      "research_rows_total": 344,
+      "research_rows_total": 352,
       "pbo_verdict": "robusto",
       "alerts": [
         {
@@ -344,14 +433,14 @@
       "mode": "ataque",
       "label": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5992546207188945
+      "confidence_score": 0.6011835396547573
     },
     "mode_confidence": {
       "recommended_mode": "ataque",
-      "confidence_score": 0.5992546207188945,
+      "confidence_score": 0.6011835396547573,
       "confidence_level": "média",
-      "attack_score": 0.6167102743801909,
-      "protection_score": 0.5387903414695476,
+      "attack_score": 0.6181022777359682,
+      "protection_score": 0.537597195736024,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
@@ -365,11 +454,11 @@
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
         "vigilance_status": "warn",
-        "vigilance_alert_count": 2,
-        "pbo_verdict": "",
+        "vigilance_alert_count": 1,
+        "pbo_verdict": "provavel_overfit",
         "attack_underperform_prob_63": 0.5626666666666666,
         "attack_top3_retention": 0.2872230995558317,
-        "attack_drawdown_abs": 0.7377852584276814,
+        "attack_drawdown_abs": 0.7278423773149856,
         "protection_drawdown_abs": 0.5865018104017784,
         "execution_winner": ""
       }
@@ -432,29 +521,414 @@
       "edge_vs_benchmark_total_return": -0.7403808088536177
     }
   },
+  "shadow_modes": [
+    {
+      "slug": "mode_attack",
+      "label": "Ataque diário",
+      "source": "daily_operation_agent",
+      "status": "running",
+      "running": true,
+      "accumulating": true,
+      "candidate_id": "alpha_attack_major8_equity25",
+      "what_it_is": "Modo ataque",
+      "what_varies": "Varia o tamanho da aposta conforme a confiança e libera mais risco quando o cripto está saudável.",
+      "latest_date": "2026-03-02",
+      "last_action": "Carteira alvo: equity 100%, crypto 0%, cash 0%. Exposição total em torno de 100%.",
+      "forecast": "Se a leitura continuar limpa, este modo segue como candidato natural para atacar.",
+      "net_ann_return": 1.0194411715681762,
+      "net_total_return": 1114.4937019219183,
+      "net_sharpe": 1.2376844906794908,
+      "net_max_drawdown": -0.7278423773149856,
+      "gross_exposure": 1.0,
+      "weights": [
+        {
+          "asset": "equity",
+          "weight": 1.0
+        },
+        {
+          "asset": "crypto",
+          "weight": 0.0
+        },
+        {
+          "asset": "cash",
+          "weight": 0.0
+        }
+      ],
+      "weights_preview": "equity 100%, crypto 0%, cash 0%",
+      "notes": "modo ataque promovido com entrada cripto mais rapida, sizing por confianca relativa ao historico recente e overlay de liquidacao cripto"
+    },
+    {
+      "slug": "mode_main",
+      "label": "Principal diário",
+      "source": "daily_operation_agent",
+      "status": "running",
+      "running": true,
+      "accumulating": true,
+      "candidate_id": "meta_major8_eq_a2r1",
+      "what_it_is": "Modo principal",
+      "what_varies": "Fica mais perto do modo principal e alterna entre risco moderado e proteção.",
+      "latest_date": "2026-03-05",
+      "last_action": "Carteira alvo: cash 100%, crypto 0%, equity 0%.",
+      "forecast": "Este modo tende a assumir o controle quando o ataque perde clareza.",
+      "net_ann_return": 0.6527763073411557,
+      "net_total_return": 186.52678953029644,
+      "net_sharpe": 1.2128750564414243,
+      "net_max_drawdown": -0.6941257278393255,
+      "gross_exposure": null,
+      "weights": [
+        {
+          "asset": "cash",
+          "weight": 1.0
+        },
+        {
+          "asset": "crypto",
+          "weight": 0.0
+        },
+        {
+          "asset": "equity",
+          "weight": 0.0
+        }
+      ],
+      "weights_preview": "cash 100%, crypto 0%, equity 0%",
+      "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
+    },
+    {
+      "slug": "mode_attack_guard",
+      "label": "Ataque com guarda",
+      "source": "daily_operation_agent",
+      "status": "running",
+      "running": true,
+      "accumulating": true,
+      "candidate_id": "alpha_attack_major8_equity25_mc_guard",
+      "what_it_is": "Modo ataque com guarda",
+      "what_varies": "Mesmo ataque, mas com trava extra quando a cauda do risco piora.",
+      "latest_date": "2026-03-02",
+      "last_action": "Carteira alvo: equity 100%, crypto 0%, cash 0%. Exposição total em torno de 100%.",
+      "forecast": "Se a leitura continuar limpa, este modo segue como candidato natural para atacar.",
+      "net_ann_return": 0.7871719229427798,
+      "net_total_return": 328.35229113980256,
+      "net_sharpe": 1.228513746639168,
+      "net_max_drawdown": -0.6495847869570608,
+      "gross_exposure": 1.0,
+      "weights": [
+        {
+          "asset": "equity",
+          "weight": 1.0
+        },
+        {
+          "asset": "crypto",
+          "weight": 0.0
+        },
+        {
+          "asset": "cash",
+          "weight": 0.0
+        }
+      ],
+      "weights_preview": "equity 100%, crypto 0%, cash 0%",
+      "notes": "regime_conditioned_mc_guard;base=alpha_attack_major8_equity25;horizon=21;step=42"
+    },
+    {
+      "slug": "mode_main_guard",
+      "label": "Principal com guarda",
+      "source": "daily_operation_agent",
+      "status": "running",
+      "running": true,
+      "accumulating": true,
+      "candidate_id": "meta_major8_eq_a2r1_mc_guard",
+      "what_it_is": "Modo principal com guarda",
+      "what_varies": "Modo principal com freio extra para meses e cenários mais duros.",
+      "latest_date": "2026-03-05",
+      "last_action": "Carteira alvo: cash 100%, crypto 0%, equity 0%.",
+      "forecast": "Este modo tende a assumir o controle quando o ataque perde clareza.",
+      "net_ann_return": 0.5610995142941797,
+      "net_total_return": 102.49085254620778,
+      "net_sharpe": 1.219924645827686,
+      "net_max_drawdown": -0.5865018104017784,
+      "gross_exposure": null,
+      "weights": [
+        {
+          "asset": "cash",
+          "weight": 1.0
+        },
+        {
+          "asset": "crypto",
+          "weight": 0.0
+        },
+        {
+          "asset": "equity",
+          "weight": 0.0
+        }
+      ],
+      "weights_preview": "cash 100%, crypto 0%, equity 0%",
+      "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
+    },
+    {
+      "slug": "canonical_main",
+      "label": "Canônico legado",
+      "source": "legacy_shadow_canonical",
+      "status": "historical",
+      "running": false,
+      "accumulating": false,
+      "candidate_id": "profit_attack",
+      "what_it_is": "Modo legado do shadow que ainda serve para comparar a geração atual com a fase anterior.",
+      "what_varies": "Foto antiga do ataque original, útil para comparar a geração nova com a fase anterior do laboratório.",
+      "latest_date": "2026-02",
+      "last_action": "Última carteira executada: AME 6%, APO 6%, CAT 6%, CBRE 6%. Exposição total em torno de 111%.",
+      "forecast": "Use este modo como comparação e contexto, não como ordem automática.",
+      "net_ann_return": 0.08337398161227871,
+      "net_total_return": 0.7594662584037368,
+      "net_sharpe": 0.5046729600639209,
+      "net_max_drawdown": -0.29978498520640473,
+      "gross_exposure": null,
+      "weights": [
+        {
+          "asset": "AME",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "APO",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CAT",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CBRE",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CMI",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CNI",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CPAY",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CRH",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "CSX",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "DAL",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "DE",
+          "weight": 0.0617350095160625
+        },
+        {
+          "asset": "DGII",
+          "weight": 0.0617350095160625
+        }
+      ],
+      "weights_preview": "AME 6%, APO 6%, CAT 6%, CBRE 6%",
+      "notes": "Referência histórica do shadow antigo para comparar a geração atual."
+    },
+    {
+      "slug": "canonical_challenger",
+      "label": "Challenger legado",
+      "source": "legacy_shadow_canonical",
+      "status": "historical",
+      "running": false,
+      "accumulating": false,
+      "candidate_id": "profit_attack_ensemble",
+      "what_it_is": "Modo legado do shadow que ainda serve para comparar a geração atual com a fase anterior.",
+      "what_varies": "Versão antiga mais agressiva, guardada como referência histórica do laboratório.",
+      "latest_date": "2026-02",
+      "last_action": "Última carteira executada: AME 5%, APO 5%, CAT 5%, CBRE 5%. Exposição total em torno de 116%.",
+      "forecast": "Use este modo como comparação e contexto, não como ordem automática.",
+      "net_ann_return": 0.13196860540045874,
+      "net_total_return": 1.397902240703072,
+      "net_sharpe": 0.5490187622856054,
+      "net_max_drawdown": -0.4958991881086179,
+      "gross_exposure": null,
+      "weights": [
+        {
+          "asset": "AME",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "APO",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CAT",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CBRE",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CMI",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CNI",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CPAY",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CRH",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "CSX",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "DAL",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "DE",
+          "weight": 0.04589761309428389
+        },
+        {
+          "asset": "DGII",
+          "weight": 0.04589761309428389
+        }
+      ],
+      "weights_preview": "AME 5%, APO 5%, CAT 5%, CBRE 5%",
+      "notes": "Referência histórica do shadow antigo para comparar a geração atual."
+    },
+    {
+      "slug": "paper_live",
+      "label": "Paper trading ao vivo",
+      "source": "invest_shadow_live",
+      "status": "running",
+      "running": true,
+      "accumulating": true,
+      "candidate_id": "",
+      "what_it_is": "Teste diário com capital virtual, para ver se a lógica de hoje continua fazendo sentido fora do backtest.",
+      "what_varies": "Paper trading diário com capital virtual, sem ordem real, mas acumulando como se estivesse rodando todo dia.",
+      "latest_date": "2026-02-27",
+      "last_action": "Último ajuste conhecido: exposição alvo perto de 90%.",
+      "forecast": "Serve para acompanhar se a lógica continua coerente sem precisar colocar dinheiro real.",
+      "net_ann_return": 0.08784617420125129,
+      "net_total_return": 0.00033418183596301,
+      "net_sharpe": null,
+      "net_max_drawdown": null,
+      "gross_exposure": 0.9,
+      "weights": [],
+      "weights_preview": "",
+      "notes": "Paper trading diário com capital virtual e comparação contra benchmark."
+    },
+    {
+      "slug": "paper_replay",
+      "label": "Replay histórico",
+      "source": "invest_shadow_replay",
+      "status": "historical",
+      "running": false,
+      "accumulating": false,
+      "candidate_id": "",
+      "what_it_is": "Replay histórico congelado do paper trading, para comparar o comportamento diário com um caminho longo.",
+      "what_varies": "Replay histórico congelado para comparar o jeito atual de operar com um caminho longo e consistente.",
+      "latest_date": "2026-03-02",
+      "last_action": "Último ajuste conhecido: exposição alvo perto de 90%.",
+      "forecast": "Serve para acompanhar se a lógica continua coerente sem precisar colocar dinheiro real.",
+      "net_ann_return": null,
+      "net_total_return": null,
+      "net_sharpe": null,
+      "net_max_drawdown": null,
+      "gross_exposure": 0.9,
+      "weights": [],
+      "weights_preview": "",
+      "notes": "Replay histórico do mesmo paper trading para ter uma linha longa de comparação."
+    },
+    {
+      "slug": "research_top",
+      "label": "Pesquisa líder",
+      "source": "profit_research_registry",
+      "status": "research",
+      "running": false,
+      "accumulating": false,
+      "candidate_id": "static_equities_us_other__materials__technology",
+      "what_it_is": "Melhor pesquisa líquida encontrada até agora no laboratório, sem obrigação de ser a carteira diária.",
+      "what_varies": "Melhor pesquisa líquida publicada até agora. Serve como referência de longo prazo, não como carteira diária.",
+      "latest_date": "2026-03-06T22:12:34.168830+00:00",
+      "last_action": "Sem detalhe operacional fino publicado neste modo.",
+      "forecast": "Use este modo como comparação e contexto, não como ordem automática.",
+      "net_ann_return": 0.2401095330621581,
+      "net_total_return": 8.077483580685056,
+      "net_sharpe": 1.134652564513185,
+      "net_max_drawdown": -0.25089969288676073,
+      "gross_exposure": null,
+      "weights": [],
+      "weights_preview": "",
+      "notes": "Melhor candidata de pesquisa líquida publicada até agora."
+    },
+    {
+      "slug": "research_oos",
+      "label": "Pesquisa fora da amostra",
+      "source": "profit_research_registry",
+      "status": "research",
+      "running": false,
+      "accumulating": false,
+      "candidate_id": "static_equities_us_other__materials__technology",
+      "what_it_is": "Melhor candidata fora da amostra. Serve para medir consistência histórica, não execução diária.",
+      "what_varies": "Melhor candidata fora da amostra, para medir robustez sem depender só do trecho bonito.",
+      "latest_date": "",
+      "last_action": "Sem detalhe operacional fino publicado neste modo.",
+      "forecast": "Use este modo como comparação e contexto, não como ordem automática.",
+      "net_ann_return": 0.2164723301960448,
+      "net_total_return": 0.6094078022319226,
+      "net_sharpe": 0.9520797586864016,
+      "net_max_drawdown": null,
+      "gross_exposure": null,
+      "weights": [],
+      "weights_preview": "",
+      "notes": "Melhor candidata fora da amostra, útil para medir robustez sem depender só do trecho bonito."
+    }
+  ],
+  "shadow_mode_overview": {
+    "total": 10,
+    "running": 5,
+    "accumulating": 5,
+    "best_by_return": {
+      "label": "Ataque diário",
+      "net_ann_return": 1.0194411715681762
+    },
+    "best_by_drawdown": {
+      "label": "Pesquisa líder",
+      "net_max_drawdown": -0.25089969288676073
+    }
+  },
   "layered_engine": {
     "best_meta_candidate": {
-      "generated_at_utc": "2026-03-09T10:58:07.905444+00:00",
-      "candidate_id": "alpha_attack_major8_equity25",
-      "label": "Modo ataque validado no fechamento histórico",
-      "methodology": "historical_closure_attack",
+      "generated_at_utc": "2026-03-09T10:02:10.682883+00:00",
+      "candidate_id": "current_champion",
+      "label": "Campeao atual de confianca",
+      "methodology": "attack_entry_ranking_baseline",
       "status": "keep",
-      "gross_ann_return": 0.9901582456608427,
-      "net_ann_return": 0.9901582456608427,
-      "gross_total_return": 963.1216945971346,
-      "net_total_return": 963.1216945971346,
-      "sharpe": 1.217783171551663,
-      "max_drawdown": -0.7377852584276814,
+      "gross_ann_return": 0.8744539260185982,
+      "net_ann_return": 0.8744539260185982,
+      "gross_total_return": 529.1714706577523,
+      "net_total_return": 529.1714706577523,
+      "sharpe": 1.1520511070306776,
+      "max_drawdown": -0.748254741226653,
       "edge_vs_spy_net_total_return": null,
       "avg_foreign_share": 1.0,
       "groups": "meta_switch,sector_pressure",
       "artifacts": {
-        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z",
-        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/summary.json",
-        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/profit_research_rows.json"
+        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z",
+        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z/summary.json",
+        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z/profit_research_rows.json"
       },
-      "notes": "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente",
-      "edge_vs_benchmark_net_total_return": 962.4748891535872,
+      "notes": "blend ataque/protecao por peso historico de confianca",
+      "edge_vs_benchmark_net_total_return": 528.5246652142049,
       "benchmark_ticker": "BTC_SPY_50_50"
     },
     "drawdown_best_balanced": {
@@ -538,27 +1012,27 @@
       "end": "2026-02-27"
     },
     "attack_mode": {
-      "generated_at_utc": "2026-03-09T10:58:07.905444+00:00",
-      "candidate_id": "alpha_attack_major8_equity25",
-      "label": "Modo ataque validado no fechamento histórico",
-      "methodology": "historical_closure_attack",
+      "generated_at_utc": "2026-03-09T10:02:10.682883+00:00",
+      "candidate_id": "current_champion",
+      "label": "Campeao atual de confianca",
+      "methodology": "attack_entry_ranking_baseline",
       "status": "keep",
-      "gross_ann_return": 0.9901582456608427,
-      "net_ann_return": 0.9901582456608427,
-      "gross_total_return": 963.1216945971346,
-      "net_total_return": 963.1216945971346,
-      "sharpe": 1.217783171551663,
-      "max_drawdown": -0.7377852584276814,
+      "gross_ann_return": 0.8744539260185982,
+      "net_ann_return": 0.8744539260185982,
+      "gross_total_return": 529.1714706577523,
+      "net_total_return": 529.1714706577523,
+      "sharpe": 1.1520511070306776,
+      "max_drawdown": -0.748254741226653,
       "edge_vs_spy_net_total_return": null,
       "avg_foreign_share": 1.0,
       "groups": "meta_switch,sector_pressure",
       "artifacts": {
-        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z",
-        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/summary.json",
-        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_historical_closure_suite/20260309T105400Z/profit_research_rows.json"
+        "suite_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z",
+        "summary_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z/summary.json",
+        "registry_source": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_attack_entry_ranking_suite/20260309T095758Z/profit_research_rows.json"
       },
-      "notes": "modo ataque promovido com entrada cripto mais rapida e sizing por confianca relativa ao historico recente",
-      "edge_vs_benchmark_net_total_return": 962.4748891535872,
+      "notes": "blend ataque/protecao por peso historico de confianca",
+      "edge_vs_benchmark_net_total_return": 528.5246652142049,
       "benchmark_ticker": "BTC_SPY_50_50"
     },
     "robust_mode": {

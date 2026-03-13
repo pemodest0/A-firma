@@ -411,6 +411,14 @@ export async function readSiteFinanceSnapshot() {
       latest: {},
       historical_proxy_replay: {},
     },
+    shadow_modes: [],
+    shadow_mode_overview: {
+      total: 0,
+      running: 0,
+      accumulating: 0,
+      best_by_return: {},
+      best_by_drawdown: {},
+    },
     layered_engine: {
       best_meta_candidate: {},
       drawdown_best_balanced: {},

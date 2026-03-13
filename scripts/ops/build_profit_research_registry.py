@@ -124,6 +124,140 @@ def _latest_summary(root: Path, pattern: str) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _build_hypotheses(results_root: Path) -> dict[str, Any]:
+    alpha_improvement = _latest_summary(results_root, "validation/profit_alpha_improvement_suite/*/summary.json")
+    confidence_refinement = _latest_summary(results_root, "validation/profit_confidence_refinement_suite/*/summary.json")
+    attack_entry = _latest_summary(results_root, "validation/profit_attack_entry_ranking_suite/*/summary.json")
+    bad_year = _latest_summary(results_root, "validation/profit_bad_year_defense_suite/*/summary.json")
+    crypto_relief = _latest_summary(results_root, "validation/profit_crypto_conditional_relief_suite/*/summary.json")
+    structural = _latest_summary(results_root, "validation/profit_structural_signal_suite/*/summary.json")
+    u800 = _latest_summary(results_root, "validation/profit_u800_alpha_suite/*/summary.json")
+
+    hypotheses: list[dict[str, Any]] = []
+
+    alpha_best = alpha_improvement.get("best_family_winner", {}) if isinstance(alpha_improvement, dict) else {}
+    attack_best = attack_entry.get("best_entry", {}) if isinstance(attack_entry, dict) else {}
+    bad_year_keep = bad_year.get("worth_keeping_candidates", []) if isinstance(bad_year, dict) else []
+    crypto_relief_node = crypto_relief.get("conditional_relief", {}) if isinstance(crypto_relief, dict) else {}
+    structural_best_id = str(structural.get("best_candidate_id", "")) if isinstance(structural, dict) else ""
+    u800_best = u800.get("best_profit_candidate", {}) if isinstance(u800, dict) else {}
+
+    hypotheses.append(
+        {
+            "id": "confidence_relative_sizing",
+            "label": "Tamanho da aposta guiado por confiança relativa",
+            "status": "keep",
+            "role": "attack",
+            "priority": "alta",
+            "candidate_id": str(alpha_best.get("candidate_id", "")),
+            "evidence": "Melhorou lucro e ainda reduziu o pior tombo.",
+            "ann_return_improvement_pct": _safe_float(alpha_best.get("ann_return_improvement_pct")),
+            "total_return_improvement_pct": _safe_float(alpha_best.get("total_return_improvement_pct")),
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "crypto_fast_entry",
+            "label": "Entrada mais rápida nas explosões do cripto",
+            "status": "keep",
+            "role": "attack",
+            "priority": "alta",
+            "candidate_id": str(attack_best.get("candidate_id", "")),
+            "evidence": "O ranking já era bom; o ganho veio de entrar antes quando a força apareceu.",
+            "ann_return_improvement_pct": _safe_float(attack_best.get("ann_return_improvement_pct")),
+            "total_return_improvement_pct": _safe_float(attack_best.get("total_return_improvement_pct")),
+        }
+    )
+    guard_candidate = bad_year_keep[1] if isinstance(bad_year_keep, list) and len(bad_year_keep) > 1 else {}
+    hypotheses.append(
+        {
+            "id": "period_loss_guards",
+            "label": "Travas leves por mês e trimestre",
+            "status": "keep",
+            "role": "protection",
+            "priority": "média",
+            "candidate_id": str(guard_candidate.get("candidate_id", "")) if isinstance(guard_candidate, dict) else "",
+            "evidence": "Foi a melhor forma de reduzir o pior ano sem desmontar o restante do motor.",
+            "net_total_return": _safe_float(guard_candidate.get("net_total_return")) if isinstance(guard_candidate, dict) else None,
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "crypto_conditional_relief",
+            "label": "Redução condicional de concentração no cripto",
+            "status": "discard",
+            "role": "robustness",
+            "priority": "média",
+            "candidate_id": str(crypto_relief_node.get("candidate_id", "")),
+            "evidence": "Reduziu fragilidade, mas sacrificou lucro demais para virar modo principal.",
+            "net_total_return": _safe_float(crypto_relief_node.get("net_total_return")),
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "structural_signals_as_attack_driver",
+            "label": "Usar transição crítica, crowding e estresse estrutural para mandar no ataque",
+            "status": "discard",
+            "role": "context",
+            "priority": "baixa",
+            "candidate_id": structural_best_id,
+            "evidence": "Ajudaram a entender o risco, mas não superaram o ataque atual em dinheiro no fim.",
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "u800_equity_support",
+            "label": "Usar o universo de 800 ativos como apoio das ações",
+            "status": "watch",
+            "role": "support",
+            "priority": "média",
+            "candidate_id": str(u800_best.get("candidate_id", "")),
+            "evidence": "Melhora robustez e breadth, mas não venceu o modo ataque em lucro puro.",
+            "ann_return_improvement_pct": _safe_float(u800_best.get("ann_return_improvement_pct")),
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "confidence_plus_short_inertia",
+            "label": "Confiança relativa com inércia curta",
+            "status": "testing",
+            "role": "attack",
+            "priority": "alta",
+            "candidate_id": "pending",
+            "evidence": "Próximo refinamento lógico para reduzir trocas nervosas sem estragar o campeão.",
+        }
+    )
+    hypotheses.append(
+        {
+            "id": "execution_quality_switch",
+            "label": "Troca entre ataque e proteção conforme dificuldade de execução",
+            "status": "queued",
+            "role": "risk",
+            "priority": "média",
+            "candidate_id": "pending",
+            "evidence": "Hipótese para capital maior, liquidez pior e atraso por ativo sem mexer no coração do motor.",
+        }
+    )
+
+    keep_labels = [h["label"] for h in hypotheses if h["status"] == "keep"]
+    discard_labels = [h["label"] for h in hypotheses if h["status"] == "discard"]
+    testing_labels = [h["label"] for h in hypotheses if h["status"] in {"testing", "queued", "watch"}]
+    headlines: list[str] = []
+    if keep_labels:
+        headlines.append(f"Manter agora: {', '.join(keep_labels[:3])}.")
+    if discard_labels:
+        headlines.append(f"Descartar como modo principal: {', '.join(discard_labels[:2])}.")
+    if testing_labels:
+        headlines.append(f"Fila atual do laboratório: {', '.join(testing_labels[:3])}.")
+
+    return {
+        "status": "ok",
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "hypotheses": hypotheses,
+        "hypothesis_headlines": headlines,
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Consolida artefatos de pesquisa de lucro para o copiloto.")
     ap.add_argument("--results-root", default="results")
@@ -332,12 +466,19 @@ def main() -> None:
         if isinstance(worthwhile, list) and worthwhile:
             pattern_headlines.append(f"Controles que valeram a pena nesta rodada: {', '.join(str(x.get('candidate_id', '')) for x in worthwhile[:3])}.")
 
+    hypothesis_payload = _build_hypotheses(results_root)
+    hypothesis_headlines = hypothesis_payload.get("hypothesis_headlines", [])
+    if isinstance(hypothesis_headlines, list):
+        pattern_headlines.extend(str(v) for v in hypothesis_headlines[:3])
+
     patterns = {
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "event_count": len(event_rows),
         "events": event_rows,
         "pattern_headlines": pattern_headlines,
+        "hypothesis_headlines": hypothesis_payload.get("hypothesis_headlines", []),
+        "hypotheses": hypothesis_payload.get("hypotheses", []),
         "sources": {
             "frontier_summary": str((results_root / "validation/profit_frontier_expansion_suite").resolve()),
             "layered_summary": str((results_root / "validation/profit_layered_engine_suite").resolve()),

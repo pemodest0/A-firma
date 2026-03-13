@@ -323,6 +323,7 @@ type CopilotContext = {
     registry_path: string;
     insight_headlines: string[];
     pattern_headlines: string[];
+    hypothesis_headlines: string[];
     event_count: number;
   };
   improvement_backlog: string[];
@@ -469,6 +470,9 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
   const profitPatternHeadlines = Array.isArray(profitPatterns.pattern_headlines)
     ? profitPatterns.pattern_headlines.map((v) => String(v)).slice(0, 4)
     : [];
+  const profitHypothesisHeadlines = Array.isArray(profitPatterns.hypothesis_headlines)
+    ? profitPatterns.hypothesis_headlines.map((v) => String(v)).slice(0, 4)
+    : [];
 
   const context: CopilotContext = {
     generated_at_utc: new Date().toISOString(),
@@ -581,6 +585,7 @@ export async function buildCopilotContext(): Promise<CopilotContext> {
       registry_path: toText(profitResearchObj.registry_path, ""),
       insight_headlines: profitInsights.length ? profitInsights : sitePatterns,
       pattern_headlines: profitPatternHeadlines.length ? profitPatternHeadlines : sitePatterns,
+      hypothesis_headlines: profitHypothesisHeadlines,
       event_count: Number(toNum(profitPatterns.event_count, 0) || 0),
     },
     improvement_backlog: improvementBacklog,
@@ -709,6 +714,9 @@ function renderProfitResearch(ctx: CopilotContext): string {
   const patterns = ctx.profit_research.pattern_headlines.length
     ? ctx.profit_research.pattern_headlines.map((line) => `  - ${line}`).join("\n")
     : "  - sem padroes consolidados";
+  const hypotheses = ctx.profit_research.hypothesis_headlines.length
+    ? ctx.profit_research.hypothesis_headlines.map((line) => `  - ${line}`).join("\n")
+    : "  - sem hipoteses consolidadas";
   const audit = ctx.profit_research.audit_findings.length
     ? ctx.profit_research.audit_findings.map((line) => `  - ${line}`).join("\n")
     : "  - sem findings de auditoria";
@@ -728,6 +736,8 @@ function renderProfitResearch(ctx: CopilotContext): string {
       insights,
       "- Padrões recentes:",
       patterns,
+      "- Hipóteses do laboratório:",
+      hypotheses,
       "- Auditoria:",
       audit,
       "- Leitura correta: pesquisa de alpha e alocação, com custos e impostos em proxy explícita; não é promessa de retorno.",

@@ -170,6 +170,333 @@ def count_volume_support(universe_rows: list[dict[str, Any]]) -> tuple[int, int]
     return supported, total
 
 
+def human_shadow_label(mode_key: str, candidate_id: str = "", fallback: str = "") -> str:
+    mode_key = str(mode_key or "").strip().lower()
+    candidate_id = str(candidate_id or "").strip().lower()
+    if mode_key == "mode_attack":
+        return "Ataque diário"
+    if mode_key == "mode_main":
+        return "Principal diário"
+    if mode_key == "mode_attack_guard":
+        return "Ataque com guarda"
+    if mode_key == "mode_main_guard":
+        return "Principal com guarda"
+    if mode_key == "canonical_main":
+        return "Canônico legado"
+    if mode_key == "canonical_challenger":
+        return "Challenger legado"
+    if mode_key == "paper_live":
+        return "Paper trading ao vivo"
+    if mode_key == "paper_replay":
+        return "Replay histórico"
+    if mode_key == "research_top":
+        return "Pesquisa líder"
+    if mode_key == "research_oos":
+        return "Pesquisa fora da amostra"
+    if "alpha_attack" in candidate_id or "criticality" in candidate_id:
+        return "Ataque quantitativo"
+    if "conviction" in candidate_id or "guard" in candidate_id:
+        return "Proteção quantitativa"
+    return fallback or mode_key or "Shadow"
+
+
+def human_shadow_variant(mode_key: str, candidate_id: str = "") -> str:
+    mode_key = str(mode_key or "").strip().lower()
+    candidate_id = str(candidate_id or "").strip().lower()
+    if mode_key == "mode_attack":
+        return "Varia o tamanho da aposta conforme a confiança e libera mais risco quando o cripto está saudável."
+    if mode_key == "mode_main":
+        return "Fica mais perto do modo principal e alterna entre risco moderado e proteção."
+    if mode_key == "mode_attack_guard":
+        return "Mesmo ataque, mas com trava extra quando a cauda do risco piora."
+    if mode_key == "mode_main_guard":
+        return "Modo principal com freio extra para meses e cenários mais duros."
+    if mode_key == "canonical_main":
+        return "Foto antiga do ataque original, útil para comparar a geração nova com a fase anterior do laboratório."
+    if mode_key == "canonical_challenger":
+        return "Versão antiga mais agressiva, guardada como referência histórica do laboratório."
+    if mode_key == "paper_live":
+        return "Paper trading diário com capital virtual, sem ordem real, mas acumulando como se estivesse rodando todo dia."
+    if mode_key == "paper_replay":
+        return "Replay histórico congelado para comparar o jeito atual de operar com um caminho longo e consistente."
+    if mode_key == "research_top":
+        return "Melhor pesquisa líquida publicada até agora. Serve como referência de longo prazo, não como carteira diária."
+    if mode_key == "research_oos":
+        return "Melhor candidata fora da amostra, para medir robustez sem depender só do trecho bonito."
+    if "criticality" in candidate_id:
+        return "Usa criticidade estrutural para distinguir oportunidade real de histeria geral do mercado."
+    return "Modo de comparação entre cenários do laboratório."
+
+
+def human_shadow_forecast(mode_key: str, recommended_live_mode: dict[str, Any], mode_confidence: dict[str, Any]) -> str:
+    mode_name = str(recommended_live_mode.get("mode") or "").strip().lower()
+    confidence = str(
+        recommended_live_mode.get("confidence_level")
+        or mode_confidence.get("confidence_level")
+        or ""
+    ).strip().lower()
+    if mode_key in {"mode_attack", "mode_attack_guard"}:
+        if "ataque" in mode_name and confidence in {"alta", "high", "média", "media", "medium"}:
+            return "Se a leitura continuar limpa, este modo segue como candidato natural para atacar."
+        return "Só vale acelerar aqui quando a confiança voltar a subir e a vigilância parar de pedir cautela."
+    if mode_key in {"mode_main", "mode_main_guard"}:
+        if "prote" in mode_name or "principal" in mode_name:
+            return "Hoje este modo parece mais próximo do uso real, porque o ambiente pede mais disciplina."
+        return "Este modo tende a assumir o controle quando o ataque perde clareza."
+    if mode_key in {"paper_live", "paper_replay"}:
+        return "Serve para acompanhar se a lógica continua coerente sem precisar colocar dinheiro real."
+    return "Use este modo como comparação e contexto, não como ordem automática."
+
+
+def parse_weights(value: Any) -> dict[str, float]:
+    if isinstance(value, dict):
+        return {str(k): float(v) for k, v in value.items() if to_num(v) is not None}
+    raw = str(value or "").strip()
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except Exception:
+        return {}
+    if not isinstance(parsed, dict):
+        return {}
+    return {str(k): float(v) for k, v in parsed.items() if to_num(v) is not None}
+
+
+def weights_preview(weights: dict[str, float], limit: int = 4) -> tuple[list[dict[str, Any]], str]:
+    if not weights:
+        return [], ""
+    rows = sorted(
+        [{"asset": asset, "weight": weight} for asset, weight in weights.items()],
+        key=lambda row: abs(float(row["weight"])),
+        reverse=True,
+    )
+    preview = rows[:limit]
+    text = ", ".join(f"{row['asset']} {row['weight'] * 100:.0f}%" for row in preview)
+    return rows, text
+
+
+def describe_last_action(mode_key: str, payload: dict[str, Any]) -> str:
+    weights = parse_weights(payload.get("weights"))
+    latest_source = payload.get("latest_source") if isinstance(payload.get("latest_source"), dict) else {}
+    executed_weights = parse_weights(latest_source.get("executed_weights_json"))
+    executed_assets = str(latest_source.get("executed_assets") or latest_source.get("selected_assets") or "").strip()
+    gross_exposure = to_num(payload.get("gross_exposure")) or to_num(latest_source.get("core_gross_exposure"))
+    target_exposure = to_num(payload.get("latest_target_exposure")) or to_num(payload.get("target_exposure"))
+
+    source_weights = executed_weights or weights
+    _, preview = weights_preview(source_weights)
+    if preview:
+        prefix = "Última carteira executada" if executed_weights else "Carteira alvo"
+        if gross_exposure is not None:
+            return f"{prefix}: {preview}. Exposição total em torno de {gross_exposure * 100:.0f}%."
+        return f"{prefix}: {preview}."
+    if executed_assets:
+        assets = [item.strip() for item in executed_assets.split(",") if item.strip()]
+        shown = ", ".join(assets[:4])
+        suffix = "..." if len(assets) > 4 else ""
+        return f"Última seleção executada: {shown}{suffix}."
+    if target_exposure is not None:
+        return f"Último ajuste conhecido: exposição alvo perto de {target_exposure * 100:.0f}%."
+    if mode_key == "paper_live":
+        return "Última ação: o paper trading ajustou a exposição virtual e continuou acumulando sem ordem real."
+    if mode_key == "paper_replay":
+        return "Última ação: replay histórico atualizado para comparar o caminho atual com o histórico completo."
+    return "Sem detalhe operacional fino publicado neste modo."
+
+
+def build_shadow_modes(
+    operation_agent: dict[str, Any],
+    recommended_live_mode: dict[str, Any],
+    mode_confidence: dict[str, Any],
+    canonical_shadow: dict[str, Any],
+    invest_shadow: dict[str, Any],
+    profit_registry: dict[str, Any],
+) -> list[dict[str, Any]]:
+    shadow_modes: list[dict[str, Any]] = []
+
+    def append_mode(
+        *,
+        slug: str,
+        label: str,
+        source: str,
+        payload: dict[str, Any],
+        candidate_id: str = "",
+        status: str = "running",
+        accumulating: bool = True,
+        what_it_is: str = "",
+        what_varies: str = "",
+        metrics_source: dict[str, Any] | None = None,
+    ) -> None:
+        metrics = metrics_source or payload
+        weights = parse_weights(payload.get("weights"))
+        if not weights:
+            latest_source = payload.get("latest_source") if isinstance(payload.get("latest_source"), dict) else {}
+            weights = parse_weights(latest_source.get("executed_weights_json"))
+        weights_rows, weights_text = weights_preview(weights)
+        latest_date = str(
+            payload.get("latest_date")
+            or payload.get("latest_signal_date")
+            or payload.get("effective_date")
+            or payload.get("signal_date")
+            or payload.get("price_date")
+            or ""
+        )
+        shadow_modes.append(
+            {
+                "slug": slug,
+                "label": label,
+                "source": source,
+                "status": status,
+                "running": status == "running",
+                "accumulating": accumulating,
+                "candidate_id": candidate_id or str(payload.get("candidate_id") or ""),
+                "what_it_is": what_it_is,
+                "what_varies": what_varies,
+                "latest_date": latest_date,
+                "last_action": describe_last_action(slug, payload),
+                "forecast": human_shadow_forecast(slug, recommended_live_mode, mode_confidence),
+                "net_ann_return": to_num(metrics.get("net_ann_return")) or to_num(metrics.get("daily_ann_return")),
+                "net_total_return": to_num(metrics.get("net_total_return")) or to_num(metrics.get("daily_total_return")),
+                "net_sharpe": to_num(metrics.get("net_sharpe")) or to_num(metrics.get("daily_sharpe")) or to_num(metrics.get("sharpe")),
+                "net_max_drawdown": to_num(metrics.get("net_max_drawdown")) or to_num(metrics.get("daily_max_drawdown")) or to_num(metrics.get("max_drawdown")),
+                "gross_exposure": to_num(payload.get("gross_exposure")) or to_num(payload.get("latest_target_exposure")),
+                "weights": weights_rows[:12],
+                "weights_preview": weights_text,
+                "notes": str(payload.get("notes") or ""),
+            }
+        )
+
+    for mode_key in ["mode_attack", "mode_main", "mode_attack_guard", "mode_main_guard"]:
+        payload = operation_agent.get(mode_key)
+        if not isinstance(payload, dict):
+            continue
+        candidate_id = str(payload.get("candidate_id") or "")
+        append_mode(
+            slug=mode_key,
+            label=human_shadow_label(mode_key, candidate_id, str(payload.get("label") or "")),
+            source="daily_operation_agent",
+            payload=payload,
+            candidate_id=candidate_id,
+            status="running",
+            accumulating=True,
+            what_it_is=str(payload.get("label") or human_shadow_label(mode_key, candidate_id)),
+            what_varies=human_shadow_variant(mode_key, candidate_id),
+        )
+
+    candidates = canonical_shadow.get("candidates")
+    if isinstance(candidates, list):
+        for row in candidates[:2]:
+            if not isinstance(row, dict):
+                continue
+            candidate_key = str(row.get("candidate_key") or "")
+            append_mode(
+                slug=f"canonical_{candidate_key}",
+                label=human_shadow_label(f"canonical_{candidate_key}", str(row.get("profile_name") or ""), str(row.get("profile_name") or "")),
+                source="legacy_shadow_canonical",
+                payload={
+                    "latest_date": str(((row.get("latest_signal") or {}) if isinstance(row.get("latest_signal"), dict) else {}).get("ym") or ""),
+                    "latest_source": row.get("latest_signal") if isinstance(row.get("latest_signal"), dict) else {},
+                    "notes": "Referência histórica do shadow antigo para comparar a geração atual.",
+                },
+                candidate_id=str(row.get("profile_name") or ""),
+                status="historical",
+                accumulating=False,
+                what_it_is="Modo legado do shadow que ainda serve para comparar a geração atual com a fase anterior.",
+                what_varies=human_shadow_variant(f"canonical_{candidate_key}", str(row.get("profile_name") or "")),
+                metrics_source=row,
+            )
+
+    latest = invest_shadow.get("latest") if isinstance(invest_shadow.get("latest"), dict) else {}
+    live = invest_shadow.get("live") if isinstance(invest_shadow.get("live"), dict) else {}
+    live_portfolio = live.get("portfolio") if isinstance(live.get("portfolio"), dict) else {}
+    append_mode(
+        slug="paper_live",
+        label=human_shadow_label("paper_live"),
+        source="invest_shadow_live",
+        payload={
+            "latest_date": live.get("latest_signal_date") or latest.get("signal_date"),
+            "latest_target_exposure": live.get("latest_target_exposure") or latest.get("target_exposure"),
+            "notes": "Paper trading diário com capital virtual e comparação contra benchmark.",
+        },
+        status="running",
+        accumulating=True,
+        what_it_is="Teste diário com capital virtual, para ver se a lógica de hoje continua fazendo sentido fora do backtest.",
+        what_varies=human_shadow_variant("paper_live"),
+        metrics_source={
+            "net_ann_return": live_portfolio.get("ann_return"),
+            "net_total_return": live_portfolio.get("total_return"),
+            "net_sharpe": live_portfolio.get("sharpe"),
+            "net_max_drawdown": live_portfolio.get("max_drawdown"),
+        },
+    )
+
+    historical = invest_shadow.get("historical_proxy_replay") if isinstance(invest_shadow.get("historical_proxy_replay"), dict) else {}
+    append_mode(
+        slug="paper_replay",
+        label=human_shadow_label("paper_replay"),
+        source="invest_shadow_replay",
+        payload={
+            "latest_date": historical.get("end_date"),
+            "latest_target_exposure": historical.get("latest_target_exposure"),
+            "notes": "Replay histórico do mesmo paper trading para ter uma linha longa de comparação.",
+        },
+        status="historical",
+        accumulating=False,
+        what_it_is="Replay histórico congelado do paper trading, para comparar o comportamento diário com um caminho longo.",
+        what_varies=human_shadow_variant("paper_replay"),
+        metrics_source={
+            "net_ann_return": historical.get("ann_return"),
+            "net_total_return": historical.get("total_return"),
+            "net_sharpe": historical.get("sharpe"),
+            "net_max_drawdown": historical.get("max_drawdown"),
+        },
+    )
+
+    top_candidate = profit_registry.get("top_candidate") if isinstance(profit_registry.get("top_candidate"), dict) else {}
+    if top_candidate:
+        append_mode(
+            slug="research_top",
+            label=human_shadow_label("research_top", str(top_candidate.get("candidate_id") or ""), str(top_candidate.get("label") or "")),
+            source="profit_research_registry",
+            payload={
+                "latest_date": str(top_candidate.get("generated_at_utc") or ""),
+                "notes": "Melhor candidata de pesquisa líquida publicada até agora.",
+            },
+            candidate_id=str(top_candidate.get("candidate_id") or ""),
+            status="research",
+            accumulating=False,
+            what_it_is="Melhor pesquisa líquida encontrada até agora no laboratório, sem obrigação de ser a carteira diária.",
+            what_varies=human_shadow_variant("research_top", str(top_candidate.get("candidate_id") or "")),
+            metrics_source=top_candidate,
+        )
+
+    oos_best = profit_registry.get("oos_best_consistent")
+    if isinstance(oos_best, dict) and oos_best:
+        append_mode(
+            slug="research_oos",
+            label=human_shadow_label("research_oos", str(oos_best.get("candidate_id") or "")),
+            source="profit_research_registry",
+            payload={
+                "latest_date": str(oos_best.get("generated_at_utc") or ""),
+                "notes": "Melhor candidata fora da amostra, útil para medir robustez sem depender só do trecho bonito.",
+            },
+            candidate_id=str(oos_best.get("candidate_id") or ""),
+            status="research",
+            accumulating=False,
+            what_it_is="Melhor candidata fora da amostra. Serve para medir consistência histórica, não execução diária.",
+            what_varies=human_shadow_variant("research_oos", str(oos_best.get("candidate_id") or "")),
+            metrics_source={
+                "net_ann_return": oos_best.get("mean_test_net_ann_return"),
+                "net_total_return": oos_best.get("mean_test_edge_vs_spy"),
+                "net_sharpe": oos_best.get("mean_test_net_sharpe"),
+                "net_max_drawdown": None,
+            },
+        )
+
+    return shadow_modes
+
+
 def build_snapshot() -> dict[str, Any]:
     finance_ready, lab_run_dir = latest_lab_from_finance_ready()
     lab_summary = read_json((lab_run_dir / "summary.json") if lab_run_dir else Path("missing"), {})
@@ -181,6 +508,7 @@ def build_snapshot() -> dict[str, Any]:
     profit_registry = read_json(RESULTS_ROOT / "ops" / "profit_research" / "latest_registry.json", {})
     profit_patterns = read_json(RESULTS_ROOT / "ops" / "profit_research" / "latest_patterns.json", {})
     invest_shadow = read_json(RESULTS_ROOT / "ops" / "invest_shadow" / "latest_summary.json", {})
+    canonical_shadow = read_json(RESULTS_ROOT / "ops" / "profit_shadow_target_800_attack" / "canonical_latest_run.json", {})
 
     layered_summary = latest_json_summary("profit_layered_engine_suite")
     drawdown_summary = latest_json_summary("profit_drawdown_control_suite")
@@ -317,6 +645,24 @@ def build_snapshot() -> dict[str, Any]:
     shadow_portfolio = shadow_replay.get("portfolio", {}) if isinstance(shadow_replay, dict) else {}
     shadow_live = invest_shadow.get("live", {}) if isinstance(invest_shadow, dict) else {}
     shadow_live_portfolio = shadow_live.get("portfolio", {}) if isinstance(shadow_live, dict) else {}
+    shadow_modes = build_shadow_modes(
+        operation_agent if isinstance(operation_agent, dict) else {},
+        recommended_live_mode if isinstance(recommended_live_mode, dict) else {},
+        operation_confidence if isinstance(operation_confidence, dict) else {},
+        canonical_shadow if isinstance(canonical_shadow, dict) else {},
+        invest_shadow if isinstance(invest_shadow, dict) else {},
+        profit_registry if isinstance(profit_registry, dict) else {},
+    )
+    best_shadow_by_return = max(
+        shadow_modes,
+        key=lambda row: to_num(row.get("net_ann_return")) if to_num(row.get("net_ann_return")) is not None else -1e18,
+        default={},
+    )
+    best_shadow_by_drawdown = max(
+        shadow_modes,
+        key=lambda row: to_num(row.get("net_max_drawdown")) if to_num(row.get("net_max_drawdown")) is not None else -1e18,
+        default={},
+    )
 
     volume_supported_assets, volume_total_assets = count_volume_support(current_universe)
 
@@ -352,6 +698,8 @@ def build_snapshot() -> dict[str, Any]:
             "oos_best_consistent": oos_best,
             "insights": profit_registry.get("insights") or [],
             "pattern_headlines": profit_patterns.get("pattern_headlines") or [],
+            "hypothesis_headlines": profit_patterns.get("hypothesis_headlines") or [],
+            "hypotheses": profit_patterns.get("hypotheses") or [],
             "event_count": profit_patterns.get("event_count") or 0,
         },
         "agents": {
@@ -403,6 +751,20 @@ def build_snapshot() -> dict[str, Any]:
                 "max_drawdown": shadow_portfolio.get("max_drawdown"),
                 "total_return": shadow_portfolio.get("total_return"),
                 "edge_vs_benchmark_total_return": shadow_replay.get("edge_vs_benchmark_total_return"),
+            },
+        },
+        "shadow_modes": shadow_modes,
+        "shadow_mode_overview": {
+            "total": len(shadow_modes),
+            "running": len([row for row in shadow_modes if row.get("running") is True]),
+            "accumulating": len([row for row in shadow_modes if row.get("accumulating") is True]),
+            "best_by_return": {
+                "label": best_shadow_by_return.get("label"),
+                "net_ann_return": best_shadow_by_return.get("net_ann_return"),
+            },
+            "best_by_drawdown": {
+                "label": best_shadow_by_drawdown.get("label"),
+                "net_max_drawdown": best_shadow_by_drawdown.get("net_max_drawdown"),
             },
         },
         "layered_engine": {

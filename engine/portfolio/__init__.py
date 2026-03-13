@@ -1,13 +1,37 @@
+from .asymmetric_state_policy import AsymmetricPolicyConfig, next_mode_state
+from .concentration_controls import (
+    CryptoConcentrationConfig,
+    apply_conditional_crypto_cap,
+    compute_domain_concentration,
+    crypto_concentration_risk,
+)
 from .hmm_challenger import HMMChallengerResult, build_hmm_feature_frame, fit_hmm_challenger
 from .exogenous_features import (
     ExogenousFeaturePanel,
+    apply_free_energy_penalty,
     adjust_confidence_with_feature,
+    build_attractor_persistence_score,
+    build_direction_gradient_score,
+    build_crowding_signal,
+    build_criticality_score,
+    build_critical_slowing_down_signal,
     build_crypto_breadth,
     build_exogenous_feature_panel,
+    build_market_mode_structure_panel,
+    build_state_curvature_score,
+    build_structural_stress_signal,
     feature_spectral_extremes,
     load_market_series,
 )
 from .mode_confidence import ModeConfidenceDecision, decide_attack_vs_protection
+from .meta_mode_selector import MetaModeSelectorConfig, monthly_last, monthly_total_return, run_causal_meta_mode_selector
+from .period_loss_guards import (
+    PeriodLossGuardConfig,
+    combine_guard_actions,
+    monthly_loss_guard,
+    quarterly_loss_guard,
+)
+from .regime_allocator import ExposureProfile, map_risk_state_to_exposure
 from .hrp import hrp_weights
 from .risk_gates import (
     TailRiskThresholds,
@@ -26,20 +50,41 @@ from .scenario_simulation import (
     simulate_regime_conditioned_paths,
     summarize_portfolio_distribution,
 )
+from .year_regime_defense import YearDefenseConfig, compute_ytd_stress, year_bad_state_trigger
 
 __all__ = [
+    "AsymmetricPolicyConfig",
+    "CryptoConcentrationConfig",
+    "ExposureProfile",
     "HMMChallengerResult",
     "ModeConfidenceDecision",
+    "MetaModeSelectorConfig",
     "ExogenousFeaturePanel",
+    "PeriodLossGuardConfig",
     "RegimeMoments",
     "TailRiskThresholds",
+    "YearDefenseConfig",
+    "apply_free_energy_penalty",
     "adjust_confidence_with_feature",
+    "apply_conditional_crypto_cap",
     "apply_tail_gate",
+    "build_attractor_persistence_score",
+    "build_criticality_score",
+    "build_direction_gradient_score",
+    "build_crowding_signal",
+    "build_critical_slowing_down_signal",
     "build_crypto_breadth",
     "build_exogenous_feature_panel",
     "build_hmm_feature_frame",
+    "build_market_mode_structure_panel",
+    "build_state_curvature_score",
+    "build_structural_stress_signal",
+    "combine_guard_actions",
+    "compute_domain_concentration",
+    "compute_ytd_stress",
     "decide_attack_vs_protection",
     "covariance_cholesky",
+    "crypto_concentration_risk",
     "evaluate_tail_risk",
     "estimate_regime_moments",
     "estimate_transition_matrix",
@@ -47,10 +92,18 @@ __all__ = [
     "fit_hmm_challenger",
     "hrp_weights",
     "load_market_series",
+    "monthly_last",
+    "monthly_total_return",
+    "map_risk_state_to_exposure",
     "max_drawdown",
+    "monthly_loss_guard",
+    "next_mode_state",
+    "quarterly_loss_guard",
     "rolling_regime_conditioned_summary",
+    "run_causal_meta_mode_selector",
     "simulate_correlated_paths",
     "simulate_regime_conditioned_paths",
     "summarize_distribution_bounds",
     "summarize_portfolio_distribution",
+    "year_bad_state_trigger",
 ]
