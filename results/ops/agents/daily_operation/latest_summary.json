@@ -1,0 +1,142 @@
+{
+  "status": "ok",
+  "generated_at_utc": "2026-03-13T23:10:10.156902+00:00",
+  "mode_attack": {
+    "label": "Modo ataque",
+    "candidate_id": "criticality_free_energy_attack",
+    "latest_date": "2026-03-02",
+    "latest_source": "protect",
+    "weights": {
+      "crypto": 0.0,
+      "equity": 1.0,
+      "cash": 0.0
+    },
+    "gross_exposure": 1.0,
+    "net_ann_return": 0.4894101239598847,
+    "net_total_return": 52.382235477258774,
+    "net_sharpe": 0.908362692894522,
+    "net_max_drawdown": -0.7063983142382215,
+    "avg_turnover_daily": 0.10525228537360891,
+    "notes": "combina criticidade relativa com penalidade leve de reorganizacao"
+  },
+  "mode_main": {
+    "label": "Modo principal",
+    "candidate_id": "meta_major8_eq_a2r1",
+    "latest_date": "2026-03-13",
+    "latest_source": "cash",
+    "weights": {
+      "crypto": 0.0,
+      "equity": 0.0,
+      "cash": 1.0
+    },
+    "gross_exposure": 0.0,
+    "net_ann_return": 0.5534000138379653,
+    "net_total_return": 98.33191042442525,
+    "net_sharpe": 1.1246499192997452,
+    "net_max_drawdown": -0.6539479004173525,
+    "avg_turnover_daily": 0.07221588749524896,
+    "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
+  },
+  "mode_attack_guard": {
+    "label": "Modo ataque com guarda",
+    "candidate_id": "criticality_guard_attack",
+    "latest_date": "2026-03-02",
+    "latest_source": "protect",
+    "weights": {
+      "crypto": 0.0,
+      "equity": 1.0,
+      "cash": 0.0
+    },
+    "gross_exposure": 1.0,
+    "net_ann_return": 0.476131058581841,
+    "net_total_return": 47.81627745375616,
+    "net_sharpe": 0.8913383565867409,
+    "net_max_drawdown": -0.7064163858364412,
+    "avg_turnover_daily": 0.11371581875993642,
+    "notes": "reduz a mao quando a criticidade e a concentracao estrutural entram no pior bloco recente"
+  },
+  "mode_main_guard": {
+    "label": "Modo principal com guarda",
+    "candidate_id": "meta_major8_eq_a2r1_mc_guard",
+    "latest_date": "2026-03-13",
+    "latest_source": "cash",
+    "weights": {
+      "crypto": 0.0,
+      "equity": 0.0,
+      "cash": 1.0
+    },
+    "gross_exposure": 0.0,
+    "net_ann_return": 0.5037256623111928,
+    "net_total_return": 69.74971077769368,
+    "net_sharpe": 1.1214277969346378,
+    "net_max_drawdown": -0.6328115664057995,
+    "avg_turnover_daily": 0.0676548840744964,
+    "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
+  },
+  "artifacts": {
+    "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
+    "crypto_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_crypto_top_liquid_plus.csv",
+    "equity_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_target_800_clean_plus.csv"
+  },
+  "mode_confidence": {
+    "recommended_mode": "ataque",
+    "confidence_score": 0.6099283537360478,
+    "confidence_level": "média",
+    "attack_score": 0.6211044465667153,
+    "protection_score": 0.5248357618459277,
+    "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
+    "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
+    "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
+    "reasons": [
+      "O ganho continua dependente dos nomes cripto mais fortes.",
+      "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
+      "Os alertas diários pedem leitura mais defensiva.",
+      "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
+    ],
+    "metrics": {
+      "structural_risk_level": "stable",
+      "structural_confidence_score": 1.0,
+      "vigilance_status": "warn",
+      "vigilance_alert_count": 1,
+      "pbo_verdict": "provavel_overfit",
+      "attack_underperform_prob_63": 0.5626666666666666,
+      "attack_top3_retention": 0.2872230995558317,
+      "attack_drawdown_abs": 0.7063983142382215,
+      "protection_drawdown_abs": 0.6328115664057995,
+      "execution_winner": ""
+    }
+  },
+  "recommended_live_mode": {
+    "mode": "ataque",
+    "label": "Modo ataque",
+    "confidence_level": "média",
+    "confidence_score": 0.6099283537360478
+  },
+  "confidence_notes": [
+    "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",
+    "A proteção continua preferível quando o mercado inteiro aperta junto, a confiança cai e o atrito operacional sobe."
+  ],
+  "post_steps": {
+    "registry": {
+      "cmd": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "scripts/ops/build_profit_research_registry.py"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 365}\n",
+      "stderr": "",
+      "ok": true
+    },
+    "site_snapshot": {
+      "cmd": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "scripts/ops/build_site_finance_snapshot.py"
+      ],
+      "returncode": 0,
+      "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
+      "stderr": "",
+      "ok": true
+    }
+  },
+  "publish_ready": true
+}

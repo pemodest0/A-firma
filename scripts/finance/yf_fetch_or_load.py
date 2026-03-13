@@ -1,8 +1,74 @@
+import io
+import json
 import os
 from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 import numpy as np
 import pandas as pd
+
+HTTP_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; AssyntraxDailyIngestion/1.0; +https://assyntrax.vercel.app)",
+    "Accept": "application/json,text/csv,text/plain,*/*",
+}
+
+STOOQ_URL_TEMPLATE = "https://stooq.com/q/d/l/?s={symbol}&i=d"
+BRAPI_URL_TEMPLATE = "https://brapi.dev/api/quote/{symbol}?{query}"
+BINANCE_URL_TEMPLATE = "https://api.binance.com/api/v3/klines?symbol={symbol}&interval=1d&limit={limit}"
+COINGECKO_URL_TEMPLATE = (
+    "https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart/range?vs_currency=usd&from={start_ts}&to={end_ts}"
+)
+
+CRYPTO_BINANCE_MAP = {
+    "BTC-USD": "BTCUSDT",
+    "ETH-USD": "ETHUSDT",
+    "SOL-USD": "SOLUSDT",
+    "XRP-USD": "XRPUSDT",
+    "BNB-USD": "BNBUSDT",
+    "ADA-USD": "ADAUSDT",
+    "DOGE-USD": "DOGEUSDT",
+    "LINK-USD": "LINKUSDT",
+    "AVAX-USD": "AVAXUSDT",
+    "MATIC-USD": "MATICUSDT",
+    "DOT-USD": "DOTUSDT",
+    "LTC-USD": "LTCUSDT",
+    "BCH-USD": "BCHUSDT",
+    "ETC-USD": "ETCUSDT",
+    "ATOM-USD": "ATOMUSDT",
+    "TRX-USD": "TRXUSDT",
+    "XLM-USD": "XLMUSDT",
+    "FIL-USD": "FILUSDT",
+    "ALGO-USD": "ALGOUSDT",
+    "ICP-USD": "ICPUSDT",
+    "NEAR-USD": "NEARUSDT",
+    "APT-USD": "APTUSDT",
+}
+
+CRYPTO_COINGECKO_MAP = {
+    "BTC-USD": "bitcoin",
+    "ETH-USD": "ethereum",
+    "SOL-USD": "solana",
+    "XRP-USD": "ripple",
+    "BNB-USD": "binancecoin",
+    "ADA-USD": "cardano",
+    "DOGE-USD": "dogecoin",
+    "LINK-USD": "chainlink",
+    "AVAX-USD": "avalanche-2",
+    "MATIC-USD": "matic-network",
+    "DOT-USD": "polkadot",
+    "LTC-USD": "litecoin",
+    "BCH-USD": "bitcoin-cash",
+    "ETC-USD": "ethereum-classic",
+    "ATOM-USD": "cosmos",
+    "TRX-USD": "tron",
+    "XLM-USD": "stellar",
+    "FIL-USD": "filecoin",
+    "ALGO-USD": "algorand",
+    "ICP-USD": "internet-computer",
+    "NEAR-USD": "near",
+    "APT-USD": "aptos",
+}
 
 
 def find_local_data(ticker, base_dir):
@@ -47,6 +113,12 @@ def _detect_price_column(columns):
     return None
 
 
+def _http_get_text(url: str, timeout_sec: int = 8) -> str:
+    req = Request(url, headers=HTTP_HEADERS)
+    with urlopen(req, timeout=timeout_sec) as resp:
+        return resp.read().decode("utf-8", errors="ignore")
+
+
 def load_price_series(path):
     df = pd.read_csv(path)
     date_col = _detect_date_column(df.columns)
@@ -59,6 +131,22 @@ def load_price_series(path):
     df = df.sort_values(date_col)
     df.rename(columns={date_col: "date", price_col: "price"}, inplace=True)
     return df
+
+
+def load_existing_base(path):
+    df = load_price_series(path)
+    if df is not None and not df.empty:
+        return df
+    try:
+        fallback = pd.read_csv(path)
+    except Exception:
+        return pd.DataFrame(columns=["date", "price"])
+    if "date" not in fallback.columns:
+        return pd.DataFrame(columns=["date", "price"])
+    out = fallback[["date"]].copy()
+    out["date"] = pd.to_datetime(out["date"], errors="coerce")
+    out["price"] = np.nan
+    return out.dropna(subset=["date"]).sort_values("date")
 
 
 def fetch_yfinance(ticker, start="2009-01-01", end=None):
@@ -78,6 +166,133 @@ def fetch_yfinance(ticker, start="2009-01-01", end=None):
     out = df[[date_col, price_col]].copy()
     out.rename(columns={date_col: "date", price_col: "price"}, inplace=True)
     return out
+
+
+def _to_stooq_symbol(symbol: str) -> str:
+    return f"{symbol.strip().upper().replace('.', '-').lower()}.us"
+
+
+def fetch_stooq(ticker: str) -> pd.DataFrame | None:
+    if ticker.upper().endswith(".SA"):
+        return None
+    stooq_symbol = _to_stooq_symbol(ticker)
+    txt = _http_get_text(STOOQ_URL_TEMPLATE.format(symbol=stooq_symbol))
+    if not txt.strip() or txt.lstrip().startswith("No data"):
+        return None
+    df = pd.read_csv(io.StringIO(txt))
+    cols = {str(c).strip().lower(): str(c) for c in df.columns}
+    if "date" not in cols or "close" not in cols:
+        return None
+    out = pd.DataFrame(
+        {
+            "date": pd.to_datetime(df[cols["date"]], errors="coerce"),
+            "price": pd.to_numeric(df[cols["close"]], errors="coerce"),
+        }
+    ).dropna()
+    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+
+
+def fetch_brapi(ticker: str, start: str | None = None, end: str | None = None) -> pd.DataFrame | None:
+    if not ticker.upper().endswith(".SA"):
+        return None
+    symbol = ticker.upper().replace(".SA", "")
+    query = urlencode({"range": "max", "interval": "1d"})
+    payload = json.loads(_http_get_text(BRAPI_URL_TEMPLATE.format(symbol=symbol, query=query)))
+    results = payload.get("results") or []
+    if not results:
+        return None
+    hist = results[0].get("historicalDataPrice") or []
+    if not hist:
+        return None
+    out = pd.DataFrame(
+        {
+            "date": pd.to_datetime([row.get("date") for row in hist], unit="s", errors="coerce"),
+            "price": pd.to_numeric([row.get("adjustedClose") or row.get("close") for row in hist], errors="coerce"),
+        }
+    ).dropna()
+    if out.empty:
+        return None
+    if start:
+        out = out[out["date"] >= pd.Timestamp(start)]
+    if end:
+        out = out[out["date"] <= pd.Timestamp(end)]
+    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+
+
+def fetch_binance_crypto(ticker: str, start: str | None = None) -> pd.DataFrame | None:
+    symbol = CRYPTO_BINANCE_MAP.get(ticker.upper())
+    if not symbol:
+        return None
+    txt = _http_get_text(BINANCE_URL_TEMPLATE.format(symbol=symbol, limit=1000))
+    rows = json.loads(txt)
+    if not isinstance(rows, list) or not rows:
+        return None
+    out = pd.DataFrame(
+        {
+            "date": pd.to_datetime([row[0] for row in rows], unit="ms", errors="coerce"),
+            "price": pd.to_numeric([row[4] for row in rows], errors="coerce"),
+        }
+    ).dropna()
+    if start:
+        out = out[out["date"] >= pd.Timestamp(start)]
+    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+
+
+def fetch_coingecko_crypto(ticker: str, start: str | None = None, end: str | None = None) -> pd.DataFrame | None:
+    coin_id = CRYPTO_COINGECKO_MAP.get(ticker.upper())
+    if not coin_id:
+        return None
+    start_ts = int(pd.Timestamp(start or "2009-01-01").timestamp())
+    end_ts = int(pd.Timestamp(end).timestamp()) if end else int(pd.Timestamp.utcnow().timestamp())
+    txt = _http_get_text(COINGECKO_URL_TEMPLATE.format(coin_id=coin_id, start_ts=start_ts, end_ts=end_ts))
+    payload = json.loads(txt)
+    prices = payload.get("prices") or []
+    if not prices:
+        return None
+    out = pd.DataFrame(
+        {
+            "date": pd.to_datetime([row[0] for row in prices], unit="ms", errors="coerce"),
+            "price": pd.to_numeric([row[1] for row in prices], errors="coerce"),
+        }
+    ).dropna()
+    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+
+
+def fetch_market_data(
+    ticker: str,
+    start: str = "2009-01-01",
+    end: str | None = None,
+    *,
+    allow_yfinance: bool = True,
+) -> tuple[pd.DataFrame | None, str | None]:
+    upper = ticker.upper()
+    fetchers: list[tuple[str, callable]] = []
+    if upper.endswith("-USD"):
+        fetchers = [
+            ("binance", lambda: fetch_binance_crypto(upper, start=start)),
+            ("coingecko", lambda: fetch_coingecko_crypto(upper, start=start, end=end)),
+            ("stooq", lambda: fetch_stooq(upper)),
+        ]
+    elif upper.endswith(".SA"):
+        fetchers = [
+            ("brapi", lambda: fetch_brapi(upper, start=start, end=end)),
+        ]
+    else:
+        fetchers = [
+            ("stooq", lambda: fetch_stooq(upper)),
+        ]
+
+    if allow_yfinance:
+        fetchers.append(("yfinance", lambda: fetch_yfinance(upper, start=start, end=end)))
+
+    for provider, fn in fetchers:
+        try:
+            data = fn()
+        except Exception:
+            data = None
+        if data is not None and not data.empty:
+            return data, provider
+    return None, None
 
 
 def unify_to_daily(df):

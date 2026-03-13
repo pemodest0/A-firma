@@ -70,11 +70,14 @@ export default async function AplicacoesPage() {
   const forecastDaily = ((forecastHorizons.daily as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const forecastWeekly = ((forecastHorizons.weekly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const forecastMonthly = ((forecastHorizons.monthly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const playbookStale = finance.latest_playbook_stale === true;
+  const playbookStaleDays =
+    typeof finance.latest_playbook_stale_days === "number" ? finance.latest_playbook_stale_days : null;
   const ingestionStaleDays =
     typeof dataQuality.ingestion_stale_days === "number" ? dataQuality.ingestion_stale_days : null;
   const ingestionFatalReason = String(dataQuality.ingestion_fatal_reason || "").trim();
   const exposure =
-    typeof playbook.exposure === "number"
+    !playbookStale && typeof playbook.exposure === "number"
       ? playbook.exposure
       : typeof shadowLatest.target_exposure === "number"
         ? shadowLatest.target_exposure
@@ -166,6 +169,12 @@ export default async function AplicacoesPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Última ingestão válida: <span className="text-zinc-200">{String(dataQuality.last_ingestion_data_date || dataLastDate || "n/d")}</span>
           </p>
+          {playbookStale ? (
+            <p className="mt-2 text-sm text-amber-300">
+              A leitura estrutural detalhada ficou {playbookStaleDays == null ? "desatualizada" : `${playbookStaleDays} dias`} atrás.
+              As faixas desta página estão usando a operação diária mais recente.
+            </p>
+          ) : null}
           <p className="mt-2 text-sm text-zinc-400">
             Dias de atraso: <span className="text-zinc-200">{ingestionStaleDays == null ? "n/d" : String(ingestionStaleDays)}</span>
           </p>

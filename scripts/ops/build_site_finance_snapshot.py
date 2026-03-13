@@ -71,6 +71,18 @@ def to_num(value: Any) -> float | None:
     return num if num == num and abs(num) != float("inf") else None
 
 
+def date_lag_days(value: Any, reference: Any | None = None) -> int | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        current = datetime.fromisoformat(raw).date()
+        base = datetime.fromisoformat(str(reference)).date() if reference else datetime.now(timezone.utc).date()
+    except Exception:
+        return None
+    return max((base - current).days, 0)
+
+
 def normalize_ingestion_summary(summary: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(summary, dict):
         return {}
@@ -430,7 +442,15 @@ def build_forecast_horizons(
     recommended_live_mode: dict[str, Any],
     mode_confidence: dict[str, Any],
     vigilance_agent: dict[str, Any],
+    operation_agent: dict[str, Any],
 ) -> dict[str, Any]:
+    recommended_mode_raw = str(recommended_live_mode.get("mode") or "").strip().lower()
+    active_mode = {}
+    if "ataque" in recommended_mode_raw:
+        active_mode = operation_agent.get("mode_attack", {}) if isinstance(operation_agent, dict) else {}
+    elif "prote" in recommended_mode_raw or "principal" in recommended_mode_raw:
+        active_mode = operation_agent.get("mode_main", {}) if isinstance(operation_agent, dict) else {}
+
     recommended_label = human_shadow_label(
         str(recommended_live_mode.get("mode") or ""),
         str(recommended_live_mode.get("candidate_id") or ""),
@@ -444,6 +464,7 @@ def build_forecast_horizons(
     )
     exposure_target = to_num(
         latest_playbook.get("exposure")
+        or active_mode.get("gross_exposure")
         or recommended_live_mode.get("gross_exposure")
         or finance_ready.get("target_exposure")
     )
@@ -777,16 +798,21 @@ def build_snapshot() -> dict[str, Any]:
     ingestion_agent = normalize_ingestion_summary(
         read_json(RESULTS_ROOT / "ops" / "agents" / "daily_ingestion" / "latest_summary.json", {})
     )
+    latest_lab_row = lab_timeseries[-1] if lab_timeseries else {}
+    latest_playbook = action_playbook[-1] if isinstance(action_playbook, list) and action_playbook else {}
     published_data_date = str(
         ingestion_agent.get("max_latest_date")
         or finance_ready.get("data_last_date")
         or latest_lab_row.get("date")
         or ""
     )
-
-    latest_lab_row = lab_timeseries[-1] if lab_timeseries else {}
-    latest_playbook = action_playbook[-1] if isinstance(action_playbook, list) and action_playbook else {}
     gate = lab_summary.get("deployment_gate", {}) if isinstance(lab_summary, dict) else {}
+    latest_state_stale_days = date_lag_days(latest_lab_row.get("date"), published_data_date)
+    latest_playbook_stale_days = date_lag_days(latest_playbook.get("date"), published_data_date)
+    latest_state_stale = latest_state_stale_days is not None and latest_state_stale_days > 3
+    latest_playbook_stale = latest_playbook_stale_days is not None and latest_playbook_stale_days > 3
+    effective_latest_lab_row = {} if latest_state_stale else latest_lab_row
+    effective_latest_playbook = {} if latest_playbook_stale else latest_playbook
 
     sector_pressure = []
     for row in lab_sector_diag:
@@ -918,10 +944,11 @@ def build_snapshot() -> dict[str, Any]:
     volume_supported_assets, volume_total_assets = count_volume_support(current_universe)
     forecast_horizons = build_forecast_horizons(
         finance_ready if isinstance(finance_ready, dict) else {},
-        latest_playbook if isinstance(latest_playbook, dict) else {},
+        effective_latest_playbook if isinstance(effective_latest_playbook, dict) else {},
         recommended_live_mode if isinstance(recommended_live_mode, dict) else {},
         operation_confidence if isinstance(operation_confidence, dict) else {},
         vigilance_agent if isinstance(vigilance_agent, dict) else {},
+        operation_agent if isinstance(operation_agent, dict) else {},
     )
 
     snapshot = {
@@ -946,8 +973,12 @@ def build_snapshot() -> dict[str, Any]:
             "lab_run_id": lab_summary.get("run_id"),
             "gate_blocked": gate.get("blocked"),
             "gate_reasons": gate.get("reasons") or [],
-            "latest_state": latest_lab_row,
-            "latest_playbook": latest_playbook,
+            "latest_state": effective_latest_lab_row,
+            "latest_state_stale": latest_state_stale,
+            "latest_state_stale_days": latest_state_stale_days,
+            "latest_playbook": effective_latest_playbook,
+            "latest_playbook_stale": latest_playbook_stale,
+            "latest_playbook_stale_days": latest_playbook_stale_days,
         },
         "profit_research": {
             "rows_total": profit_registry.get("rows_total"),

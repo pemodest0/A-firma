@@ -77,6 +77,9 @@ export default async function DashboardPage() {
   const forecastDaily = ((forecastHorizons.daily as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const forecastWeekly = ((forecastHorizons.weekly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
   const forecastMonthly = ((forecastHorizons.monthly as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const playbookStale = finance.latest_playbook_stale === true;
+  const playbookStaleDays =
+    typeof finance.latest_playbook_stale_days === "number" ? finance.latest_playbook_stale_days : null;
   const vigilanceAlerts = Array.isArray(confidence.vigilance_alerts)
     ? (confidence.vigilance_alerts as Array<Record<string, unknown>>)
     : [];
@@ -87,10 +90,12 @@ export default async function DashboardPage() {
     ? (dataQuality.ingestion_warning_reasons as unknown[]).map((item) => String(item || "").trim()).filter(Boolean)
     : [];
   const exposure =
-    typeof playbook.exposure === "number"
+    !playbookStale && typeof playbook.exposure === "number"
       ? playbook.exposure
       : typeof shadowLatest.target_exposure === "number"
         ? shadowLatest.target_exposure
+        : typeof forecastMonthly.exposure_target === "number"
+          ? forecastMonthly.exposure_target
         : null;
   const grossIdea =
     typeof exposure === "number" && Number.isFinite(exposure) ? Math.max(0, Math.round(10000 * exposure)) : null;
@@ -182,6 +187,12 @@ export default async function DashboardPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Readiness: <span className="text-zinc-200">{humanizeStatusWord(finance.overall_readiness || "n/d")}</span>
           </p>
+          {playbookStale ? (
+            <p className="mt-2 text-sm text-amber-300">
+              A leitura estrutural detalhada ficou {playbookStaleDays == null ? "desatualizada" : `${playbookStaleDays} dias`} atrás.
+              A exposição mostrada aqui veio da operação diária mais recente.
+            </p>
+          ) : null}
         </article>
 
         <article className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">

@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.finance.yf_fetch_or_load import fetch_yfinance, unify_to_daily
+from scripts.finance.yf_fetch_or_load import fetch_market_data, load_existing_base, unify_to_daily
 
 DEFAULT_PRICES_DIR = ROOT / "data" / "raw" / "finance" / "yfinance_daily"
 RESULTS_ROOT = ROOT / "results" / "ops" / "agents" / "daily_ingestion"
@@ -29,6 +29,7 @@ class IngestionResult:
     rows_before: int
     rows_after: int
     changed: bool
+    provider: str | None = None
     error: str | None = None
 
 
@@ -56,6 +57,7 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
     existing = read_existing_series(path)
     previous_last_date = iso_date(existing["date"].iloc[-1]) if not existing.empty else None
     rows_before = int(len(existing))
+    today_iso = datetime.now(timezone.utc).date().isoformat()
 
     if skip_remote:
         return IngestionResult(
@@ -66,6 +68,19 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
             rows_before=rows_before,
             rows_after=rows_before,
             changed=False,
+            provider=None,
+        )
+
+    if previous_last_date and previous_last_date >= today_iso:
+        return IngestionResult(
+            ticker=ticker,
+            status="unchanged",
+            previous_last_date=previous_last_date,
+            latest_date=previous_last_date,
+            rows_before=rows_before,
+            rows_after=rows_before,
+            changed=False,
+            provider="local_fresh",
         )
 
     start = "2009-01-01"
@@ -73,7 +88,7 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
         start_dt = datetime.fromisoformat(previous_last_date) - timedelta(days=lookback_days)
         start = start_dt.date().isoformat()
 
-    fetched = fetch_yfinance(ticker, start=start, end=None)
+    fetched, provider = fetch_market_data(ticker, start=start, end=None, allow_yfinance=False)
     if fetched is None or fetched.empty:
         return IngestionResult(
             ticker=ticker,
@@ -83,16 +98,18 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
             rows_before=rows_before,
             rows_after=rows_before,
             changed=False,
+            provider=provider,
         )
 
     fetched_daily = unify_to_daily(fetched)
     merged = fetched_daily
     if not existing.empty:
-        base = existing[["date", "price"]].copy()
-        merged = pd.concat([base, fetched_daily[["date", "price"]]], ignore_index=True)
-        merged["date"] = pd.to_datetime(merged["date"], errors="coerce")
-        merged = merged.dropna(subset=["date", "price"]).sort_values("date").drop_duplicates("date", keep="last")
-        merged = unify_to_daily(merged)
+        base = load_existing_base(path)
+        if not base.empty and base["price"].notna().any():
+            merged = pd.concat([base[["date", "price"]], fetched_daily[["date", "price"]]], ignore_index=True)
+            merged["date"] = pd.to_datetime(merged["date"], errors="coerce")
+            merged = merged.dropna(subset=["date", "price"]).sort_values("date").drop_duplicates("date", keep="last")
+            merged = unify_to_daily(merged)
 
     latest_date = iso_date(merged["date"].iloc[-1]) if not merged.empty else previous_last_date
     rows_after = int(len(merged))
@@ -109,6 +126,7 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
         rows_before=rows_before,
         rows_after=rows_after,
         changed=changed,
+        provider=provider,
     )
 
 
@@ -124,6 +142,10 @@ def build_summary(
     no_remote_data = [r for r in results if r.status == "no_remote_data"]
     skipped_remote = [r for r in results if r.status == "skipped_remote"]
     failed = [r for r in results if r.status == "failed" or r.error]
+    provider_counts: dict[str, int] = {}
+    for result in results:
+        if result.provider:
+            provider_counts[result.provider] = provider_counts.get(result.provider, 0) + 1
     latest_dates = [r.latest_date for r in results if r.latest_date]
     updated_assets = len(updated)
     unchanged_assets = len(unchanged)
@@ -209,6 +231,7 @@ def build_summary(
         "sample_no_remote_data": [r.ticker for r in no_remote_data[:15]],
         "sample_skipped_remote": [r.ticker for r in skipped_remote[:15]],
         "sample_failed": [{"ticker": r.ticker, "error": r.error or r.status} for r in failed[:15]],
+        "provider_counts": provider_counts,
     }
 
 
@@ -240,6 +263,7 @@ def main() -> None:
                     rows_before=0,
                     rows_after=0,
                     changed=False,
+                    provider=None,
                     error=str(exc),
                 )
             )
