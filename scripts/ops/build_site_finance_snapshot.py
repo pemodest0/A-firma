@@ -777,6 +777,12 @@ def build_snapshot() -> dict[str, Any]:
     ingestion_agent = normalize_ingestion_summary(
         read_json(RESULTS_ROOT / "ops" / "agents" / "daily_ingestion" / "latest_summary.json", {})
     )
+    published_data_date = str(
+        ingestion_agent.get("max_latest_date")
+        or finance_ready.get("data_last_date")
+        or latest_lab_row.get("date")
+        or ""
+    )
 
     latest_lab_row = lab_timeseries[-1] if lab_timeseries else {}
     latest_playbook = action_playbook[-1] if isinstance(action_playbook, list) and action_playbook else {}
@@ -815,7 +821,7 @@ def build_snapshot() -> dict[str, Any]:
             {
                 "asset": ticker,
                 "domain": "finance",
-                "timestamp": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
+                "timestamp": published_data_date,
                 "run_id": str(lab_summary.get("run_id") or ""),
                 "data_adequacy": "ok",
                 "source_type": "lab_corr_asset_diag",
@@ -850,7 +856,7 @@ def build_snapshot() -> dict[str, Any]:
             {
                 "asset": ticker,
                 "domain": "crypto",
-                "timestamp": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
+                "timestamp": published_data_date,
                 "run_id": str(crypto_10x_summary.get("outdir") or ""),
                 "data_adequacy": "ok",
                 "source_type": "crypto_research",
@@ -921,7 +927,7 @@ def build_snapshot() -> dict[str, Any]:
     snapshot = {
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "as_of_date": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
+        "as_of_date": published_data_date,
         "sources": {
             "finance_product_ready": str(RESULTS_ROOT / "ops" / "finance_product_ready" / "latest_finance_product_ready.json"),
             "profit_registry": str(RESULTS_ROOT / "ops" / "profit_research" / "latest_registry.json"),
@@ -931,7 +937,7 @@ def build_snapshot() -> dict[str, Any]:
         },
         "finance": {
             "overall_readiness": finance_ready.get("overall_readiness"),
-            "data_last_date": finance_ready.get("data_last_date"),
+            "data_last_date": published_data_date,
             "operational_state": finance_ready.get("operational_state"),
             "risk_level_next_month": finance_ready.get("risk_level_next_month"),
             "confidence_score": finance_ready.get("confidence_score"),
@@ -1035,7 +1041,7 @@ def build_snapshot() -> dict[str, Any]:
                     or group_best_net_blended.get("period_start")
                     or "2016-02-18"
                 ),
-                "end": str(finance_ready.get("data_last_date") or latest_lab_row.get("date") or ""),
+                "end": published_data_date,
             },
             "attack_mode": attack_mode_from_registry or layered_summary.get("best_meta_candidate") or {},
             "robust_mode": drawdown_summary.get("best_balanced_candidate") or {},

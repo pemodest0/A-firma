@@ -28,6 +28,16 @@ def _safe_float(value: Any) -> float | None:
     return out if pd.notna(out) else None
 
 
+def _deep_clean(value: Any) -> Any:
+    if isinstance(value, float):
+        return value if np.isfinite(value) else None
+    if isinstance(value, list):
+        return [_deep_clean(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _deep_clean(item) for key, item in value.items()}
+    return value
+
+
 def _normalize_visible_text(value: Any) -> Any:
     if not isinstance(value, str):
         return value
@@ -362,7 +372,7 @@ def main() -> None:
             top_oos = {**match.iloc[0].to_dict(), "selection_basis": "oos_consistency", "oos": oos_best}
         else:
             top_oos = {"selection_basis": "oos_consistency", "oos": oos_best}
-    summary = {
+    summary = _deep_clean({
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "registry_path": str(outdir / "latest_registry.csv"),
@@ -381,7 +391,7 @@ def main() -> None:
             f"Metodologias mais recorrentes: {dict(methodology_counts.most_common(5))}.",
         ],
         "rows": df.to_dict(orient="records"),
-    }
+    })
     (outdir / "latest_registry.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
 
     frontier = _latest_summary(results_root, "validation/profit_frontier_expansion_suite/*/summary.json")
@@ -531,7 +541,7 @@ def main() -> None:
     if isinstance(hypothesis_headlines, list):
         pattern_headlines.extend(str(v) for v in hypothesis_headlines[:3])
 
-    patterns = {
+    patterns = _deep_clean({
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "event_count": len(event_rows),
@@ -546,7 +556,7 @@ def main() -> None:
             "crypto_plus_summary": str((results_root / "validation/profit_10x_rule_search_crypto_plus").resolve()),
             "crypto_small_summary": str((results_root / "validation/profit_10x_rule_search_crypto").resolve()),
         },
-    }
+    })
     (outdir / "latest_patterns.json").write_text(json.dumps(patterns, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({"status": "ok", "outdir": str(outdir), "rows_total": int(df.shape[0])}, ensure_ascii=False))
 
