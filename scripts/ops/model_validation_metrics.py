@@ -34,6 +34,15 @@ def _latest_run_dir(root: Path, suite_name: str) -> Path | None:
     return runs[0] if runs else None
 
 
+def _latest_candidate_row(root: Path, suite_name: str, candidate_id: str) -> tuple[Path | None, dict[str, Any]]:
+    run_dir = _latest_run_dir(root, suite_name)
+    if run_dir is None:
+        return None, {}
+    rows = _read_csv_rows(run_dir / "candidate_compare.csv")
+    row = next((item for item in rows if str(item.get("candidate_id") or "").strip() == str(candidate_id or "").strip()), None)
+    return run_dir, (row or {})
+
+
 def _read_csv_rows(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
@@ -69,51 +78,35 @@ def resolve_live_validation_metrics(*, root: Path, candidate_id: str) -> dict[st
             "pbo_verdict": "desconhecido",
         }
 
-    champion_run = _latest_run_dir(root, "profit_champion_timing_robustness_suite")
-    if champion_run is not None:
-        compare_rows = _read_csv_rows(champion_run / "candidate_compare.csv")
-        row = next((item for item in compare_rows if str(item.get("candidate_id") or "").strip() == candidate_key), None)
-        summary = read_json(champion_run / "summary.json")
-        pbo = summary.get("pbo_overall", {}) if isinstance(summary.get("pbo_overall"), dict) else {}
-        verdict = _worst_verdict(
-            [
-                ((pbo.get("total_return") or {}).get("verdict") if isinstance(pbo.get("total_return"), dict) else ""),
-                ((pbo.get("sharpe") or {}).get("verdict") if isinstance(pbo.get("sharpe"), dict) else ""),
-            ]
-        )
-        if row is not None:
+    for suite_name in [
+        "profit_champion_timing_robustness_suite",
+        "profit_champion_extension_suite",
+        "profit_champion_drawdown_suite",
+        "profit_champion_selection_rotation_suite",
+    ]:
+        run_dir, row = _latest_candidate_row(root, suite_name, candidate_key)
+        if run_dir is not None and row:
+            summary = read_json(run_dir / "summary.json")
+            pbo = summary.get("pbo_overall", {}) if isinstance(summary.get("pbo_overall"), dict) else {}
+            verdict = _worst_verdict(
+                [
+                    ((pbo.get("total_return") or {}).get("verdict") if isinstance(pbo.get("total_return"), dict) else ""),
+                    ((pbo.get("sharpe") or {}).get("verdict") if isinstance(pbo.get("sharpe"), dict) else ""),
+                    str(summary.get("overall_verdict") or ""),
+                ]
+            )
             return {
                 "candidate_id": candidate_key,
-                "source_suite": "profit_champion_timing_robustness_suite",
+                "source_suite": suite_name,
                 "underperform_prob_63": _safe_float(row.get("underperform_prob_63")),
                 "top3_total_retention": _safe_float(row.get("top3_total_retention")),
                 "pbo_verdict": verdict,
             }
 
-    pbo_run = _latest_run_dir(root, "profit_pbo_suite")
-    resilience_run = _latest_run_dir(root, "profit_universe_resilience_suite")
-    pbo_summary = read_json(pbo_run / "summary.json") if pbo_run is not None else {}
-    resilience_summary = read_json(resilience_run / "summary.json") if resilience_run is not None else {}
-
-    underperform = None
-    rows = resilience_summary.get("attack_mc_base")
-    if isinstance(rows, list):
-        for row in rows:
-            if int(row.get("horizon_days") or 0) == 63:
-                underperform = _safe_float(row.get("underperform_prob"))
-                break
-
-    retention = None
-    rows = resilience_summary.get("attack_retention_worst_nonbase")
-    if isinstance(rows, list):
-        preferred = next((row for row in rows if str(row.get("scenario") or "") == "drop_top3_crypto"), rows[0] if rows else None)
-        if preferred is not None:
-            retention = _safe_float(preferred.get("total_retention"))
-
     return {
         "candidate_id": candidate_key,
-        "source_suite": "profit_universe_resilience_suite",
-        "underperform_prob_63": underperform,
-        "top3_total_retention": retention,
-        "pbo_verdict": str(pbo_summary.get("overall_verdict") or "desconhecido").strip() or "desconhecido",
+        "source_suite": "",
+        "underperform_prob_63": None,
+        "top3_total_retention": None,
+        "pbo_verdict": "desconhecido",
     }

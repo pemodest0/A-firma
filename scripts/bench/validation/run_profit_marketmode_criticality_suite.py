@@ -254,6 +254,33 @@ def _state_ecosystem_compare(structure_daily: pd.DataFrame, weight: pd.Series, l
     return rows
 
 
+def _profit_lock_scale(net_ret: pd.Series) -> pd.Series:
+    idx = net_ret.index
+    scale = pd.Series(1.0, index=idx, dtype=float)
+    values = pd.to_numeric(net_ret, errors="coerce").fillna(0.0).astype(float)
+    lagged = values.shift(1).fillna(0.0)
+    for dt in idx:
+        history = lagged.loc[:dt]
+        month_start = dt.replace(day=1)
+        year_start = dt.replace(month=1, day=1)
+        month_slice = history.loc[month_start:]
+        ytd_slice = history.loc[year_start:]
+        month_ret = float((1.0 + month_slice).prod() - 1.0) if not month_slice.empty else 0.0
+        ytd_ret = float((1.0 + ytd_slice).prod() - 1.0) if not ytd_slice.empty else 0.0
+        month_scale = 1.0
+        ytd_scale = 1.0
+        if month_ret >= 0.15:
+            month_scale = 0.88
+        if month_ret >= 0.30:
+            month_scale = 0.72
+        if ytd_ret >= 0.60:
+            ytd_scale = 0.82
+        if ytd_ret >= 1.20:
+            ytd_scale = 0.62
+        scale.loc[dt] = min(month_scale, ytd_scale)
+    return scale
+
+
 def build_official_mode_allocations(
     *,
     prices_dir: Path,
@@ -327,6 +354,14 @@ def build_official_mode_allocations(
         protect_alloc=protect_alloc,
         attack_weight=free_rel_weight,
     )
+    profit_lock_weight = (free_rel_weight * _profit_lock_scale(free_rel_bundle.bundle.result.net_ret)).clip(0.0, 1.0)
+    profit_lock_bundle = _blend_allocation_bundles(
+        candidate_id="champion_profit_lock_partial",
+        notes="combina criticidade relativa, reorganizacao leve e trava parcial de lucro baseada apenas no historico realizado",
+        attack_alloc=attack_alloc,
+        protect_alloc=protect_alloc,
+        attack_weight=profit_lock_weight,
+    )
     latest_as_of_date = str(base_score.index[-1].date()) if len(base_score.index) else ""
     latest_structural_now = _classify_official_structural_regime(
         as_of_date=latest_as_of_date,
@@ -342,12 +377,12 @@ def build_official_mode_allocations(
         "criticality": criticality,
         "structural_stress": structural_stress,
         "official_structural_now": latest_structural_now,
-        "official_attack": free_rel_bundle,
+        "official_attack": profit_lock_bundle,
         "official_attack_guard": criticality_bundle,
         "official_main": built["allocations"]["baseline"],
         "official_main_guard": built["allocations"]["baseline_guard"],
         "official_notes": {
-            "attack": "Ataque com criticidade estrutural e reorganizacao leve.",
+            "attack": "Ataque com criticidade estrutural, reorganizacao leve e trava parcial de lucro.",
             "attack_guard": "Ataque com freio de criticidade mais direto.",
             "main": "Modo principal equilibrado.",
             "main_guard": "Modo principal com protecao reforcada.",

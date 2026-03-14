@@ -1,7 +1,7 @@
 {
   "status": "ok",
-  "run_id": "20260314T094407Z",
-  "generated_at_utc": "2026-03-14T09:44:50.501262+00:00",
+  "run_id": "20260314T105413Z",
+  "generated_at_utc": "2026-03-14T10:54:48.067045+00:00",
   "snapshot_path": "/Users/PedroHenrique/Downloads/Assyntrax/website-ui/public/data/latest/api_records.jsonl",
   "config": {
     "lookback": 252,
@@ -33,7 +33,7 @@
   },
   "top_misses": [
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "KRE",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -47,7 +47,7 @@
       "abs_threshold": 0.01830574644260352
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "DBA",
       "prediction_date": "2022-12-31",
       "evaluation_date": "2023-01-03",
@@ -61,7 +61,7 @@
       "abs_threshold": 0.01210831443705489
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "IWM",
       "prediction_date": "2025-12-31",
       "evaluation_date": "2026-01-02",
@@ -75,7 +75,7 @@
       "abs_threshold": 0.015410520190373233
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "FXE",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -89,7 +89,7 @@
       "abs_threshold": 0.004507793979210284
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "GLD",
       "prediction_date": "2025-12-31",
       "evaluation_date": "2026-01-02",
@@ -103,7 +103,7 @@
       "abs_threshold": 0.015091647679051868
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "DIA",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -117,7 +117,7 @@
       "abs_threshold": 0.00869764705424068
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "IEF",
       "prediction_date": "2023-12-31",
       "evaluation_date": "2024-01-02",
@@ -131,7 +131,7 @@
       "abs_threshold": 0.007583017488610367
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "EFA",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -145,7 +145,7 @@
       "abs_threshold": 0.010427693507610596
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "EEM",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -159,7 +159,7 @@
       "abs_threshold": 0.011233590608170196
     },
     {
-      "run_id": "20260314T094407Z",
+      "run_id": "20260314T105413Z",
       "asset": "EWJ",
       "prediction_date": "2024-12-31",
       "evaluation_date": "2025-01-02",
@@ -173,7 +173,7 @@
       "abs_threshold": 0.013230098358213385
     }
   ],
-  "details_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/prediction_truth/details/20260314T094407Z.csv",
+  "details_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/prediction_truth/details/20260314T105413Z.csv",
   "history_tail": [
     {
       "run_id": "20260224T064901Z",
@@ -338,6 +338,54 @@
     {
       "run_id": "20260314T094407Z",
       "generated_at_utc": "2026-03-14T09:44:50.501262+00:00",
+      "predictions_scored": "11",
+      "accuracy": "0.09090909090909091",
+      "precision_risk": "0.09090909090909091",
+      "recall_risk": "1.0",
+      "false_alarm_rate": "0.9090909090909091",
+      "event_rate": "0.09090909090909091",
+      "hits": "1",
+      "misses": "10",
+      "tp": "1",
+      "tn": "0",
+      "fp": "10",
+      "fn": "0"
+    },
+    {
+      "run_id": "20260314T103345Z",
+      "generated_at_utc": "2026-03-14T10:34:34.177389+00:00",
+      "predictions_scored": "11",
+      "accuracy": "0.09090909090909091",
+      "precision_risk": "0.09090909090909091",
+      "recall_risk": "1.0",
+      "false_alarm_rate": "0.9090909090909091",
+      "event_rate": "0.09090909090909091",
+      "hits": "1",
+      "misses": "10",
+      "tp": "1",
+      "tn": "0",
+      "fp": "10",
+      "fn": "0"
+    },
+    {
+      "run_id": "20260314T105148Z",
+      "generated_at_utc": "2026-03-14T10:52:23.307778+00:00",
+      "predictions_scored": "11",
+      "accuracy": "0.09090909090909091",
+      "precision_risk": "0.09090909090909091",
+      "recall_risk": "1.0",
+      "false_alarm_rate": "0.9090909090909091",
+      "event_rate": "0.09090909090909091",
+      "hits": "1",
+      "misses": "10",
+      "tp": "1",
+      "tn": "0",
+      "fp": "10",
+      "fn": "0"
+    },
+    {
+      "run_id": "20260314T105413Z",
+      "generated_at_utc": "2026-03-14T10:54:48.067045+00:00",
       "predictions_scored": 11,
       "accuracy": 0.09090909090909091,
       "precision_risk": 0.09090909090909091,

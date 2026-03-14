@@ -363,7 +363,7 @@ def main() -> None:
 
     status_counts = Counter(df.get("status", pd.Series(dtype=object)).fillna("unknown").astype(str))
     methodology_counts = Counter(df.get("methodology", pd.Series(dtype=object)).fillna("unknown").astype(str))
-    top = df.iloc[0].to_dict()
+    leaderboard_top = df.iloc[0].to_dict()
     oos = _latest_oos_summary(results_root)
     oos_best = {}
     if isinstance(oos, dict):
@@ -373,9 +373,9 @@ def main() -> None:
     keep_mask = df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "keep"
     keep_df = df.loc[keep_mask].reset_index(drop=True)
     if not keep_df.empty:
-        top = {**keep_df.iloc[0].to_dict(), "selection_basis": "current_keep"}
+        leaderboard_top = {**keep_df.iloc[0].to_dict(), "selection_basis": "current_keep"}
     else:
-        top = {**top, "selection_basis": "current_best"}
+        leaderboard_top = {**leaderboard_top, "selection_basis": "current_best"}
     top_oos = {}
     if oos_best:
         match = df[df["candidate_id"].astype(str) == str(oos_best.get("candidate_id", ""))]
@@ -384,12 +384,15 @@ def main() -> None:
         else:
             top_oos = {"selection_basis": "oos_consistency", "oos": oos_best}
     official_attack = {}
+    latest_operation = _read_json(ROOT / "results" / "ops" / "agents" / "daily_operation" / "latest_summary.json")
+    official_candidate_id = str((((latest_operation.get("mode_attack") or {}).get("candidate_id")) or "")).strip()
     champion_summary = _latest_suite_summary(results_root, "profit_champion_timing_robustness_suite")
-    official_candidate_id = str(
-        champion_summary.get("baseline_candidate")
-        or champion_summary.get("best_candidate")
-        or ""
-    ).strip()
+    if not official_candidate_id:
+        official_candidate_id = str(
+            champion_summary.get("baseline_candidate")
+            or champion_summary.get("best_candidate")
+            or ""
+        ).strip()
     if official_candidate_id:
         match = df[df["candidate_id"].astype(str) == official_candidate_id]
         if not match.empty:
@@ -397,7 +400,10 @@ def main() -> None:
         else:
             official_attack = {"candidate_id": official_candidate_id, "selection_basis": "official_live_attack"}
     if not official_attack:
-        official_attack = top
+        official_attack = leaderboard_top
+
+    top = dict(official_attack)
+    historical_top = dict(leaderboard_top)
 
     summary = _deep_clean({
         "status": "ok",
@@ -407,6 +413,7 @@ def main() -> None:
         "status_counts": dict(status_counts),
         "methodology_counts": dict(methodology_counts),
         "top_candidate": top,
+        "historical_top_candidate": historical_top,
         "official_attack_candidate": official_attack,
         "top_oos_candidate": top_oos,
         "oos_best_consistent": oos_best,
@@ -414,7 +421,8 @@ def main() -> None:
         "top_watch_candidates": df[df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "watch"].head(10).to_dict(orient="records"),
         "kill_candidates": df[df.get("status", pd.Series(dtype=object)).fillna("").astype(str).str.lower() == "kill"].head(10).to_dict(orient="records"),
         "insights": [
-            f"Top candidato atual: {top.get('candidate_id', '--')} com net_ann_return={top.get('net_ann_return')}.",
+            f"Topo live oficial: {top.get('candidate_id', '--')} com net_ann_return={top.get('net_ann_return')}.",
+            f"Topo historico do leaderboard: {historical_top.get('candidate_id', '--')} com net_ann_return={historical_top.get('net_ann_return')}.",
             f"Melhor fora da amostra: {oos_best.get('candidate_id', '--')} com media de teste={oos_best.get('mean_test_net_ann_return')}.",
             f"Metodologias mais recorrentes: {dict(methodology_counts.most_common(5))}.",
         ],
