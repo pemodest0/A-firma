@@ -1,10 +1,10 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T08:31:07.962265+00:00",
+  "generated_at_utc": "2026-03-14T09:47:12.321890+00:00",
   "reference_data_date": "2026-03-14",
   "site_as_of_date": "2026-03-14",
   "site_lag_days": 0,
-  "operation_generated_at_utc": "2026-03-14T08:30:03.792969+00:00",
+  "operation_generated_at_utc": "2026-03-14T09:46:41.610208+00:00",
   "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
   "total_assets": 853,
   "fresh_assets": 719,
@@ -178,8 +178,8 @@
       "message": "55 ativos periféricos estão velhos o suficiente para revisão ou poda."
     }
   ],
-  "cycle_run_id": "20260314T082552Z",
-  "agent_run_id": "20260314T083038Z",
+  "cycle_run_id": "20260314T094407Z",
+  "agent_run_id": "20260314T094700Z",
   "agent": {
     "agent_id": "daily-data-quality-agent",
     "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",

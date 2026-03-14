@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SEED="${SEED:-23}"
 MAX_ASSETS="${MAX_ASSETS:-80}"
 WITH_HEAVY="${WITH_HEAVY:-0}"
+PUBLISH_MODE="${PUBLISH_MODE:-deploy}"
+SKIP_MASTER="${SKIP_MASTER:-}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
 SUMMARY_OUTROOT="$ROOT/results/ops/agents/daily_publish"
 PYTHON_BIN="${PYTHON_BIN:-}"
@@ -33,6 +35,14 @@ if [[ -z "$PYTHON_BIN" ]]; then
   exit 1
 fi
 
+if [[ -z "$SKIP_MASTER" ]]; then
+  if [[ "$PUBLISH_MODE" == "local" ]]; then
+    SKIP_MASTER="1"
+  else
+    SKIP_MASTER="0"
+  fi
+fi
+
 write_publish_summary() {
   local status="$1"
   mkdir -p "$SUMMARY_OUTROOT/$RUN_ID"
@@ -44,6 +54,8 @@ write_publish_summary() {
   SMOKE_CODE_ENV="$SMOKE_CODE" \
   CURRENT_STEP_ENV="$CURRENT_STEP" \
   LAST_COMPLETED_STEP_ENV="$LAST_COMPLETED_STEP" \
+  PUBLISH_MODE_ENV="$PUBLISH_MODE" \
+  SKIP_MASTER_ENV="$SKIP_MASTER" \
   "$PYTHON_BIN" - <<'PY'
 import json
 import os
@@ -62,6 +74,8 @@ payload = attach_agent_guide(
         "master_code": int(os.environ["MASTER_CODE_ENV"]),
         "deploy_code": int(os.environ["DEPLOY_CODE_ENV"]),
         "smoke_code": int(os.environ["SMOKE_CODE_ENV"]),
+        "publish_mode": os.environ["PUBLISH_MODE_ENV"],
+        "skip_master": os.environ["SKIP_MASTER_ENV"] == "1",
         "failed_step": os.environ["CURRENT_STEP_ENV"] if os.environ["STATUS_ENV"] == "fail" else "",
         "last_completed_step": os.environ["LAST_COMPLETED_STEP_ENV"],
     },
@@ -107,7 +121,9 @@ CURRENT_STEP="prediction_truth"
 "$PYTHON_BIN" scripts/ops/update_prediction_truth_daily.py --run-id "$RUN_ID"
 LAST_COMPLETED_STEP="$CURRENT_STEP"
 CURRENT_STEP="daily_master"
-if [[ "$WITH_HEAVY" == "1" ]]; then
+if [[ "$SKIP_MASTER" == "1" ]]; then
+  echo "[daily_publish] skipping daily_master for this run"
+elif [[ "$WITH_HEAVY" == "1" ]]; then
   "$PYTHON_BIN" scripts/ops/run_daily_master.py --seed "$SEED" --max-assets "$MAX_ASSETS" --run-id "$RUN_ID" --with-heavy || MASTER_CODE=$?
 else
   "$PYTHON_BIN" scripts/ops/run_daily_master.py --seed "$SEED" --max-assets "$MAX_ASSETS" --run-id "$RUN_ID" || MASTER_CODE=$?
@@ -135,7 +151,11 @@ LAST_COMPLETED_STEP="$CURRENT_STEP"
 
 CURRENT_STEP="deploy"
 cd "$ROOT/website-ui"
-npx vercel --prod --yes || DEPLOY_CODE=$?
+if [[ "$PUBLISH_MODE" == "local" ]]; then
+  echo "[daily_publish] local mode: skipping external deploy"
+else
+  npx vercel --prod --yes || DEPLOY_CODE=$?
+fi
 cd "$ROOT"
 LAST_COMPLETED_STEP="$CURRENT_STEP"
 write_publish_summary "ok"

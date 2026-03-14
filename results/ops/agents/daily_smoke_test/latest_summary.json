@@ -1,31 +1,25 @@
 {
-  "status": "fail",
-  "generated_at_utc": "2026-03-14T08:33:44.847246+00:00",
+  "status": "ok",
+  "generated_at_utc": "2026-03-14T09:47:14.330432+00:00",
   "finance_last_date": "2026-03-14",
   "operation_attack_latest_date": "2026-03-13",
   "operation_candidate_id": "criticality_free_energy_attack",
   "registry_candidate_id": "criticality_free_energy_attack",
   "cycle_values": {
-    "operation": "20260314T082552Z",
-    "quality": "20260314T082552Z",
-    "vigilance": "20260314T082552Z",
-    "publish": "20260314T044017Z",
-    "snapshot": "20260314T083337Z"
+    "operation": "20260314T094407Z",
+    "quality": "20260314T094407Z",
+    "vigilance": "20260314T094407Z",
+    "publish": "20260314T094407Z",
+    "snapshot": "20260314T094407Z"
   },
   "http_checks": [],
-  "checks": [
-    {
-      "level": "fail",
-      "code": "cycle_run_mismatch",
-      "message": "Os artefatos do ciclo diário foram publicados com run_ids diferentes."
-    }
-  ],
+  "checks": [],
   "notes": [
     "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
     "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
   ],
-  "cycle_run_id": "20260314T083337Z",
-  "agent_run_id": "20260314T083344Z",
+  "cycle_run_id": "20260314T094407Z",
+  "agent_run_id": "20260314T094714Z",
   "agent": {
     "agent_id": "daily-smoke-test-agent",
     "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",

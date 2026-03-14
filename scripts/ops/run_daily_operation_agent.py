@@ -39,6 +39,32 @@ def _read_json(path: Path) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+def _current_code_revision() -> str:
+    step = _run_step(["git", "rev-parse", "--short", "HEAD"], timeout_sec=10.0)
+    if not step["ok"]:
+        return ""
+    revision = str(step["stdout"] or "").strip().splitlines()[-1].strip()
+    dirty = _run_step(["git", "status", "--short"], timeout_sec=10.0)
+    if dirty["ok"] and str(dirty.get("stdout") or "").strip():
+        revision = f"{revision}-dirty"
+    return revision
+
+
+def _latest_ingestion_as_of_date() -> str:
+    latest = _read_json(ROOT / "results" / "ops" / "agents" / "daily_ingestion" / "latest_summary.json")
+    return str(latest.get("max_latest_date") or "").strip()
+
+
+def _parse_date(text: Any):
+    raw = str(text or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw).date()
+    except ValueError:
+        return None
+
+
 def _write_official_structural_regime(*, operation: dict[str, Any], official: dict[str, Any]) -> dict[str, Any]:
     payload = {
         "status": "ok",
@@ -193,6 +219,17 @@ def _run_step(cmd: list[str], *, timeout_sec: float) -> dict[str, Any]:
     }
 
 
+def _can_reuse_latest_operation(latest: dict[str, Any], *, inputs_as_of_date: str, code_revision: str) -> bool:
+    if not latest:
+        return False
+    if str(latest.get("status") or "").strip().lower() != "ok":
+        return False
+    prev_inputs = str(latest.get("inputs_as_of_date") or "").strip()
+    prev_revision = str(latest.get("code_revision") or "").strip()
+    attack = latest.get("mode_attack")
+    return bool(prev_inputs and prev_revision and attack and prev_inputs == inputs_as_of_date and prev_revision == code_revision)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Agente diario de operacao do motor de lucro.")
     ap.add_argument("--crypto-asset-groups", default="data/asset_groups_crypto_top_liquid_plus.csv")
@@ -204,6 +241,8 @@ def main() -> None:
     ap.add_argument("--benchmark-equity", default="SPY")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_operation")
     ap.add_argument("--cycle-run-id", default="")
+    ap.add_argument("--reuse-if-fresh", action="store_true", default=True)
+    ap.add_argument("--no-reuse-if-fresh", dest="reuse_if_fresh", action="store_false")
     args = ap.parse_args()
     agent_run_id = utc_run_id()
     cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
@@ -211,36 +250,53 @@ def main() -> None:
     outdir = (ROOT / args.outdir_root / agent_run_id).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    official = build_official_mode_allocations(
-        prices_dir=(ROOT / args.prices_dir).resolve(),
-        crypto_groups=(ROOT / args.crypto_asset_groups).resolve(),
-        crypto_meta=(ROOT / args.crypto_asset_metadata).resolve(),
-        equity_groups=(ROOT / args.equity_asset_groups).resolve(),
-        equity_meta=(ROOT / args.equity_asset_metadata).resolve(),
-        benchmark_crypto=str(args.benchmark_crypto),
-        benchmark_equity=str(args.benchmark_equity),
+    inputs_as_of_date = _latest_ingestion_as_of_date()
+    code_revision = _current_code_revision()
+    latest_dir = (ROOT / args.outdir_root).resolve()
+    previous_operation = _read_json(latest_dir / "latest_summary.json")
+    reused_previous = bool(
+        args.reuse_if_fresh and _can_reuse_latest_operation(previous_operation, inputs_as_of_date=inputs_as_of_date, code_revision=code_revision)
     )
-    built = official["built"]
 
-    operation = {
-        "status": "ok",
-        "generated_at_utc": utc_now_iso(),
-        "mode_attack": _mode_payload(label="Modo ataque", allocation=official["official_attack"]),
-        "mode_main": _mode_payload(label="Modo principal", allocation=official["official_main"]),
-        "mode_attack_guard": _mode_payload(label="Modo ataque com guarda", allocation=official["official_attack_guard"]),
-        "mode_main_guard": _mode_payload(label="Modo principal com guarda", allocation=official["official_main_guard"]),
-        "artifacts": {
-            "prices_dir": str((ROOT / args.prices_dir).resolve()),
-            "crypto_asset_groups": str((ROOT / args.crypto_asset_groups).resolve()),
-            "equity_asset_groups": str((ROOT / args.equity_asset_groups).resolve()),
-        },
-    }
-    operation["current_posture"] = {
-        "mode_attack": _posture_payload(operation["mode_attack"]),
-        "mode_main": _posture_payload(operation["mode_main"]),
-        "mode_attack_guard": _posture_payload(operation["mode_attack_guard"]),
-        "mode_main_guard": _posture_payload(operation["mode_main_guard"]),
-    }
+    official: dict[str, Any] = {}
+    if reused_previous:
+        operation = dict(previous_operation)
+        operation["status"] = "ok"
+        operation["generated_at_utc"] = utc_now_iso()
+        operation["reuse_reason"] = "same_inputs_and_code_revision"
+        operation["reused_previous_operation"] = True
+    else:
+        official = build_official_mode_allocations(
+            prices_dir=(ROOT / args.prices_dir).resolve(),
+            crypto_groups=(ROOT / args.crypto_asset_groups).resolve(),
+            crypto_meta=(ROOT / args.crypto_asset_metadata).resolve(),
+            equity_groups=(ROOT / args.equity_asset_groups).resolve(),
+            equity_meta=(ROOT / args.equity_asset_metadata).resolve(),
+            benchmark_crypto=str(args.benchmark_crypto),
+            benchmark_equity=str(args.benchmark_equity),
+        )
+        built = official["built"]
+
+        operation = {
+            "status": "ok",
+            "generated_at_utc": utc_now_iso(),
+            "mode_attack": _mode_payload(label="Modo ataque", allocation=official["official_attack"]),
+            "mode_main": _mode_payload(label="Modo principal", allocation=official["official_main"]),
+            "mode_attack_guard": _mode_payload(label="Modo ataque com guarda", allocation=official["official_attack_guard"]),
+            "mode_main_guard": _mode_payload(label="Modo principal com guarda", allocation=official["official_main_guard"]),
+            "artifacts": {
+                "prices_dir": str((ROOT / args.prices_dir).resolve()),
+                "crypto_asset_groups": str((ROOT / args.crypto_asset_groups).resolve()),
+                "equity_asset_groups": str((ROOT / args.equity_asset_groups).resolve()),
+            },
+            "reused_previous_operation": False,
+        }
+        operation["current_posture"] = {
+            "mode_attack": _posture_payload(operation["mode_attack"]),
+            "mode_main": _posture_payload(operation["mode_main"]),
+            "mode_attack_guard": _posture_payload(operation["mode_attack_guard"]),
+            "mode_main_guard": _posture_payload(operation["mode_main_guard"]),
+        }
 
     finance_ready = _finance_ready_details()
     vigilance = _read_json(ROOT / "results" / "ops" / "agents" / "daily_vigilance" / "latest_summary.json")
@@ -264,7 +320,8 @@ def main() -> None:
     )
     operation["mode_confidence"] = mode_confidence.to_dict()
     operation["validation_metrics_source"] = validation_metrics
-    operation["official_structural_regime"] = official.get("official_structural_now") if isinstance(official.get("official_structural_now"), dict) else {}
+    if not reused_previous:
+        operation["official_structural_regime"] = official.get("official_structural_now") if isinstance(official.get("official_structural_now"), dict) else {}
     operation["recommended_live_mode"] = {
         "mode": mode_confidence.recommended_mode,
         "label": "Modo ataque" if mode_confidence.recommended_mode == "ataque" else "Modo principal com guarda",
@@ -286,14 +343,18 @@ def main() -> None:
         "site_snapshot": snapshot_step,
     }
     operation["publish_ready"] = bool(registry_step["ok"] and data_quality_step["ok"] and snapshot_step["ok"])
+    operation["inputs_as_of_date"] = inputs_as_of_date
+    operation["code_revision"] = code_revision
     operation = attach_agent_guide(
         attach_cycle_context(operation, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id),
         "daily-operation-agent",
     )
-    operation["official_structural_regime_artifact"] = _write_official_structural_regime(operation=operation, official=official)
+    if not reused_previous:
+        operation["official_structural_regime_artifact"] = _write_official_structural_regime(operation=operation, official=official)
+    else:
+        operation["official_structural_regime_artifact"] = previous_operation.get("official_structural_regime_artifact", {})
 
     _write_json(outdir / "summary.json", operation)
-    latest_dir = (ROOT / args.outdir_root).resolve()
     _write_json(latest_dir / "latest_summary.json", operation)
     _write_json(latest_dir / "latest_operation.json", operation)
     print(json.dumps(operation, ensure_ascii=False))

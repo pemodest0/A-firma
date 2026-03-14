@@ -101,6 +101,16 @@ def _fragility_decile_scale(liquidation: pd.Series, *, window: int = 126) -> pd.
     return scale
 
 
+def _fragility_bridge_weight(liquidation: pd.Series, *, window: int = 126) -> pd.Series:
+    liq = pd.to_numeric(liquidation, errors="coerce").fillna(0.0).clip(0.0, 1.0).astype(float)
+    pct = _rolling_percentile(liq, int(window)).fillna(0.5) if int(window) >= 10 else liq.rank(pct=True).fillna(0.5)
+    weight = pd.Series(1.0, index=liq.index, dtype=float)
+    weight.loc[pct >= 0.85] = 0.80
+    weight.loc[pct >= 0.93] = 0.55
+    weight.loc[pct >= 0.98] = 0.30
+    return weight.clip(0.0, 1.0)
+
+
 def _profit_lock_scale(net_ret: pd.Series) -> pd.Series:
     idx = net_ret.index
     scale = pd.Series(1.0, index=idx, dtype=float)
@@ -227,7 +237,7 @@ def main() -> None:
         criticality=criticality,
     )
 
-    liquidation = pd.to_numeric(context["exogenous_panel"].get("liquidation"), errors="coerce").reindex(champion_weight.index).fillna(0.0)
+    liquidation = pd.to_numeric(context["exogenous_panel"].get("liquidation"), errors="coerce").reindex(champion_weight.index).shift(1).fillna(0.0)
     fragility_weight = (champion_weight * _fragility_decile_scale(liquidation)).clip(0.0, 1.0)
     fragility_bundle = _blend_allocation_bundles(
         candidate_id="champion_fragility_decile",
@@ -235,6 +245,13 @@ def main() -> None:
         attack_alloc=attack_alloc,
         protect_alloc=protect_alloc,
         attack_weight=fragility_weight,
+    )
+    fragility_bridge_bundle = _blend_allocation_bundles(
+        candidate_id="champion_fragility_u800_bridge",
+        notes="usa o campeao na maior parte do tempo, mas encosta no apoio do universo 800 quando a fragilidade do cripto entra no pior bloco",
+        attack_alloc=champion_bundle,
+        protect_alloc=u800_bundle,
+        attack_weight=_fragility_bridge_weight(liquidation),
     )
 
     profit_lock_weight = (champion_weight * _profit_lock_scale(champion_bundle.bundle.result.net_ret)).clip(0.0, 1.0)
@@ -250,6 +267,7 @@ def main() -> None:
         champion_bundle.bundle.result.candidate_id: champion_bundle.bundle.result,
         u800_bundle.bundle.result.candidate_id: u800_bundle.bundle.result,
         fragility_bundle.bundle.result.candidate_id: fragility_bundle.bundle.result,
+        fragility_bridge_bundle.bundle.result.candidate_id: fragility_bridge_bundle.bundle.result,
         profit_lock_bundle.bundle.result.candidate_id: profit_lock_bundle.bundle.result,
     }
 
@@ -283,6 +301,7 @@ def main() -> None:
         _research_row(champion_bundle.bundle.result, outdir=outdir, status="keep", methodology="criticality_plus_free_energy", label="Campeão atual"),
         _research_row(u800_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_u800_support", label="Campeao com apoio das acoes do universo 800"),
         _research_row(fragility_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_fragility_decile", label="Campeao com redutor so no pior decil de fragilidade"),
+        _research_row(fragility_bridge_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_fragility_u800_bridge", label="Campeao com ponte para o universo 800 sob fragilidade"),
         _research_row(profit_lock_bundle.bundle.result, outdir=outdir, status="watch", methodology="champion_profit_lock_partial", label="Campeao com trava parcial de lucro"),
     ]
     _write_json(outdir / "profit_research_rows.json", research_rows)
