@@ -1,16 +1,16 @@
 {
   "status": "warn",
-  "generated_at_utc": "2026-03-14T00:27:31.236929+00:00",
+  "generated_at_utc": "2026-03-14T00:38:33.305050+00:00",
   "reference_data_date": "2026-03-13",
   "site_as_of_date": "2026-03-13",
   "site_lag_days": 0,
-  "operation_generated_at_utc": "2026-03-13T23:10:10.156902+00:00",
+  "operation_generated_at_utc": "2026-03-14T00:35:54.639751+00:00",
   "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
   "total_assets": 853,
-  "fresh_assets": 693,
-  "stale_assets": 160,
+  "fresh_assets": 720,
+  "stale_assets": 133,
   "critical_stale_assets": 0,
-  "core_stale_assets": 28,
+  "core_stale_assets": 1,
   "peripheral_stale_assets": 132,
   "prune_candidate_count": 54,
   "sample_critical_stale": [],
@@ -19,120 +19,6 @@
       "ticker": "ZD",
       "latest_date": "2026-02-12",
       "stale_days": 29,
-      "role": "core"
-    },
-    {
-      "ticker": "LREN3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "MRVE3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "MULT3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "PCAR3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "PRIO3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "RADL3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "RAIL3.SA",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "XOP",
-      "latest_date": "2026-03-02",
-      "stale_days": 11,
-      "role": "core"
-    },
-    {
-      "ticker": "STAG",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "STX",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "SU",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TAP",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TD",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TEL",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TIGO",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TLK",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TM",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TRP",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
-      "role": "core"
-    },
-    {
-      "ticker": "TSCO",
-      "latest_date": "2026-03-05",
-      "stale_days": 8,
       "role": "core"
     }
   ],
@@ -275,7 +161,7 @@
     {
       "level": "warn",
       "code": "core_assets_stale",
-      "message": "28 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+      "message": "1 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
     },
     {
       "level": "info",

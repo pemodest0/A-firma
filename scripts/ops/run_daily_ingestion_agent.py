@@ -43,6 +43,36 @@ CRITICAL_FALLBACK_TICKERS = {
     "VALE3.SA",
     "ITUB4.SA",
 }
+CORE_FALLBACK_TICKERS = {
+    "LREN3.SA",
+    "MRVE3.SA",
+    "MULT3.SA",
+    "PCAR3.SA",
+    "PRIO3.SA",
+    "RADL3.SA",
+    "RAIL3.SA",
+    "STAG",
+    "STX",
+    "SU",
+    "TAP",
+    "TD",
+    "TEL",
+    "TIGO",
+    "TLK",
+    "TM",
+    "TRP",
+    "TSCO",
+    "TSM",
+    "TT",
+    "TTE",
+    "TU",
+    "UBS",
+    "ULTA",
+    "WCN",
+    "WPM",
+    "XOP",
+}
+REMOTE_FALLBACK_TICKERS = CRITICAL_FALLBACK_TICKERS | CORE_FALLBACK_TICKERS
 
 
 @dataclass
@@ -115,7 +145,7 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
         start = start_dt.date().isoformat()
         stale_days = max((datetime.now(timezone.utc).date() - datetime.fromisoformat(previous_last_date).date()).days, 0)
 
-    allow_yfinance = ticker in CRITICAL_FALLBACK_TICKERS
+    allow_yfinance = ticker in REMOTE_FALLBACK_TICKERS
 
     fetched, provider = fetch_market_data(ticker, start=start, end=None, allow_yfinance=allow_yfinance)
     if fetched is None or fetched.empty:
