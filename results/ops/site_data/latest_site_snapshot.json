@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-13T23:52:18.143148+00:00",
+  "generated_at_utc": "2026-03-14T00:27:15.855624+00:00",
   "as_of_date": "2026-03-13",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
@@ -429,141 +429,20 @@
     },
     "daily_data_quality": {
       "status": "warn",
-      "generated_at_utc": "2026-03-13T23:52:09.429324+00:00",
+      "generated_at_utc": "2026-03-14T00:24:17.717574+00:00",
       "reference_data_date": "2026-03-13",
       "site_as_of_date": "2026-03-13",
       "site_lag_days": 0,
       "operation_generated_at_utc": "2026-03-13T23:10:10.156902+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "total_assets": 853,
-      "fresh_assets": 669,
-      "stale_assets": 184,
-      "critical_stale_assets": 23,
-      "core_stale_assets": 29,
+      "fresh_assets": 693,
+      "stale_assets": 160,
+      "critical_stale_assets": 0,
+      "core_stale_assets": 28,
       "peripheral_stale_assets": 132,
       "prune_candidate_count": 54,
-      "sample_critical_stale": [
-        {
-          "ticker": "MATIC-USD",
-          "latest_date": "2025-03-24",
-          "stale_days": 354,
-          "role": "critical"
-        },
-        {
-          "ticker": "LQD",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "QQQ",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "RSP",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "SHY",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "SLV",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "SPY",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "USO",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "VT",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "VTI",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLB",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLE",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLF",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLI",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLK",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLP",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLRE",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLU",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLV",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        },
-        {
-          "ticker": "XLY",
-          "latest_date": "2026-03-02",
-          "stale_days": 11,
-          "role": "critical"
-        }
-      ],
+      "sample_critical_stale": [],
       "sample_core_stale": [
         {
           "ticker": "ZD",
@@ -824,13 +703,8 @@
       "alerts": [
         {
           "level": "warn",
-          "code": "critical_assets_stale",
-          "message": "23 ativos críticos estão atrasados frente à data-base mais nova."
-        },
-        {
-          "level": "warn",
           "code": "core_assets_stale",
-          "message": "29 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+          "message": "28 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
         },
         {
           "level": "info",
@@ -1657,20 +1531,15 @@
     ],
     "quality_status": "warn",
     "quality_reference_date": "2026-03-13",
-    "quality_critical_stale_assets": 23,
-    "quality_core_stale_assets": 29,
+    "quality_critical_stale_assets": 0,
+    "quality_core_stale_assets": 28,
     "quality_peripheral_stale_assets": 132,
     "quality_prune_candidate_count": 54,
     "quality_alerts": [
       {
         "level": "warn",
-        "code": "critical_assets_stale",
-        "message": "23 ativos críticos estão atrasados frente à data-base mais nova."
-      },
-      {
-        "level": "warn",
         "code": "core_assets_stale",
-        "message": "29 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+        "message": "28 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
       },
       {
         "level": "info",
@@ -1678,128 +1547,7 @@
         "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
       }
     ],
-    "quality_sample_critical_stale": [
-      {
-        "ticker": "MATIC-USD",
-        "latest_date": "2025-03-24",
-        "stale_days": 354,
-        "role": "critical"
-      },
-      {
-        "ticker": "LQD",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "QQQ",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "RSP",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "SHY",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "SLV",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "SPY",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "USO",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "VT",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "VTI",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLB",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLE",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLF",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLI",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLK",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLP",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLRE",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLU",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLV",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      },
-      {
-        "ticker": "XLY",
-        "latest_date": "2026-03-02",
-        "stale_days": 11,
-        "role": "critical"
-      }
-    ],
+    "quality_sample_critical_stale": [],
     "quality_sample_prune_candidates": [
       {
         "ticker": "SOJD",

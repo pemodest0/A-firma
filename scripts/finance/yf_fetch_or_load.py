@@ -21,53 +21,55 @@ COINGECKO_URL_TEMPLATE = (
 )
 
 CRYPTO_BINANCE_MAP = {
-    "BTC-USD": "BTCUSDT",
-    "ETH-USD": "ETHUSDT",
-    "SOL-USD": "SOLUSDT",
-    "XRP-USD": "XRPUSDT",
-    "BNB-USD": "BNBUSDT",
-    "ADA-USD": "ADAUSDT",
-    "DOGE-USD": "DOGEUSDT",
-    "LINK-USD": "LINKUSDT",
-    "AVAX-USD": "AVAXUSDT",
-    "MATIC-USD": "MATICUSDT",
-    "DOT-USD": "DOTUSDT",
-    "LTC-USD": "LTCUSDT",
-    "BCH-USD": "BCHUSDT",
-    "ETC-USD": "ETCUSDT",
-    "ATOM-USD": "ATOMUSDT",
-    "TRX-USD": "TRXUSDT",
-    "XLM-USD": "XLMUSDT",
-    "FIL-USD": "FILUSDT",
-    "ALGO-USD": "ALGOUSDT",
-    "ICP-USD": "ICPUSDT",
-    "NEAR-USD": "NEARUSDT",
-    "APT-USD": "APTUSDT",
+    "BTC-USD": ["BTCUSDT"],
+    "ETH-USD": ["ETHUSDT"],
+    "SOL-USD": ["SOLUSDT"],
+    "XRP-USD": ["XRPUSDT"],
+    "BNB-USD": ["BNBUSDT"],
+    "ADA-USD": ["ADAUSDT"],
+    "DOGE-USD": ["DOGEUSDT"],
+    "LINK-USD": ["LINKUSDT"],
+    "AVAX-USD": ["AVAXUSDT"],
+    # Binance migrou a liquidez principal de Polygon para POL; mantemos o alias antigo
+    # para não deixar o histórico de MATIC travado se o símbolo legado desaparecer.
+    "MATIC-USD": ["MATICUSDT", "POLUSDT"],
+    "DOT-USD": ["DOTUSDT"],
+    "LTC-USD": ["LTCUSDT"],
+    "BCH-USD": ["BCHUSDT"],
+    "ETC-USD": ["ETCUSDT"],
+    "ATOM-USD": ["ATOMUSDT"],
+    "TRX-USD": ["TRXUSDT"],
+    "XLM-USD": ["XLMUSDT"],
+    "FIL-USD": ["FILUSDT"],
+    "ALGO-USD": ["ALGOUSDT"],
+    "ICP-USD": ["ICPUSDT"],
+    "NEAR-USD": ["NEARUSDT"],
+    "APT-USD": ["APTUSDT"],
 }
 
 CRYPTO_COINGECKO_MAP = {
-    "BTC-USD": "bitcoin",
-    "ETH-USD": "ethereum",
-    "SOL-USD": "solana",
-    "XRP-USD": "ripple",
-    "BNB-USD": "binancecoin",
-    "ADA-USD": "cardano",
-    "DOGE-USD": "dogecoin",
-    "LINK-USD": "chainlink",
-    "AVAX-USD": "avalanche-2",
-    "MATIC-USD": "matic-network",
-    "DOT-USD": "polkadot",
-    "LTC-USD": "litecoin",
-    "BCH-USD": "bitcoin-cash",
-    "ETC-USD": "ethereum-classic",
-    "ATOM-USD": "cosmos",
-    "TRX-USD": "tron",
-    "XLM-USD": "stellar",
-    "FIL-USD": "filecoin",
-    "ALGO-USD": "algorand",
-    "ICP-USD": "internet-computer",
-    "NEAR-USD": "near",
-    "APT-USD": "aptos",
+    "BTC-USD": ["bitcoin"],
+    "ETH-USD": ["ethereum"],
+    "SOL-USD": ["solana"],
+    "XRP-USD": ["ripple"],
+    "BNB-USD": ["binancecoin"],
+    "ADA-USD": ["cardano"],
+    "DOGE-USD": ["dogecoin"],
+    "LINK-USD": ["chainlink"],
+    "AVAX-USD": ["avalanche-2"],
+    "MATIC-USD": ["matic-network", "polygon-ecosystem-token"],
+    "DOT-USD": ["polkadot"],
+    "LTC-USD": ["litecoin"],
+    "BCH-USD": ["bitcoin-cash"],
+    "ETC-USD": ["ethereum-classic"],
+    "ATOM-USD": ["cosmos"],
+    "TRX-USD": ["tron"],
+    "XLM-USD": ["stellar"],
+    "FIL-USD": ["filecoin"],
+    "ALGO-USD": ["algorand"],
+    "ICP-USD": ["internet-computer"],
+    "NEAR-USD": ["near"],
+    "APT-USD": ["aptos"],
 }
 
 
@@ -220,42 +222,44 @@ def fetch_brapi(ticker: str, start: str | None = None, end: str | None = None) -
 
 
 def fetch_binance_crypto(ticker: str, start: str | None = None) -> pd.DataFrame | None:
-    symbol = CRYPTO_BINANCE_MAP.get(ticker.upper())
-    if not symbol:
-        return None
-    txt = _http_get_text(BINANCE_URL_TEMPLATE.format(symbol=symbol, limit=1000))
-    rows = json.loads(txt)
-    if not isinstance(rows, list) or not rows:
-        return None
-    out = pd.DataFrame(
-        {
-            "date": pd.to_datetime([row[0] for row in rows], unit="ms", errors="coerce"),
-            "price": pd.to_numeric([row[4] for row in rows], errors="coerce"),
-        }
-    ).dropna()
-    if start:
-        out = out[out["date"] >= pd.Timestamp(start)]
-    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+    symbols = CRYPTO_BINANCE_MAP.get(ticker.upper()) or []
+    for symbol in symbols:
+        txt = _http_get_text(BINANCE_URL_TEMPLATE.format(symbol=symbol, limit=1000))
+        rows = json.loads(txt)
+        if not isinstance(rows, list) or not rows:
+            continue
+        out = pd.DataFrame(
+            {
+                "date": pd.to_datetime([row[0] for row in rows], unit="ms", errors="coerce"),
+                "price": pd.to_numeric([row[4] for row in rows], errors="coerce"),
+            }
+        ).dropna()
+        if start:
+            out = out[out["date"] >= pd.Timestamp(start)]
+        if not out.empty:
+            return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+    return None
 
 
 def fetch_coingecko_crypto(ticker: str, start: str | None = None, end: str | None = None) -> pd.DataFrame | None:
-    coin_id = CRYPTO_COINGECKO_MAP.get(ticker.upper())
-    if not coin_id:
-        return None
+    coin_ids = CRYPTO_COINGECKO_MAP.get(ticker.upper()) or []
     start_ts = int(pd.Timestamp(start or "2009-01-01").timestamp())
     end_ts = int(pd.Timestamp(end).timestamp()) if end else int(pd.Timestamp.utcnow().timestamp())
-    txt = _http_get_text(COINGECKO_URL_TEMPLATE.format(coin_id=coin_id, start_ts=start_ts, end_ts=end_ts))
-    payload = json.loads(txt)
-    prices = payload.get("prices") or []
-    if not prices:
-        return None
-    out = pd.DataFrame(
-        {
-            "date": pd.to_datetime([row[0] for row in prices], unit="ms", errors="coerce"),
-            "price": pd.to_numeric([row[1] for row in prices], errors="coerce"),
-        }
-    ).dropna()
-    return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+    for coin_id in coin_ids:
+        txt = _http_get_text(COINGECKO_URL_TEMPLATE.format(coin_id=coin_id, start_ts=start_ts, end_ts=end_ts))
+        payload = json.loads(txt)
+        prices = payload.get("prices") or []
+        if not prices:
+            continue
+        out = pd.DataFrame(
+            {
+                "date": pd.to_datetime([row[0] for row in prices], unit="ms", errors="coerce"),
+                "price": pd.to_numeric([row[1] for row in prices], errors="coerce"),
+            }
+        ).dropna()
+        if not out.empty:
+            return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+    return None
 
 
 def fetch_market_data(

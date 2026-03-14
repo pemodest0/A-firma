@@ -18,6 +18,31 @@ from scripts.finance.yf_fetch_or_load import fetch_market_data, load_existing_ba
 
 DEFAULT_PRICES_DIR = ROOT / "data" / "raw" / "finance" / "yfinance_daily"
 RESULTS_ROOT = ROOT / "results" / "ops" / "agents" / "daily_ingestion"
+CRITICAL_FALLBACK_TICKERS = {
+    "SPY",
+    "QQQ",
+    "LQD",
+    "SHY",
+    "RSP",
+    "SLV",
+    "USO",
+    "VT",
+    "VTI",
+    "XLB",
+    "XLE",
+    "XLF",
+    "XLI",
+    "XLK",
+    "XLP",
+    "XLRE",
+    "XLU",
+    "XLV",
+    "XLY",
+    "MATIC-USD",
+    "PETR4.SA",
+    "VALE3.SA",
+    "ITUB4.SA",
+}
 
 
 @dataclass
@@ -84,11 +109,15 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
         )
 
     start = "2009-01-01"
+    stale_days = None
     if previous_last_date:
         start_dt = datetime.fromisoformat(previous_last_date) - timedelta(days=lookback_days)
         start = start_dt.date().isoformat()
+        stale_days = max((datetime.now(timezone.utc).date() - datetime.fromisoformat(previous_last_date).date()).days, 0)
 
-    fetched, provider = fetch_market_data(ticker, start=start, end=None, allow_yfinance=False)
+    allow_yfinance = ticker in CRITICAL_FALLBACK_TICKERS
+
+    fetched, provider = fetch_market_data(ticker, start=start, end=None, allow_yfinance=allow_yfinance)
     if fetched is None or fetched.empty:
         return IngestionResult(
             ticker=ticker,
@@ -136,6 +165,7 @@ def build_summary(
     skip_remote: bool,
     run_id: str,
     max_assets: int,
+    requested_tickers: set[str],
 ) -> dict[str, Any]:
     updated = [r for r in results if r.status == "updated"]
     unchanged = [r for r in results if r.status == "unchanged"]
@@ -214,8 +244,9 @@ def build_summary(
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "prices_dir": str(prices_dir),
         "skip_remote": skip_remote,
-        "limited_scope": bool(max_assets and max_assets > 0),
+        "limited_scope": bool((max_assets and max_assets > 0) or requested_tickers),
         "max_assets": int(max_assets or 0),
+        "requested_tickers": sorted(requested_tickers),
         "attempted_assets": len(results),
         "updated_assets": updated_assets,
         "unchanged_assets": unchanged_assets,
@@ -240,11 +271,15 @@ def main() -> None:
     parser.add_argument("--prices-dir", default=str(DEFAULT_PRICES_DIR))
     parser.add_argument("--lookback-days", type=int, default=45)
     parser.add_argument("--max-assets", type=int, default=0)
+    parser.add_argument("--tickers", default="", help="Lista separada por vírgula para testar tickers específicos.")
     parser.add_argument("--skip-remote", action="store_true")
     args = parser.parse_args()
 
     prices_dir = Path(args.prices_dir)
     csv_paths = sorted(prices_dir.glob("*.csv"))
+    requested_tickers = {item.strip().upper() for item in str(args.tickers or "").split(",") if item.strip()}
+    if requested_tickers:
+        csv_paths = [path for path in csv_paths if path.stem.upper() in requested_tickers]
     if args.max_assets and args.max_assets > 0:
         csv_paths = csv_paths[: args.max_assets]
 
@@ -274,12 +309,15 @@ def main() -> None:
         skip_remote=args.skip_remote,
         run_id=run_id,
         max_assets=args.max_assets,
+        requested_tickers=requested_tickers,
     )
     run_dir = RESULTS_ROOT / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     if not summary.get("limited_scope"):
         (RESULTS_ROOT / "latest_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    else:
+        (RESULTS_ROOT / "latest_partial_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False))
     if summary.get("status") != "ok":
         raise SystemExit(1)

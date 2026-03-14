@@ -102,6 +102,14 @@ def _latest_csv_date(path: Path) -> datetime.date | None:
     return _parse_date(df["date"].dropna().iloc[-1])
 
 
+def _fresh_tolerance_days(ticker: str) -> int:
+    if ticker.endswith(".SA"):
+        return 2
+    if ticker.endswith("-USD"):
+        return 1
+    return 1
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Audita frescor e relevância dos preços usados pelo motor e pelo site.")
     ap.add_argument("--prices-dir", default="data/raw/finance/yfinance_daily")
@@ -140,7 +148,7 @@ def main() -> None:
             role = "critical"
         elif ticker in universe_assets:
             role = "core"
-        if stale_days == 0:
+        if stale_days <= _fresh_tolerance_days(ticker):
             fresh_assets += 1
             continue
         stale_rows.append(
