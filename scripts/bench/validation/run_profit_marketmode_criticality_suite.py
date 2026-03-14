@@ -77,11 +77,26 @@ def _build_structure_inputs(context: dict[str, Any]) -> tuple[pd.DataFrame, dict
     else:
         sector_col = "sector_gics"
     equity_assets[sector_col] = equity_assets[sector_col].fillna("unknown").astype(str)
+    coverage = equity_returns.notna().sum(axis=0)
+    trailing_activity = equity_returns.tail(63).abs().mean(axis=0, skipna=True)
+    latest_valid: dict[str, int] = {}
+    for ticker in equity_returns.columns:
+        last_idx = equity_returns[ticker].dropna().index.max()
+        latest_valid[str(ticker)] = int(last_idx.value) if last_idx is not None and pd.notna(last_idx) else -1
     selected_equity: list[str] = []
     sector_map: dict[str, str] = {}
     for sector, sub in equity_assets.groupby(sector_col):
         tickers = sorted(set(sub["ticker"].astype(str)))
-        kept = [ticker for ticker in tickers if ticker in equity_returns.columns][:2]
+        ranked = sorted(
+            [ticker for ticker in tickers if ticker in equity_returns.columns],
+            key=lambda ticker: (
+                -int(coverage.get(ticker, 0)),
+                -int(latest_valid.get(ticker, -1)),
+                -float(pd.to_numeric(trailing_activity.get(ticker), errors="coerce") or 0.0),
+                str(ticker),
+            ),
+        )
+        kept = ranked[:2]
         for ticker in kept:
             selected_equity.append(ticker)
             sector_map[ticker] = str(sector)
@@ -257,9 +272,17 @@ def build_official_mode_allocations(
         0.60 * pd.to_numeric(criticality, errors="coerce").reindex(base_score.index).fillna(0.5)
         + 0.40 * market_mode_share_pct
     ).clip(0.0, 1.0)
+    provisional_weight = _confidence_weight_from_score(criticality_rel_score)
+    provisional_bundle = _blend_allocation_bundles(
+        candidate_id="criticality_free_energy_attack_provisional",
+        notes="bundle provisório para medir turnover real antes da penalidade de reorganização",
+        attack_alloc=attack_alloc,
+        protect_alloc=protect_alloc,
+        attack_weight=provisional_weight,
+    )
     free_rel_score = apply_free_energy_penalty(
         base_score=criticality_rel_score,
-        turnover=attack_alloc.bundle.result.turnover,
+        turnover=provisional_bundle.bundle.result.turnover,
         instability=instability,
         gamma=0.06,
         eta=0.08,
@@ -267,7 +290,7 @@ def build_official_mode_allocations(
     free_rel_weight = _confidence_weight_from_score(free_rel_score)
     free_rel_bundle = _blend_allocation_bundles(
         candidate_id="criticality_free_energy_attack",
-        notes="combina criticidade relativa com penalidade leve de reorganizacao",
+        notes="combina criticidade relativa com penalidade leve de reorganizacao medida no turnover efetivo",
         attack_alloc=attack_alloc,
         protect_alloc=protect_alloc,
         attack_weight=free_rel_weight,

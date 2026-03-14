@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T01:55:12.104097+00:00",
+  "generated_at_utc": "2026-03-14T02:27:50.544992+00:00",
   "mode_attack": {
     "label": "Modo ataque",
     "candidate_id": "criticality_free_energy_attack",
@@ -12,12 +12,12 @@
       "cash": 0.9625
     },
     "gross_exposure": 0.0375,
-    "net_ann_return": 0.418406597135796,
-    "net_total_return": 33.98726005436361,
-    "net_sharpe": 0.824845450774595,
-    "net_max_drawdown": -0.6611720967490289,
-    "avg_turnover_daily": 0.06167157627779945,
-    "notes": "combina criticidade relativa com penalidade leve de reorganizacao"
+    "net_ann_return": 0.39452474928083414,
+    "net_total_return": 28.437872544977914,
+    "net_sharpe": 0.7994112845876574,
+    "net_max_drawdown": -0.6911368102773836,
+    "avg_turnover_daily": 0.0589758095981272,
+    "notes": "combina criticidade relativa com penalidade leve de reorganizacao medida no turnover efetivo"
   },
   "mode_main": {
     "label": "Modo principal",
@@ -48,11 +48,11 @@
       "cash": 0.8125
     },
     "gross_exposure": 0.1875,
-    "net_ann_return": 0.39184864888529125,
-    "net_total_return": 27.868348105695272,
-    "net_sharpe": 0.7946092210977321,
-    "net_max_drawdown": -0.6708939841329624,
-    "avg_turnover_daily": 0.0626818669527897,
+    "net_ann_return": 0.36716387740431955,
+    "net_total_return": 23.064757205466236,
+    "net_sharpe": 0.7682511781803061,
+    "net_max_drawdown": -0.7123720188273154,
+    "avg_turnover_daily": 0.060808378852906755,
     "notes": "reduz a mao quando a criticidade e a concentracao estrutural entram no pior bloco recente"
   },
   "mode_main_guard": {
@@ -66,11 +66,11 @@
       "cash": 1.0
     },
     "gross_exposure": 0.0,
-    "net_ann_return": 0.3334057630187026,
-    "net_total_return": 17.66148564908638,
-    "net_sharpe": 0.870842643847238,
-    "net_max_drawdown": -0.5165749359838177,
-    "avg_turnover_daily": 0.04040187280530628,
+    "net_ann_return": 0.3324463674661544,
+    "net_total_return": 17.525373376044616,
+    "net_sharpe": 0.8692215374059025,
+    "net_max_drawdown": -0.5181024341952021,
+    "avg_turnover_daily": 0.040304330862270775,
     "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
   },
   "artifacts": {
@@ -78,12 +78,34 @@
     "crypto_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_crypto_top_liquid_plus.csv",
     "equity_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_target_800_clean_plus.csv"
   },
+  "current_posture": {
+    "mode_attack": {
+      "posture": "quase_caixa",
+      "gross_exposure": 0.0375,
+      "latest_source": "protect"
+    },
+    "mode_main": {
+      "posture": "quase_caixa",
+      "gross_exposure": 0.0,
+      "latest_source": "cash"
+    },
+    "mode_attack_guard": {
+      "posture": "ataque_parcial",
+      "gross_exposure": 0.1875,
+      "latest_source": "attack"
+    },
+    "mode_main_guard": {
+      "posture": "quase_caixa",
+      "gross_exposure": 0.0,
+      "latest_source": "cash"
+    }
+  },
   "mode_confidence": {
     "recommended_mode": "ataque",
-    "confidence_score": 0.6071948135171749,
+    "confidence_score": 0.6015328814156012,
     "confidence_level": "média",
-    "attack_score": 0.6274361170152021,
-    "protection_score": 0.5449806744400606,
+    "attack_score": 0.6232410571212326,
+    "protection_score": 0.5482403904569586,
     "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
     "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
     "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
@@ -101,8 +123,8 @@
       "pbo_verdict": "provavel_overfit",
       "attack_underperform_prob_63": 0.5626666666666666,
       "attack_top3_retention": 0.2872230995558317,
-      "attack_drawdown_abs": 0.6611720967490289,
-      "protection_drawdown_abs": 0.5165749359838177,
+      "attack_drawdown_abs": 0.6911368102773836,
+      "protection_drawdown_abs": 0.5181024341952021,
       "execution_winner": ""
     }
   },
@@ -110,7 +132,12 @@
     "mode": "ataque",
     "label": "Modo ataque",
     "confidence_level": "média",
-    "confidence_score": 0.6071948135171749
+    "confidence_score": 0.6015328814156012,
+    "current_posture": {
+      "posture": "quase_caixa",
+      "gross_exposure": 0.0375,
+      "latest_source": "protect"
+    }
   },
   "confidence_notes": [
     "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",

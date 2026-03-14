@@ -114,7 +114,6 @@ def _build_promoted_attack_confidence_score(context: dict[str, Any], attack_retu
         pd.Series(context["regime_series"], index=context["regime_series"].index)
         .reindex(idx)
         .ffill()
-        .bfill()
         .fillna("stable")
         .astype(str)
         .str.lower()

@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from engine.structural.run_manifest import write_run_manifest  # noqa: E402
 from execution.cost_model import summarize_return_series  # noqa: E402
 from execution.net_assumptions import NetAssumptionProfile, load_net_assumption_profiles  # noqa: E402
+from scripts.ops.official_structural_regime import load_official_structural_regime_series  # noqa: E402
 from scripts.bench.validation.run_profit_frontier_expansion_suite import (  # noqa: E402
     EQUITY_EXCLUDED,
     StrategyResult,
@@ -50,32 +51,8 @@ class StrategyBundle:
 
 
 def _load_structural_regime_series_local(root: Path) -> pd.Series:
-    impact_paths = sorted(root.glob("results/lab_corr_macro*/**/impact_training_dataset.csv"))
-    if not impact_paths:
-        return pd.Series(dtype=object)
-    frames: list[pd.DataFrame] = []
-    for path in reversed(impact_paths[-12:]):
-        try:
-            df = pd.read_csv(path, usecols=["date", "regime"])
-        except Exception:
-            continue
-        if df.empty:
-            continue
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        df["regime"] = df["regime"].astype(str).str.lower()
-        df = df.dropna(subset=["date", "regime"])
-        if not df.empty:
-            frames.append(df)
-    if not frames:
-        return pd.Series(dtype=object)
-    merged = pd.concat(frames, ignore_index=True)
-    merged["date"] = pd.to_datetime(merged["date"], errors="coerce").dt.normalize()
-    merged = merged.dropna(subset=["date", "regime"])
-    if merged.empty:
-        return pd.Series(dtype=object)
-    mode_series = merged.groupby("date")["regime"].agg(lambda x: x.mode().iloc[0] if not x.mode().empty else x.iloc[-1])
-    mode_series.index = pd.to_datetime(mode_series.index, errors="coerce")
-    return mode_series.sort_index()
+    regime_series, _meta = load_official_structural_regime_series(root, official_window=120)
+    return regime_series
 
 
 def _regime_forward_fill_local(index: pd.Index, regime_series: pd.Series) -> pd.Series:

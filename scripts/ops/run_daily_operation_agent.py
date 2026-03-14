@@ -158,6 +158,26 @@ def _mode_payload(*, label: str, allocation) -> dict[str, Any]:
     }
 
 
+def _posture_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    source = str(payload.get("latest_source") or "").strip().lower()
+    gross = _safe_float(payload.get("gross_exposure")) or 0.0
+    if gross <= 0.05:
+        posture = "quase_caixa"
+    elif source in {"cash", "protect", "equity25", "equity50"}:
+        posture = "defensivo"
+    elif source == "attack" and gross >= 0.75:
+        posture = "ataque_pleno"
+    elif source == "attack":
+        posture = "ataque_parcial"
+    else:
+        posture = "misto"
+    return {
+        "posture": posture,
+        "gross_exposure": gross,
+        "latest_source": source or "cash",
+    }
+
+
 def _run_step(cmd: list[str], *, timeout_sec: float) -> dict[str, Any]:
     proc = subprocess.run(
         cmd,
@@ -214,6 +234,12 @@ def main() -> None:
             "equity_asset_groups": str((ROOT / args.equity_asset_groups).resolve()),
         },
     }
+    operation["current_posture"] = {
+        "mode_attack": _posture_payload(operation["mode_attack"]),
+        "mode_main": _posture_payload(operation["mode_main"]),
+        "mode_attack_guard": _posture_payload(operation["mode_attack_guard"]),
+        "mode_main_guard": _posture_payload(operation["mode_main_guard"]),
+    }
 
     finance_ready = _finance_ready_details()
     vigilance = _read_json(ROOT / "results" / "ops" / "agents" / "daily_vigilance" / "latest_summary.json")
@@ -239,6 +265,7 @@ def main() -> None:
         "label": "Modo ataque" if mode_confidence.recommended_mode == "ataque" else "Modo principal com guarda",
         "confidence_level": mode_confidence.confidence_level,
         "confidence_score": mode_confidence.confidence_score,
+        "current_posture": operation["current_posture"]["mode_attack" if mode_confidence.recommended_mode == "ataque" else "mode_main_guard"],
     }
     operation["confidence_notes"] = [
         "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",

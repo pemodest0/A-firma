@@ -1,10 +1,10 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T01:55:30.096459+00:00",
+  "generated_at_utc": "2026-03-14T02:28:30.707201+00:00",
   "reference_data_date": "2026-03-14",
   "site_as_of_date": "2026-03-14",
   "site_lag_days": 0,
-  "operation_generated_at_utc": "2026-03-14T01:44:26.025731+00:00",
+  "operation_generated_at_utc": "2026-03-14T02:20:51.091335+00:00",
   "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
   "total_assets": 853,
   "fresh_assets": 719,

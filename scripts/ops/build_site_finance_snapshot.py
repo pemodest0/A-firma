@@ -975,6 +975,13 @@ def build_snapshot() -> dict[str, Any]:
             "confidence_score": finance_ready.get("confidence_score"),
             "mode_confidence": operation_confidence,
             "recommended_live_mode": recommended_live_mode,
+            "official_modes": {
+                "mode_attack": operation_agent.get("mode_attack") if isinstance(operation_agent.get("mode_attack"), dict) else {},
+                "mode_main": operation_agent.get("mode_main") if isinstance(operation_agent.get("mode_main"), dict) else {},
+                "mode_attack_guard": operation_agent.get("mode_attack_guard") if isinstance(operation_agent.get("mode_attack_guard"), dict) else {},
+                "mode_main_guard": operation_agent.get("mode_main_guard") if isinstance(operation_agent.get("mode_main_guard"), dict) else {},
+            },
+            "current_posture": operation_agent.get("current_posture") if isinstance(operation_agent.get("current_posture"), dict) else {},
             "lab_run_id": lab_summary.get("run_id"),
             "gate_blocked": gate.get("blocked"),
             "gate_reasons": gate.get("reasons") or [],
@@ -1006,6 +1013,7 @@ def build_snapshot() -> dict[str, Any]:
             "daily_smoke_test": smoke_test_agent,
             "daily_watchdog": watchdog_agent,
         },
+        "daily_operation": operation_agent,
         "automation": {
             "ingestion_status": ingestion_agent.get("status"),
             "backfill_status": backfill_agent.get("status"),
