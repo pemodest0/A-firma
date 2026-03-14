@@ -56,6 +56,18 @@ def _run_dir_order_key(item: tuple[str, Path]) -> tuple[int, str]:
     return (-int("".join(ch for ch in str(run_dir.name) if ch.isdigit()) or "0"), priority)
 
 
+def _regime_series_from_csv(regime_csv: Path) -> pd.Series:
+    df = pd.read_csv(regime_csv, usecols=["date", "regime"])
+    if df.empty:
+        return pd.Series(dtype=object)
+    df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.normalize()
+    df["regime"] = df["regime"].astype(str).str.lower()
+    df = df.dropna(subset=["date", "regime"])
+    if df.empty:
+        return pd.Series(dtype=object)
+    return df.drop_duplicates(subset=["date"], keep="last").set_index("date")["regime"].sort_index().astype(object)
+
+
 def _resolve_regime_csv(run_dir: Path, *, official_window: int) -> Path | None:
     direct = run_dir / f"regime_series_T{int(official_window)}.csv"
     if direct.exists():
@@ -66,11 +78,17 @@ def _resolve_regime_csv(run_dir: Path, *, official_window: int) -> Path | None:
     return None
 
 
+def _live_structural_regime_payload(root: Path) -> dict[str, Any]:
+    payload = _read_json(root / "results" / "ops" / "official_structural_regime" / "latest_structural_regime.json")
+    return payload if isinstance(payload, dict) else {}
+
+
 def load_official_structural_regime_series(
     root: Path,
     *,
     official_window: int = 120,
 ) -> tuple[pd.Series, dict[str, Any]]:
+    candidates: list[tuple[pd.Timestamp, int, str, Path, Path, pd.Series]] = []
     pointer_candidates = sorted(_pointer_run_dirs(root), key=_run_dir_order_key)
     for source, run_dir in pointer_candidates + _fallback_run_dirs(root):
         if not run_dir.exists():
@@ -79,24 +97,47 @@ def load_official_structural_regime_series(
         if regime_csv is None or not regime_csv.exists():
             continue
         try:
-            df = pd.read_csv(regime_csv, usecols=["date", "regime"])
+            series = _regime_series_from_csv(regime_csv)
         except Exception:
             continue
-        if df.empty:
+        if series.empty:
             continue
-        df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.normalize()
-        df["regime"] = df["regime"].astype(str).str.lower()
-        df = df.dropna(subset=["date", "regime"])
-        if df.empty:
+        max_date = pd.to_datetime(series.index.max(), errors="coerce")
+        if pd.isna(max_date):
             continue
-        series = df.drop_duplicates(subset=["date"], keep="last").set_index("date")["regime"].sort_index()
-        return (
-            series.astype(object),
-            {
-                "source": source,
-                "run_dir": str(run_dir),
-                "regime_csv": str(regime_csv),
-                "official_window": int(official_window),
-            },
-        )
-    return pd.Series(dtype=object), {"source": "missing", "official_window": int(official_window)}
+        priority = {
+            "finance_product_ready": 0,
+            "results_lab_corr_latest_release": 1,
+            "public_lab_corr_latest_release": 2,
+            "results_lab_corr_scan": 3,
+        }.get(source, 9)
+        candidates.append((max_date, -priority, source, run_dir, regime_csv, series))
+
+    if not candidates:
+        return pd.Series(dtype=object), {"source": "missing", "official_window": int(official_window)}
+
+    max_date, _, source, run_dir, regime_csv, series = sorted(candidates, key=lambda row: (row[0], row[1]), reverse=True)[0]
+    meta: dict[str, Any] = {
+        "source": source,
+        "run_dir": str(run_dir),
+        "regime_csv": str(regime_csv),
+        "official_window": int(official_window),
+        "base_series_end_date": str(max_date.date()),
+    }
+    live_payload = _live_structural_regime_payload(root)
+    live_date_raw = str(live_payload.get("as_of_date") or "").strip()
+    live_regime = str(live_payload.get("regime") or "").strip().lower()
+    live_date = pd.to_datetime(live_date_raw, errors="coerce") if live_date_raw else pd.NaT
+    if live_regime and not pd.isna(live_date) and live_date.normalize() > max_date.normalize():
+        extension_index = pd.date_range(start=max_date + pd.Timedelta(days=1), end=live_date.normalize(), freq="D")
+        if len(extension_index):
+            extension = pd.Series(live_regime, index=extension_index, dtype=object)
+            series = pd.concat([series, extension]).sort_index()
+            meta.update(
+                {
+                    "live_extension_source": "results/ops/official_structural_regime/latest_structural_regime.json",
+                    "live_extension_end_date": str(live_date.date()),
+                    "live_extension_regime": live_regime,
+                }
+            )
+    return series.astype(object), meta

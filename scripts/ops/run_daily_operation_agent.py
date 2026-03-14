@@ -16,14 +16,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide  # noqa: E402
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id  # noqa: E402
 from engine.portfolio import decide_attack_vs_protection  # noqa: E402
 from scripts.bench.validation.run_profit_marketmode_criticality_suite import (  # noqa: E402
     build_official_mode_allocations,
 )
-
-
-def _run_id() -> str:
-    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -39,6 +36,28 @@ def _read_json(path: Path) -> dict[str, Any]:
     except (OSError, json.JSONDecodeError):
         return {}
     return payload if isinstance(payload, dict) else {}
+
+
+def _write_official_structural_regime(*, operation: dict[str, Any], official: dict[str, Any]) -> dict[str, Any]:
+    payload = {
+        "status": "ok",
+        "generated_at_utc": operation.get("generated_at_utc"),
+        "cycle_run_id": operation.get("cycle_run_id"),
+        "agent_run_id": operation.get("agent_run_id"),
+        "as_of_date": ((official.get("official_structural_now") or {}).get("as_of_date") or ""),
+        "regime": ((official.get("official_structural_now") or {}).get("regime") or ""),
+        "criticality": ((official.get("official_structural_now") or {}).get("criticality")),
+        "structural_stress": ((official.get("official_structural_now") or {}).get("structural_stress")),
+        "market_mode_share_pct": ((official.get("official_structural_now") or {}).get("market_mode_share_pct")),
+        "classification_method": ((official.get("official_structural_now") or {}).get("classification_method") or ""),
+        "base_run_dir": str((((official.get("built") or {}).get("context") or {}).get("structural_regime_meta") or {}).get("run_dir") or ""),
+        "base_regime_source": str((((official.get("built") or {}).get("context") or {}).get("structural_regime_meta") or {}).get("source") or ""),
+    }
+    root = ROOT / "results" / "ops" / "official_structural_regime"
+    run_id = str(operation.get("agent_run_id") or utc_run_id())
+    _write_json(root / run_id / "latest_structural_regime.json", payload)
+    _write_json(root / "latest_structural_regime.json", payload)
+    return payload
 
 
 def _safe_float(value: Any) -> float | None:
@@ -205,9 +224,12 @@ def main() -> None:
     ap.add_argument("--benchmark-crypto", default="BTC-USD")
     ap.add_argument("--benchmark-equity", default="SPY")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_operation")
+    ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
+    agent_run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
-    outdir = (ROOT / args.outdir_root / _run_id()).resolve()
+    outdir = (ROOT / args.outdir_root / agent_run_id).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
     official = build_official_mode_allocations(
@@ -223,7 +245,7 @@ def main() -> None:
 
     operation = {
         "status": "ok",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": utc_now_iso(),
         "mode_attack": _mode_payload(label="Modo ataque", allocation=official["official_attack"]),
         "mode_main": _mode_payload(label="Modo principal", allocation=official["official_main"]),
         "mode_attack_guard": _mode_payload(label="Modo ataque com guarda", allocation=official["official_attack_guard"]),
@@ -260,6 +282,7 @@ def main() -> None:
         execution_winner=_execution_winner_label(execution_summary),
     )
     operation["mode_confidence"] = mode_confidence.to_dict()
+    operation["official_structural_regime"] = official.get("official_structural_now") if isinstance(official.get("official_structural_now"), dict) else {}
     operation["recommended_live_mode"] = {
         "mode": mode_confidence.recommended_mode,
         "label": "Modo ataque" if mode_confidence.recommended_mode == "ataque" else "Modo principal com guarda",
@@ -273,15 +296,19 @@ def main() -> None:
     ]
 
     registry_step = _run_step([sys.executable, "scripts/ops/build_profit_research_registry.py"], timeout_sec=1200.0)
-    data_quality_step = _run_step([sys.executable, "scripts/ops/run_daily_data_quality_agent.py"], timeout_sec=1200.0)
-    snapshot_step = _run_step([sys.executable, "scripts/ops/build_site_finance_snapshot.py"], timeout_sec=1200.0)
+    data_quality_step = _run_step([sys.executable, "scripts/ops/run_daily_data_quality_agent.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
+    snapshot_step = _run_step([sys.executable, "scripts/ops/build_site_finance_snapshot.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
     operation["post_steps"] = {
         "registry": registry_step,
         "data_quality": data_quality_step,
         "site_snapshot": snapshot_step,
     }
     operation["publish_ready"] = bool(registry_step["ok"] and data_quality_step["ok"] and snapshot_step["ok"])
-    operation = attach_agent_guide(operation, "daily-operation-agent")
+    operation = attach_agent_guide(
+        attach_cycle_context(operation, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id),
+        "daily-operation-agent",
+    )
+    operation["official_structural_regime_artifact"] = _write_official_structural_regime(operation=operation, official=official)
 
     _write_json(outdir / "summary.json", operation)
     latest_dir = (ROOT / args.outdir_root).resolve()

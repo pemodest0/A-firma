@@ -1,6 +1,6 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T02:28:46.459354+00:00",
+  "generated_at_utc": "2026-03-14T04:49:49.871118+00:00",
   "retries_attempted": 0,
   "retries": [],
   "checks": [],
@@ -8,6 +8,8 @@
     "O watchdog só faz retry controlado. Ele não substitui o papel dos agentes principais.",
     "Se a falha persistir depois do retry, o estado fica explícito como fail."
   ],
+  "cycle_run_id": "20260314T044017Z",
+  "agent_run_id": "20260314T044949Z",
   "agent": {
     "agent_id": "daily-watchdog-agent",
     "guide_path": "scripts/ops/agent_guides/daily-watchdog-agent.md",

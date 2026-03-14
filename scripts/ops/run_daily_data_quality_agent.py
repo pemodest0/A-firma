@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
 from scripts.ops.data_review_policy import DEFERRED_REVIEW_TICKERS, is_deferred_review_ticker
 
 CRITICAL_TICKERS = {
@@ -124,7 +125,10 @@ def main() -> None:
     ap.add_argument("--site-snapshot", default="results/ops/site_data/latest_site_snapshot.json")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_data_quality")
     ap.add_argument("--prune-stale-days", type=int, default=20)
+    ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
+    agent_run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
     prices_dir = (ROOT / args.prices_dir).resolve()
     ingestion = _read_json((ROOT / args.ingestion_summary).resolve())
@@ -226,9 +230,9 @@ def main() -> None:
     else:
         status = "ok"
 
-    summary = attach_agent_guide({
+    summary = attach_agent_guide(attach_cycle_context({
         "status": status,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": utc_now_iso(),
         "reference_data_date": reference_date.isoformat(),
         "site_as_of_date": site_as_of_date.isoformat() if site_as_of_date else "",
         "site_lag_days": site_lag_days,
@@ -253,10 +257,10 @@ def main() -> None:
             "Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.",
         ],
         "alerts": alerts,
-    }, "daily-data-quality-agent")
+    }, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id), "daily-data-quality-agent")
 
     outroot = (ROOT / args.outdir_root).resolve()
-    ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts_dir = outroot / agent_run_id
     _write_json(ts_dir / "summary.json", summary)
     _write_json(outroot / "latest_summary.json", summary)
     _write_json(outroot / "latest_data_quality.json", summary)

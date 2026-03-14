@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -42,6 +43,16 @@ def _parse_date(text: Any):
         return None
 
 
+def _parse_dt(text: Any):
+    raw = str(text or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 def _push(checks: list[dict[str, Any]], *, level: str, code: str, message: str) -> None:
     checks.append({"level": str(level), "code": str(code), "message": str(message)})
 
@@ -60,15 +71,22 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Smoke test diário de artefatos operacionais e snapshot do site.")
     ap.add_argument("--operation-summary", default="results/ops/agents/daily_operation/latest_summary.json")
     ap.add_argument("--quality-summary", default="results/ops/agents/daily_data_quality/latest_summary.json")
+    ap.add_argument("--vigilance-summary", default="results/ops/agents/daily_vigilance/latest_summary.json")
+    ap.add_argument("--publish-summary", default="results/ops/agents/daily_publish/latest_summary.json")
     ap.add_argument("--site-snapshot", default="results/ops/site_data/latest_site_snapshot.json")
     ap.add_argument("--public-site-snapshot", default="website-ui/public/data/site/latest_site_snapshot.json")
     ap.add_argument("--profit-registry", default="results/ops/profit_research/latest_registry.json")
     ap.add_argument("--base-url", default="")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_smoke_test")
+    ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
+    agent_run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
     operation = _read_json((ROOT / args.operation_summary).resolve())
     quality = _read_json((ROOT / args.quality_summary).resolve())
+    vigilance = _read_json((ROOT / args.vigilance_summary).resolve())
+    publish = _read_json((ROOT / args.publish_summary).resolve())
     snapshot = _read_json((ROOT / args.site_snapshot).resolve())
     public_snapshot = _read_json((ROOT / args.public_site_snapshot).resolve())
     registry = _read_json((ROOT / args.profit_registry).resolve())
@@ -91,6 +109,22 @@ def main() -> None:
             _push(checks, level="warn", code="snapshot_quality_mismatch", message="Snapshot interno e público divergiram na leitura de qualidade.")
     if not operation:
         _push(checks, level="fail", code="operation_missing", message="Resumo operacional ausente.")
+    if not vigilance:
+        _push(checks, level="fail", code="vigilance_missing", message="Resumo de vigilância ausente.")
+    if not publish:
+        _push(checks, level="fail", code="publish_missing", message="Resumo do publish diário ausente.")
+    elif str(publish.get("status") or "").lower() != "ok":
+        _push(checks, level="fail", code="publish_failed", message="O publish diário não fechou com status ok.")
+    cycle_values = {
+        "operation": str(operation.get("cycle_run_id") or "").strip(),
+        "quality": str(quality.get("cycle_run_id") or "").strip(),
+        "vigilance": str(vigilance.get("cycle_run_id") or "").strip(),
+        "publish": str(publish.get("cycle_run_id") or "").strip(),
+        "snapshot": str(snapshot.get("cycle_run_id") or "").strip(),
+    }
+    distinct_cycles = sorted({value for value in cycle_values.values() if value})
+    if len(distinct_cycles) > 1:
+        _push(checks, level="fail", code="cycle_run_mismatch", message="Os artefatos do ciclo diário foram publicados com run_ids diferentes.")
     if op_candidate and reg_candidate and op_candidate != reg_candidate:
         _push(checks, level="fail", code="candidate_mismatch", message="Modo ataque operacional divergiu do campeão registrado.")
     if finance_last and attack_latest:
@@ -100,6 +134,10 @@ def main() -> None:
             lag = max((finance_dt - attack_dt).days, 0)
             if lag > 3:
                 _push(checks, level="warn", code="operation_attack_stale", message=f"O modo ataque ficou {lag} dias atrás da base publicada.")
+    op_generated = _parse_dt(operation.get("generated_at_utc"))
+    vig_generated = _parse_dt(vigilance.get("generated_at_utc"))
+    if op_generated and vig_generated and vig_generated < op_generated:
+        _push(checks, level="warn", code="vigilance_older_than_operation", message="A vigilância diária está mais velha que a leitura operacional.")
     if int(quality.get("critical_stale_assets") or 0) > 0:
         _push(checks, level="fail", code="critical_assets_stale", message="Ainda há ativos críticos atrasados após o fechamento diário.")
     if int(quality.get("core_stale_assets") or 0) > 0:
@@ -123,25 +161,26 @@ def main() -> None:
         status = "warn"
 
     summary = attach_agent_guide(
-        {
+        attach_cycle_context({
             "status": status,
-            "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+            "generated_at_utc": utc_now_iso(),
             "finance_last_date": finance_last,
             "operation_attack_latest_date": attack_latest,
             "operation_candidate_id": op_candidate,
             "registry_candidate_id": reg_candidate,
+            "cycle_values": cycle_values,
             "http_checks": http_checks,
             "checks": checks,
             "notes": [
                 "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
                 "Smoke HTTP só roda quando uma base URL é fornecida explicitamente.",
             ],
-        },
+        }, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id),
         "daily-smoke-test-agent",
     )
 
     outroot = (ROOT / args.outdir_root).resolve()
-    ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts_dir = outroot / agent_run_id
     _write_json(ts_dir / "summary.json", summary)
     _write_json(outroot / "latest_summary.json", summary)
     _write_json(outroot / "latest_smoke_test.json", summary)

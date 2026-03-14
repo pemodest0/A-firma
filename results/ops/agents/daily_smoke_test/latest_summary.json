@@ -1,16 +1,25 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T02:28:46.809341+00:00",
+  "generated_at_utc": "2026-03-14T04:49:01.789728+00:00",
   "finance_last_date": "2026-03-14",
   "operation_attack_latest_date": "2026-03-13",
   "operation_candidate_id": "criticality_free_energy_attack",
   "registry_candidate_id": "criticality_free_energy_attack",
+  "cycle_values": {
+    "operation": "20260314T044017Z",
+    "quality": "20260314T044017Z",
+    "vigilance": "20260314T044017Z",
+    "publish": "20260314T044017Z",
+    "snapshot": "20260314T044017Z"
+  },
   "http_checks": [],
   "checks": [],
   "notes": [
     "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
     "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
   ],
+  "cycle_run_id": "20260314T044017Z",
+  "agent_run_id": "20260314T044901Z",
   "agent": {
     "agent_id": "daily-smoke-test-agent",
     "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",

@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
 from scripts.ops.data_review_policy import DEFERRED_REVIEW_TICKERS
 from scripts.ops.run_daily_ingestion_agent import REMOTE_FALLBACK_TICKERS
 from scripts.ops.run_daily_data_quality_agent import (
@@ -113,7 +114,10 @@ def main() -> None:
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_backfill")
     ap.add_argument("--chunk-size", type=int, default=25)
     ap.add_argument("--max-targets", type=int, default=80)
+    ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
+    agent_run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
     prices_dir = (ROOT / args.prices_dir).resolve()
     ingestion = _read_json((ROOT / args.ingestion_summary).resolve())
@@ -131,7 +135,14 @@ def main() -> None:
 
     for chunk in _chunked(targeted_tickers, max(1, int(args.chunk_size))):
         step = _run_step(
-            [sys.executable, "scripts/ops/run_daily_ingestion_agent.py", "--tickers", ",".join(chunk)],
+            [
+                sys.executable,
+                "scripts/ops/run_daily_ingestion_agent.py",
+                "--tickers",
+                ",".join(chunk),
+                "--cycle-run-id",
+                cycle_run_id,
+            ],
             timeout_sec=1800.0,
         )
         retry_runs.append(step)
@@ -143,8 +154,8 @@ def main() -> None:
         if not step["ok"]:
             unresolved_targets.extend(chunk)
 
-    quality_step = _run_step([sys.executable, "scripts/ops/run_daily_data_quality_agent.py"], timeout_sec=1200.0)
-    snapshot_step = _run_step([sys.executable, "scripts/ops/build_site_finance_snapshot.py"], timeout_sec=1200.0)
+    quality_step = _run_step([sys.executable, "scripts/ops/run_daily_data_quality_agent.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
+    snapshot_step = _run_step([sys.executable, "scripts/ops/build_site_finance_snapshot.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
     quality_after = quality_step.get("parsed") if isinstance(quality_step.get("parsed"), dict) else {}
 
     alerts: list[dict[str, str]] = []
@@ -180,9 +191,9 @@ def main() -> None:
         status = "warn"
 
     summary = attach_agent_guide(
-        {
+        attach_cycle_context({
             "status": status,
-            "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+            "generated_at_utc": utc_now_iso(),
             "reference_data_date": reference_date.isoformat(),
             "targeted_assets": len(targeted_tickers),
             "updated_assets": updated_assets,
@@ -207,12 +218,12 @@ def main() -> None:
                 "Este agente não substitui a ingestão principal; ele só reconcilia o que ficou para trás.",
                 "Ativos marcados para revisão ficam fora do retry automático para não reintroduzir ruído no núcleo.",
             ],
-        },
+        }, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id),
         "daily-backfill-agent",
     )
 
     outroot = (ROOT / args.outdir_root).resolve()
-    ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts_dir = outroot / agent_run_id
     _write_json(ts_dir / "summary.json", summary)
     _write_json(outroot / "latest_summary.json", summary)
     _write_json(outroot / "latest_backfill.json", summary)

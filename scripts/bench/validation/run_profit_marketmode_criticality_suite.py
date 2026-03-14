@@ -174,6 +174,36 @@ def _market_mode_score(base_score: pd.Series, structure_daily: pd.DataFrame) -> 
     return adjusted.clip(0.0, 1.0).astype(float)
 
 
+def _classify_official_structural_regime(
+    *,
+    as_of_date: str,
+    criticality_value: float | None,
+    structural_stress_value: float | None,
+    market_mode_share_pct_value: float | None,
+) -> dict[str, Any]:
+    crit = float(criticality_value) if criticality_value is not None else 0.5
+    stress = float(structural_stress_value) if structural_stress_value is not None else 0.5
+    market = float(market_mode_share_pct_value) if market_mode_share_pct_value is not None else 0.5
+
+    if stress >= 0.70 or crit >= 0.72 or market >= 0.82:
+        regime = "stress"
+    elif stress <= 0.42 and crit <= 0.40 and market <= 0.35:
+        regime = "dispersion"
+    elif stress >= 0.52 or crit >= 0.55 or market >= 0.65:
+        regime = "transition"
+    else:
+        regime = "stable"
+
+    return {
+        "as_of_date": str(as_of_date or ""),
+        "regime": regime,
+        "criticality": crit,
+        "structural_stress": stress,
+        "market_mode_share_pct": market,
+        "classification_method": "daily_live_nowcast",
+    }
+
+
 def _asymmetric_weight(
     *,
     base_weight: pd.Series,
@@ -248,7 +278,7 @@ def build_official_mode_allocations(
     protect_alloc: AllocationBundle = built["allocations"]["baseline_guard"]
 
     base_score = pd.to_numeric(context["attack_score_exogenous"], errors="coerce").fillna(0.0).clip(0.0, 1.0).astype(float)
-    structure_daily, _spectral_panel, criticality, _structural_stress = _build_structure_layers(context)
+    structure_daily, _spectral_panel, criticality, structural_stress = _build_structure_layers(context)
     criticality_pct = _rolling_percentile(criticality, 120).reindex(base_score.index).fillna(0.5).clip(0.0, 1.0)
     market_mode_share_pct = pd.to_numeric(
         structure_daily.get("market_mode_share_pct"),
@@ -295,10 +325,21 @@ def build_official_mode_allocations(
         protect_alloc=protect_alloc,
         attack_weight=free_rel_weight,
     )
+    latest_as_of_date = str(base_score.index[-1].date()) if len(base_score.index) else ""
+    latest_structural_now = _classify_official_structural_regime(
+        as_of_date=latest_as_of_date,
+        criticality_value=float(pd.to_numeric(criticality, errors="coerce").reindex(base_score.index).fillna(0.5).iloc[-1]) if len(base_score.index) else None,
+        structural_stress_value=float(pd.to_numeric(structural_stress, errors="coerce").reindex(base_score.index).fillna(0.5).iloc[-1]) if len(base_score.index) else None,
+        market_mode_share_pct_value=float(market_mode_share_pct.fillna(0.5).iloc[-1]) if len(market_mode_share_pct) else None,
+    )
 
     return {
         "context": context,
         "built": built,
+        "structure_daily": structure_daily,
+        "criticality": criticality,
+        "structural_stress": structural_stress,
+        "official_structural_now": latest_structural_now,
         "official_attack": free_rel_bundle,
         "official_attack_guard": criticality_bundle,
         "official_main": built["allocations"]["baseline"],

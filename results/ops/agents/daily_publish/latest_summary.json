@@ -1,0 +1,35 @@
+{
+  "status": "ok",
+  "run_id": "20260314T044017Z",
+  "cycle_run_id": "20260314T044017Z",
+  "generated_at_utc": "2026-03-14T04:49:02.093636+00:00",
+  "master_code": 143,
+  "deploy_code": 0,
+  "smoke_code": 0,
+  "failed_step": "",
+  "last_completed_step": "daily_smoke_test",
+  "agent": {
+    "agent_id": "daily-publish",
+    "guide_path": "scripts/ops/agent_guides/daily-publish.md",
+    "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+    "display_name": "Agente diário de publicação",
+    "mission": "Regerar snapshot, sincronizar artefatos públicos e publicar o site com a leitura mais recente.",
+    "run_order": "6",
+    "depends_on": [
+      "daily-operation-agent",
+      "daily-vigilance-agent",
+      "daily-data-quality-agent"
+    ],
+    "consumes": [
+      "results/ops/site_data/latest_site_snapshot.json",
+      "website-ui"
+    ],
+    "produces": [
+      "results/ops/agents/daily_publish/latest_summary.json"
+    ],
+    "rules": [
+      "publicacao_sem_estado_falso",
+      "deploy_so_com_artefato_coerente"
+    ]
+  }
+}

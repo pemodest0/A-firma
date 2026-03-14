@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import math
 import re
 import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.ops.cycle_context import resolve_cycle_run_id, utc_run_id
+
 RESULTS_ROOT = REPO_ROOT / "results"
 READ_WARNINGS: list[dict[str, str]] = []
 
@@ -443,6 +449,8 @@ def build_forecast_horizons(
     mode_confidence: dict[str, Any],
     vigilance_agent: dict[str, Any],
     operation_agent: dict[str, Any],
+    *,
+    as_of_date: str,
 ) -> dict[str, Any]:
     recommended_mode_raw = str(recommended_live_mode.get("mode") or "").strip().lower()
     active_mode = {}
@@ -472,40 +480,56 @@ def build_forecast_horizons(
     vigilance_status = str(vigilance_agent.get("status") or "").strip().lower()
 
     def _base_summary(horizon: str) -> str:
+        prefix = f"No horizonte {horizon}, esta leitura reaproveita o mesmo estado vivo do motor; ainda não existe um modelo separado por horizonte."
         if vigilance_status in {"warn", "error"}:
-            return f"No horizonte {horizon}, o motor pede mais disciplina: operar menor e respeitar os alertas."
+            return f"{prefix} Por isso, o melhor é operar menor e respeitar os alertas."
         if "ataque" in recommended_label.lower() and confidence_level in {"alta", "média"}:
-            return f"No horizonte {horizon}, a leitura ainda favorece ataque disciplinado."
+            return f"{prefix} Hoje essa leitura ainda favorece ataque disciplinado."
         if "prote" in recommended_label.lower():
-            return f"No horizonte {horizon}, a prioridade é proteger capital e aceitar menos risco."
-        return f"No horizonte {horizon}, o melhor é operar pequeno e acompanhar a leitura estrutural."
+            return f"{prefix} Hoje a prioridade é proteger capital e aceitar menos risco."
+        return f"{prefix} O melhor é operar pequeno e acompanhar a leitura estrutural."
 
     return {
         "daily": {
             "label": "Leitura diária",
+            "horizon_type": "shared_live_reading",
+            "is_distinct_model": False,
+            "source": "shared_mode_projection",
+            "as_of_date": as_of_date,
             "mode": recommended_label,
             "confidence_level": confidence_level,
             "confidence_score": confidence_score,
             "risk_level": risk_level,
             "exposure_target": exposure_target,
+            "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
             "summary": _base_summary("diário"),
         },
         "weekly": {
             "label": "Leitura semanal",
+            "horizon_type": "shared_live_reading",
+            "is_distinct_model": False,
+            "source": "shared_mode_projection",
+            "as_of_date": as_of_date,
             "mode": recommended_label,
             "confidence_level": confidence_level,
             "confidence_score": confidence_score,
             "risk_level": risk_level,
             "exposure_target": exposure_target,
+            "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
             "summary": _base_summary("semanal"),
         },
         "monthly": {
             "label": "Leitura mensal",
+            "horizon_type": "shared_live_reading",
+            "is_distinct_model": False,
+            "source": "shared_mode_projection",
+            "as_of_date": as_of_date,
             "mode": recommended_label,
             "confidence_level": confidence_level,
             "confidence_score": confidence_score,
             "risk_level": risk_level,
             "exposure_target": exposure_target,
+            "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
             "summary": _base_summary("mensal"),
         },
     }
@@ -760,7 +784,7 @@ def build_shadow_modes(
     return shadow_modes
 
 
-def build_snapshot() -> dict[str, Any]:
+def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
     finance_ready, lab_run_dir = latest_lab_from_finance_ready()
     lab_summary = read_json((lab_run_dir / "summary.json") if lab_run_dir else Path("missing"), {})
     lab_timeseries = read_csv((lab_run_dir / "macro_timeseries_T120.csv") if lab_run_dir else Path("missing"))
@@ -954,17 +978,35 @@ def build_snapshot() -> dict[str, Any]:
         operation_confidence if isinstance(operation_confidence, dict) else {},
         vigilance_agent if isinstance(vigilance_agent, dict) else {},
         operation_agent if isinstance(operation_agent, dict) else {},
+        as_of_date=published_data_date,
+    )
+    effective_cycle_run_id = (
+        str(cycle_run_id or "").strip()
+        or str(operation_agent.get("cycle_run_id") or "").strip()
+        or str(vigilance_agent.get("cycle_run_id") or "").strip()
+        or str(data_quality_agent.get("cycle_run_id") or "").strip()
+        or str(publish_agent.get("cycle_run_id") or "").strip()
+        or utc_run_id()
     )
 
     snapshot = {
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "cycle_run_id": effective_cycle_run_id,
         "as_of_date": published_data_date,
         "sources": {
             "finance_product_ready": str(RESULTS_ROOT / "ops" / "finance_product_ready" / "latest_finance_product_ready.json"),
             "profit_registry": str(RESULTS_ROOT / "ops" / "profit_research" / "latest_registry.json"),
             "profit_patterns": str(RESULTS_ROOT / "ops" / "profit_research" / "latest_patterns.json"),
             "invest_shadow": str(RESULTS_ROOT / "ops" / "invest_shadow" / "latest_summary.json"),
+            "daily_ingestion": str(RESULTS_ROOT / "ops" / "agents" / "daily_ingestion" / "latest_summary.json"),
+            "daily_backfill": str(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json"),
+            "daily_operation": str(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json"),
+            "daily_vigilance": str(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json"),
+            "daily_data_quality": str(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json"),
+            "daily_publish": str(RESULTS_ROOT / "ops" / "agents" / "daily_publish" / "latest_summary.json"),
+            "daily_smoke_test": str(RESULTS_ROOT / "ops" / "agents" / "daily_smoke_test" / "latest_summary.json"),
+            "daily_watchdog": str(RESULTS_ROOT / "ops" / "agents" / "daily_watchdog" / "latest_summary.json"),
             "lab_run_dir": str(lab_run_dir or ""),
         },
         "finance": {
@@ -981,6 +1023,9 @@ def build_snapshot() -> dict[str, Any]:
                 "mode_attack_guard": operation_agent.get("mode_attack_guard") if isinstance(operation_agent.get("mode_attack_guard"), dict) else {},
                 "mode_main_guard": operation_agent.get("mode_main_guard") if isinstance(operation_agent.get("mode_main_guard"), dict) else {},
             },
+            "official_structural_regime": operation_agent.get("official_structural_regime")
+            if isinstance(operation_agent.get("official_structural_regime"), dict)
+            else {},
             "current_posture": operation_agent.get("current_posture") if isinstance(operation_agent.get("current_posture"), dict) else {},
             "lab_run_id": lab_summary.get("run_id"),
             "gate_blocked": gate.get("blocked"),
@@ -1020,7 +1065,7 @@ def build_snapshot() -> dict[str, Any]:
             "operation_status": operation_agent.get("status"),
             "vigilance_status": vigilance_agent.get("status"),
             "data_quality_status": data_quality_agent.get("status"),
-            "publish_status": publish_agent.get("status"),
+            "publish_status": publish_agent.get("status") or "missing",
             "smoke_test_status": smoke_test_agent.get("status"),
             "watchdog_status": watchdog_agent.get("status"),
         },
@@ -1246,7 +1291,10 @@ def bundle_price_history(snapshot: dict[str, Any]) -> dict[str, Any]:
 
 
 def main() -> None:
-    snapshot = normalize_visible_payload(deep_clean(build_snapshot()))
+    ap = argparse.ArgumentParser(description="Regera o snapshot financeiro usado pelo site.")
+    ap.add_argument("--cycle-run-id", default="")
+    args = ap.parse_args()
+    snapshot = normalize_visible_payload(deep_clean(build_snapshot(cycle_run_id=resolve_cycle_run_id(args.cycle_run_id))))
     dashboard_overview = normalize_visible_payload(deep_clean(build_dashboard_overview(snapshot)))
 
     site_root = RESULTS_ROOT / "ops" / "site_data"

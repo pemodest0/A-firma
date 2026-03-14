@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
+  "cycle_run_id": "20260314T044017Z",
+  "agent_run_id": "20260314T044512Z",
+  "as_of_date": "2026-03-13",
+  "regime": "stress",
+  "criticality": 0.595779204747153,
+  "structural_stress": 0.7593793490588312,
+  "market_mode_share_pct": 0.6984126984126984,
+  "classification_method": "daily_live_nowcast",
+  "base_run_dir": "",
+  "base_regime_source": ""
+}

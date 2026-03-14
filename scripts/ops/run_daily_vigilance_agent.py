@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -61,7 +62,10 @@ def main() -> None:
     ap.add_argument("--profit-registry", default="results/ops/profit_research/latest_registry.json")
     ap.add_argument("--pbo-summary", default="results/validation/profit_pbo_suite/20260309T023026Z/summary.json")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_vigilance")
+    ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
+    agent_run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
     operation = _read_json((ROOT / args.operation_summary).resolve())
     snapshot = _read_json((ROOT / args.site_snapshot).resolve())
@@ -113,9 +117,9 @@ def main() -> None:
     else:
         status = "warn"
 
-    summary = attach_agent_guide({
+    summary = attach_agent_guide(attach_cycle_context({
         "status": status,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": utc_now_iso(),
         "operation_age_days": op_age,
         "snapshot_as_of_date": snapshot_date,
         "research_rows_total": registry.get("rows_total"),
@@ -125,10 +129,10 @@ def main() -> None:
             "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
             "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham.",
         ],
-    }, "daily-vigilance-agent")
+    }, cycle_run_id=cycle_run_id, agent_run_id=agent_run_id), "daily-vigilance-agent")
 
     outroot = (ROOT / args.outdir_root).resolve()
-    ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts_dir = outroot / agent_run_id
     _write_json(ts_dir / "summary.json", summary)
     _write_json(outroot / "latest_summary.json", summary)
     _write_json(outroot / "latest_vigilance.json", summary)

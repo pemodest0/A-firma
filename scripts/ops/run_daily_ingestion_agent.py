@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
 from scripts.finance.yf_fetch_or_load import fetch_market_data, load_existing_base, unify_to_daily
 
 DEFAULT_PRICES_DIR = ROOT / "data" / "raw" / "finance" / "yfinance_daily"
@@ -74,6 +75,14 @@ CORE_FALLBACK_TICKERS = {
     "XOP",
 }
 REMOTE_FALLBACK_TICKERS = CRITICAL_FALLBACK_TICKERS | CORE_FALLBACK_TICKERS
+PRIORITY_DAILY_TICKERS = REMOTE_FALLBACK_TICKERS | {
+    "BTC-USD",
+    "ETH-USD",
+    "SOL-USD",
+    "XRP-USD",
+    "IWM",
+    "GLD",
+}
 
 
 @dataclass
@@ -195,8 +204,10 @@ def build_summary(
     prices_dir: Path,
     skip_remote: bool,
     run_id: str,
+    cycle_run_id: str,
     max_assets: int,
     requested_tickers: set[str],
+    priority_only: bool,
 ) -> dict[str, Any]:
     updated = [r for r in results if r.status == "updated"]
     unchanged = [r for r in results if r.status == "unchanged"]
@@ -238,6 +249,8 @@ def build_summary(
         warning_reasons.append("asset_counts_reconstructed")
     if max_assets and max_assets > 0:
         warning_reasons.append("limited_scope")
+    if priority_only:
+        warning_reasons.append("priority_daily_scope")
 
     remote_unavailable_but_local_fresh = (
         not skip_remote
@@ -269,13 +282,14 @@ def build_summary(
         warning_reasons.append("data_getting_stale")
 
     status = "fail" if fatal_reason else ("warn" if warning_reasons else "ok")
-    return attach_agent_guide({
+    return attach_agent_guide(attach_cycle_context({
         "status": status,
         "run_id": run_id,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": utc_now_iso(),
         "prices_dir": str(prices_dir),
         "skip_remote": skip_remote,
         "limited_scope": bool((max_assets and max_assets > 0) or requested_tickers),
+        "priority_only": priority_only,
         "max_assets": int(max_assets or 0),
         "requested_tickers": sorted(requested_tickers),
         "attempted_assets": len(results),
@@ -294,7 +308,7 @@ def build_summary(
         "sample_skipped_remote": [r.ticker for r in skipped_remote[:15]],
         "sample_failed": [{"ticker": r.ticker, "error": r.error or r.status} for r in failed[:15]],
         "provider_counts": provider_counts,
-    }, "daily-ingestion-agent")
+    }, cycle_run_id=cycle_run_id, agent_run_id=run_id), "daily-ingestion-agent")
 
 
 def main() -> None:
@@ -304,6 +318,8 @@ def main() -> None:
     parser.add_argument("--max-assets", type=int, default=0)
     parser.add_argument("--tickers", default="", help="Lista separada por vírgula para testar tickers específicos.")
     parser.add_argument("--skip-remote", action="store_true")
+    parser.add_argument("--priority-only", action="store_true", help="Limita a coleta ao núcleo diário que afeta o motor e o site.")
+    parser.add_argument("--cycle-run-id", default="")
     args = parser.parse_args()
 
     prices_dir = Path(args.prices_dir)
@@ -311,10 +327,13 @@ def main() -> None:
     requested_tickers = {item.strip().upper() for item in str(args.tickers or "").split(",") if item.strip()}
     if requested_tickers:
         csv_paths = [path for path in csv_paths if path.stem.upper() in requested_tickers]
+    elif args.priority_only:
+        csv_paths = [path for path in csv_paths if path.stem.upper() in PRIORITY_DAILY_TICKERS]
     if args.max_assets and args.max_assets > 0:
         csv_paths = csv_paths[: args.max_assets]
 
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_id = utc_run_id()
+    cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
     results: list[IngestionResult] = []
     for path in csv_paths:
         try:
@@ -339,8 +358,10 @@ def main() -> None:
         prices_dir=prices_dir,
         skip_remote=args.skip_remote,
         run_id=run_id,
+        cycle_run_id=cycle_run_id,
         max_assets=args.max_assets,
         requested_tickers=requested_tickers,
+        priority_only=bool(args.priority_only),
     )
     run_dir = RESULTS_ROOT / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -350,7 +371,7 @@ def main() -> None:
     else:
         (RESULTS_ROOT / "latest_partial_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False))
-    if summary.get("status") != "ok":
+    if summary.get("status") == "fail":
         raise SystemExit(1)
 
 

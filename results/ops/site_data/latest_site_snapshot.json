@@ -1,12 +1,21 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T02:28:31.917940+00:00",
+  "generated_at_utc": "2026-03-14T04:49:50.009547+00:00",
+  "cycle_run_id": "20260314T044017Z",
   "as_of_date": "2026-03-14",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
     "profit_registry": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research/latest_registry.json",
     "profit_patterns": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research/latest_patterns.json",
     "invest_shadow": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/invest_shadow/latest_summary.json",
+    "daily_ingestion": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_ingestion/latest_summary.json",
+    "daily_backfill": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_backfill/latest_summary.json",
+    "daily_operation": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_operation/latest_summary.json",
+    "daily_vigilance": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_vigilance/latest_summary.json",
+    "daily_data_quality": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_data_quality/latest_summary.json",
+    "daily_publish": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json",
+    "daily_smoke_test": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_smoke_test/latest_summary.json",
+    "daily_watchdog": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_watchdog/latest_summary.json",
     "lab_run_dir": "/Users/PedroHenrique/Downloads/Assyntrax/results/lab_corr_macro/20260301T095915Z"
   },
   "finance": {
@@ -17,28 +26,27 @@
     "confidence_score": 1.0,
     "mode_confidence": {
       "recommended_mode": "ataque",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "confidence_level": "média",
-      "attack_score": 0.62068579401297,
-      "protection_score": 0.5504306159783265,
+      "attack_score": 0.6932410571212325,
+      "protection_score": 0.49824039045695856,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
         "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
-        "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
       "metrics": {
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
-        "vigilance_status": "warn",
-        "vigilance_alert_count": 1,
+        "vigilance_status": "ok",
+        "vigilance_alert_count": 0,
         "pbo_verdict": "provavel_overfit",
         "attack_underperform_prob_63": 0.5626666666666666,
         "attack_top3_retention": 0.2872230995558317,
-        "attack_drawdown_abs": 0.7093886896221167,
+        "attack_drawdown_abs": 0.6911368102773836,
         "protection_drawdown_abs": 0.5181024341952021,
         "execution_winner": ""
       }
@@ -47,10 +55,10 @@
       "mode": "ataque",
       "label": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "current_posture": {
         "posture": "quase_caixa",
-        "gross_exposure": 0.0375,
+        "gross_exposure": 0.005625,
         "latest_source": "protect"
       }
     },
@@ -62,15 +70,15 @@
         "latest_source": "protect",
         "weights": {
           "crypto": 0.0,
-          "equity": 0.0375,
-          "cash": 0.9625
+          "equity": 0.005625,
+          "cash": 0.994375
         },
-        "gross_exposure": 0.0375,
-        "net_ann_return": 0.37060211336830395,
-        "net_total_return": 23.687427450769178,
-        "net_sharpe": 0.7751190912348497,
-        "net_max_drawdown": -0.7093886896221167,
-        "avg_turnover_daily": 0.0591200741318767,
+        "gross_exposure": 0.005625,
+        "net_ann_return": 0.39452879794215745,
+        "net_total_return": 28.43874179656068,
+        "net_sharpe": 0.7994156598342201,
+        "net_max_drawdown": -0.6911368102773836,
+        "avg_turnover_daily": 0.058973614904408896,
         "notes": "combina criticidade relativa com penalidade leve de reorganização medida no turnover efetivo"
       },
       "mode_main": {
@@ -95,43 +103,51 @@
         "label": "Modo ataque com guarda",
         "candidate_id": "criticality_guard_attack",
         "latest_date": "2026-03-13",
-        "latest_source": "attack",
+        "latest_source": "protect",
         "weights": {
           "crypto": 0.0,
-          "equity": 0.1875,
-          "cash": 0.8125
+          "equity": 0.005625,
+          "cash": 0.994375
         },
-        "gross_exposure": 0.1875,
-        "net_ann_return": 0.3576609327231919,
-        "net_total_return": 21.41671902157292,
-        "net_sharpe": 0.7592667199244411,
-        "net_max_drawdown": -0.7186641609890578,
-        "avg_turnover_daily": 0.059540967616074914,
+        "gross_exposure": 0.005625,
+        "net_ann_return": 0.367485598778313,
+        "net_total_return": 23.12241493658742,
+        "net_sharpe": 0.76860052817762,
+        "net_max_drawdown": -0.7123720188273154,
+        "avg_turnover_daily": 0.060630608661724546,
         "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
       },
       "mode_main_guard": {
         "label": "Modo principal com guarda",
         "candidate_id": "meta_major8_eq_a2r1_mc_guard",
         "latest_date": "2026-03-13",
-        "latest_source": "cash",
+        "latest_source": "guarded",
         "weights": {
           "crypto": 0.0,
           "equity": 0.0,
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.33124346807586824,
-        "net_total_return": 17.355979565944157,
-        "net_sharpe": 0.8669640989791038,
+        "net_ann_return": 0.3324463674661544,
+        "net_total_return": 17.525373376044616,
+        "net_sharpe": 0.8692215374059025,
         "net_max_drawdown": -0.5181024341952021,
-        "avg_turnover_daily": 0.04036285602809208,
+        "avg_turnover_daily": 0.040304330862270775,
         "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
       }
+    },
+    "official_structural_regime": {
+      "as_of_date": "2026-03-13",
+      "regime": "stress",
+      "criticality": 0.595779204747153,
+      "structural_stress": 0.7593793490588312,
+      "market_mode_share_pct": 0.6984126984126984,
+      "classification_method": "daily_live_nowcast"
     },
     "current_posture": {
       "mode_attack": {
         "posture": "quase_caixa",
-        "gross_exposure": 0.0375,
+        "gross_exposure": 0.005625,
         "latest_source": "protect"
       },
       "mode_main": {
@@ -140,14 +156,14 @@
         "latest_source": "cash"
       },
       "mode_attack_guard": {
-        "posture": "ataque_parcial",
-        "gross_exposure": 0.1875,
-        "latest_source": "attack"
+        "posture": "quase_caixa",
+        "gross_exposure": 0.005625,
+        "latest_source": "protect"
       },
       "mode_main_guard": {
         "posture": "quase_caixa",
         "gross_exposure": 0.0,
-        "latest_source": "cash"
+        "latest_source": "guarded"
       }
     },
     "lab_run_id": "20260301T095915Z",
@@ -316,28 +332,29 @@
   "agents": {
     "daily_ingestion": {
       "status": "warn",
-      "run_id": "20260314T012136Z",
-      "generated_at_utc": "2026-03-14T01:33:16.432503+00:00",
+      "run_id": "20260314T044019Z",
+      "generated_at_utc": "2026-03-14T04:41:15.621867+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "skip_remote": false,
       "limited_scope": false,
+      "priority_only": true,
       "max_assets": 0,
       "requested_tickers": [],
-      "attempted_assets": 853,
-      "updated_assets": 49,
-      "unchanged_assets": 22,
-      "refreshed_assets": 71,
-      "no_remote_data_assets": 782,
+      "attempted_assets": 56,
+      "updated_assets": 48,
+      "unchanged_assets": 6,
+      "refreshed_assets": 54,
+      "no_remote_data_assets": 2,
       "skipped_remote_assets": 0,
       "failed_assets": 0,
       "max_latest_date": "2026-03-14",
       "stale_days": 0,
       "fatal_reason": null,
       "warning_reasons": [
+        "priority_daily_scope",
         "assets_without_remote_data"
       ],
       "sample_updated": [
-        "ITUB4.SA",
         "LQD",
         "LREN3.SA",
         "MRVE3.SA",
@@ -351,32 +368,22 @@
         "RSP",
         "SHY",
         "SLV",
-        "SPY"
+        "SPY",
+        "STAG"
       ],
       "sample_no_remote_data": [
-        "A",
-        "AAPL",
-        "ABAT",
-        "ABBV",
-        "ABEV3.SA",
-        "ABNB",
-        "ABT",
-        "ACI",
-        "ACN",
-        "ACTG",
-        "AD",
-        "ADBE",
-        "ADC",
-        "ADI",
-        "ADM"
+        "GLD",
+        "IWM"
       ],
       "sample_skipped_remote": [],
       "sample_failed": [],
       "provider_counts": {
-        "local_fresh": 22,
+        "local_fresh": 5,
         "brapi": 3,
         "yfinance": 46
       },
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044019Z",
       "agent": {
         "agent_id": "daily-ingestion-agent",
         "guide_path": "scripts/ops/agent_guides/daily-ingestion-agent.md",
@@ -400,7 +407,7 @@
     },
     "daily_backfill": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T01:19:42.004292+00:00",
+      "generated_at_utc": "2026-03-14T04:41:41.991172+00:00",
       "reference_data_date": "2026-03-14",
       "targeted_assets": 0,
       "updated_assets": 0,
@@ -413,183 +420,196 @@
       ],
       "unresolved_targets": [],
       "quality_after": {
-        "status": "warn",
+        "status": "ok",
         "critical_stale_assets": 0,
-        "core_stale_assets": 2,
-        "peripheral_stale_assets": 132
+        "core_stale_assets": 0,
+        "peripheral_stale_assets": 134
       },
       "steps": {
         "retry_runs": [],
         "data_quality": {
           "cmd": [
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/run_daily_data_quality_agent.py"
+            "scripts/ops/run_daily_data_quality_agent.py",
+            "--cycle-run-id",
+            "20260314T044017Z"
           ],
           "returncode": 0,
-          "stdout": "BER\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 9, \"binance\": 13, \"brapi\": 3, \"yfinance\": 19}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"warn\", \"code\": \"core_assets_stale\", \"message\": \"2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor.\"}, {\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"54 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}",
+          "stdout": "est_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"priority_daily_scope\", \"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"brapi\": 3, \"yfinance\": 46}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T044017Z\", \"agent_run_id\": \"20260314T044130Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}",
           "stderr": "",
           "ok": true,
           "parsed": {
-            "status": "warn",
-            "generated_at_utc": "2026-03-14T01:19:40.158873+00:00",
+            "status": "ok",
+            "generated_at_utc": "2026-03-14T04:41:40.851762+00:00",
             "reference_data_date": "2026-03-14",
             "site_as_of_date": "2026-03-14",
             "site_lag_days": 0,
-            "operation_generated_at_utc": "2026-03-14T00:35:54.639751+00:00",
+            "operation_generated_at_utc": "2026-03-14T04:37:25.654212+00:00",
             "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
             "total_assets": 853,
             "fresh_assets": 719,
             "stale_assets": 134,
             "critical_stale_assets": 0,
-            "core_stale_assets": 2,
-            "peripheral_stale_assets": 132,
-            "prune_candidate_count": 54,
-            "sample_critical_stale": [],
-            "sample_core_stale": [
-              {
-                "ticker": "ZD",
-                "latest_date": "2026-02-12",
-                "stale_days": 30,
-                "role": "core"
-              },
-              {
-                "ticker": "CCZ",
-                "latest_date": "2026-03-12",
-                "stale_days": 2,
-                "role": "core"
-              }
+            "core_stale_assets": 0,
+            "peripheral_stale_assets": 134,
+            "prune_candidate_count": 55,
+            "deferred_review_tickers": [
+              "CCZ",
+              "ZD"
             ],
+            "sample_critical_stale": [],
+            "sample_core_stale": [],
             "sample_prune_candidates": [
               {
                 "ticker": "SOJD",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "SOJE",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "SOMN",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "SONO",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "SREA",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "STEM",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "STI",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "SYM",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "TBB",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "TLN",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "TRI",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "TTGT",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "TW",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "UBER",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "USAR",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "USGO",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "USGOW",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "UTZ",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "UZD",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               },
               {
                 "ticker": "UZE",
                 "latest_date": "2026-02-12",
                 "stale_days": 30,
-                "role": "peripheral"
+                "role": "peripheral",
+                "deferred_review": false
               }
             ],
             "ingestion_status": "warn",
             "ingestion_warning_reasons": [
+              "priority_daily_scope",
               "assets_without_remote_data"
             ],
             "ingestion_provider_counts": {
-              "local_fresh": 9,
-              "binance": 13,
+              "local_fresh": 5,
               "brapi": 3,
-              "yfinance": 19
+              "yfinance": 46
             },
             "notes": [
               "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
@@ -597,16 +617,13 @@
             ],
             "alerts": [
               {
-                "level": "warn",
-                "code": "core_assets_stale",
-                "message": "2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
-              },
-              {
                 "level": "info",
                 "code": "peripheral_prune_candidates",
-                "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
+                "message": "55 ativos periféricos estão velhos o suficiente para revisão ou poda."
               }
             ],
+            "cycle_run_id": "20260314T044017Z",
+            "agent_run_id": "20260314T044130Z",
             "agent": {
               "agent_id": "daily-data-quality-agent",
               "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
@@ -636,7 +653,9 @@
         "site_snapshot": {
           "cmd": [
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/build_site_finance_snapshot.py"
+            "scripts/ops/build_site_finance_snapshot.py",
+            "--cycle-run-id",
+            "20260314T044017Z"
           ],
           "returncode": 0,
           "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json",
@@ -656,6 +675,8 @@
         "Este agente não substitui a ingestão principal; ele só reconcilia o que ficou para trás.",
         "Ativos marcados para revisão ficam fora do retry automático para não reintroduzir ruído no núcleo."
       ],
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044117Z",
       "agent": {
         "agent_id": "daily-backfill-agent",
         "guide_path": "scripts/ops/agent_guides/daily-backfill-agent.md",
@@ -681,7 +702,7 @@
     },
     "daily_operation": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T02:20:51.091335+00:00",
+      "generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
       "mode_attack": {
         "label": "Modo ataque",
         "candidate_id": "criticality_free_energy_attack",
@@ -689,15 +710,15 @@
         "latest_source": "protect",
         "weights": {
           "crypto": 0.0,
-          "equity": 0.0375,
-          "cash": 0.9625
+          "equity": 0.005625,
+          "cash": 0.994375
         },
-        "gross_exposure": 0.0375,
-        "net_ann_return": 0.37060211336830395,
-        "net_total_return": 23.687427450769178,
-        "net_sharpe": 0.7751190912348497,
-        "net_max_drawdown": -0.7093886896221167,
-        "avg_turnover_daily": 0.0591200741318767,
+        "gross_exposure": 0.005625,
+        "net_ann_return": 0.39452879794215745,
+        "net_total_return": 28.43874179656068,
+        "net_sharpe": 0.7994156598342201,
+        "net_max_drawdown": -0.6911368102773836,
+        "avg_turnover_daily": 0.058973614904408896,
         "notes": "combina criticidade relativa com penalidade leve de reorganização medida no turnover efetivo"
       },
       "mode_main": {
@@ -722,36 +743,36 @@
         "label": "Modo ataque com guarda",
         "candidate_id": "criticality_guard_attack",
         "latest_date": "2026-03-13",
-        "latest_source": "attack",
+        "latest_source": "protect",
         "weights": {
           "crypto": 0.0,
-          "equity": 0.1875,
-          "cash": 0.8125
+          "equity": 0.005625,
+          "cash": 0.994375
         },
-        "gross_exposure": 0.1875,
-        "net_ann_return": 0.3576609327231919,
-        "net_total_return": 21.41671902157292,
-        "net_sharpe": 0.7592667199244411,
-        "net_max_drawdown": -0.7186641609890578,
-        "avg_turnover_daily": 0.059540967616074914,
+        "gross_exposure": 0.005625,
+        "net_ann_return": 0.367485598778313,
+        "net_total_return": 23.12241493658742,
+        "net_sharpe": 0.76860052817762,
+        "net_max_drawdown": -0.7123720188273154,
+        "avg_turnover_daily": 0.060630608661724546,
         "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
       },
       "mode_main_guard": {
         "label": "Modo principal com guarda",
         "candidate_id": "meta_major8_eq_a2r1_mc_guard",
         "latest_date": "2026-03-13",
-        "latest_source": "cash",
+        "latest_source": "guarded",
         "weights": {
           "crypto": 0.0,
           "equity": 0.0,
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.33124346807586824,
-        "net_total_return": 17.355979565944157,
-        "net_sharpe": 0.8669640989791038,
+        "net_ann_return": 0.3324463674661544,
+        "net_total_return": 17.525373376044616,
+        "net_sharpe": 0.8692215374059025,
         "net_max_drawdown": -0.5181024341952021,
-        "avg_turnover_daily": 0.04036285602809208,
+        "avg_turnover_daily": 0.040304330862270775,
         "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
       },
       "artifacts": {
@@ -762,7 +783,7 @@
       "current_posture": {
         "mode_attack": {
           "posture": "quase_caixa",
-          "gross_exposure": 0.0375,
+          "gross_exposure": 0.005625,
           "latest_source": "protect"
         },
         "mode_main": {
@@ -771,52 +792,59 @@
           "latest_source": "cash"
         },
         "mode_attack_guard": {
-          "posture": "ataque_parcial",
-          "gross_exposure": 0.1875,
-          "latest_source": "attack"
+          "posture": "quase_caixa",
+          "gross_exposure": 0.005625,
+          "latest_source": "protect"
         },
         "mode_main_guard": {
           "posture": "quase_caixa",
           "gross_exposure": 0.0,
-          "latest_source": "cash"
+          "latest_source": "guarded"
         }
       },
       "mode_confidence": {
         "recommended_mode": "ataque",
-        "confidence_score": 0.5979920168227231,
+        "confidence_score": 0.6940328814156012,
         "confidence_level": "média",
-        "attack_score": 0.62068579401297,
-        "protection_score": 0.5504306159783265,
+        "attack_score": 0.6932410571212325,
+        "protection_score": 0.49824039045695856,
         "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
         "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
         "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
         "reasons": [
           "O ganho continua dependente dos nomes cripto mais fortes.",
           "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
-          "Os alertas diários pedem leitura mais defensiva.",
           "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
         ],
         "metrics": {
           "structural_risk_level": "stable",
           "structural_confidence_score": 1.0,
-          "vigilance_status": "warn",
-          "vigilance_alert_count": 1,
+          "vigilance_status": "ok",
+          "vigilance_alert_count": 0,
           "pbo_verdict": "provavel_overfit",
           "attack_underperform_prob_63": 0.5626666666666666,
           "attack_top3_retention": 0.2872230995558317,
-          "attack_drawdown_abs": 0.7093886896221167,
+          "attack_drawdown_abs": 0.6911368102773836,
           "protection_drawdown_abs": 0.5181024341952021,
           "execution_winner": ""
         }
+      },
+      "official_structural_regime": {
+        "as_of_date": "2026-03-13",
+        "regime": "stress",
+        "criticality": 0.595779204747153,
+        "structural_stress": 0.7593793490588312,
+        "market_mode_share_pct": 0.6984126984126984,
+        "classification_method": "daily_live_nowcast"
       },
       "recommended_live_mode": {
         "mode": "ataque",
         "label": "Modo ataque",
         "confidence_level": "média",
-        "confidence_score": 0.5979920168227231,
+        "confidence_score": 0.6940328814156012,
         "current_posture": {
           "posture": "quase_caixa",
-          "gross_exposure": 0.0375,
+          "gross_exposure": 0.005625,
           "latest_source": "protect"
         }
       },
@@ -838,17 +866,21 @@
         "data_quality": {
           "cmd": [
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/run_daily_data_quality_agent.py"
+            "scripts/ops/run_daily_data_quality_agent.py",
+            "--cycle-run-id",
+            "20260314T044017Z"
           ],
           "returncode": 0,
-          "stdout": "2\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 22, \"brapi\": 3, \"yfinance\": 46}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
+          "stdout": "st_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"priority_daily_scope\", \"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"brapi\": 3, \"yfinance\": 46}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T044017Z\", \"agent_run_id\": \"20260314T044721Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
           "stderr": "",
           "ok": true
         },
         "site_snapshot": {
           "cmd": [
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/build_site_finance_snapshot.py"
+            "scripts/ops/build_site_finance_snapshot.py",
+            "--cycle-run-id",
+            "20260314T044017Z"
           ],
           "returncode": 0,
           "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
@@ -857,6 +889,8 @@
         }
       },
       "publish_ready": true,
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044512Z",
       "agent": {
         "agent_id": "daily-operation-agent",
         "guide_path": "scripts/ops/agent_guides/daily-operation-agent.md",
@@ -879,34 +913,66 @@
           "uma_unica_verdade_operacional",
           "sem_usar_dado_velho_como_atual"
         ]
+      },
+      "official_structural_regime_artifact": {
+        "status": "ok",
+        "generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
+        "cycle_run_id": "20260314T044017Z",
+        "agent_run_id": "20260314T044512Z",
+        "as_of_date": "2026-03-13",
+        "regime": "stress",
+        "criticality": 0.595779204747153,
+        "structural_stress": 0.7593793490588312,
+        "market_mode_share_pct": 0.6984126984126984,
+        "classification_method": "daily_live_nowcast",
+        "base_run_dir": "",
+        "base_regime_source": ""
       }
     },
     "daily_vigilance": {
-      "status": "warn",
-      "generated_at_utc": "2026-03-13T23:51:46.522082+00:00",
-      "operation_age_days": 0.028893109120370367,
-      "snapshot_as_of_date": "2026-03-13",
+      "status": "ok",
+      "generated_at_utc": "2026-03-14T04:47:40.312499+00:00",
+      "operation_age_days": 0.0002415819212962963,
+      "snapshot_as_of_date": "2026-03-14",
       "research_rows_total": 365,
       "pbo_verdict": "robusto",
-      "alerts": [
-        {
-          "level": "warn",
-          "code": "main_deep_drawdown",
-          "message": "Modo principal ainda tem tombo histórico pesado."
-        }
-      ],
+      "alerts": [],
       "notes": [
         "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
         "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham."
-      ]
+      ],
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044740Z",
+      "agent": {
+        "agent_id": "daily-vigilance-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-vigilance-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de vigilância",
+        "mission": "Vigiar frescor, integridade e sinais de fragilidade do motor e do site.",
+        "run_order": "4",
+        "depends_on": [
+          "daily-operation-agent"
+        ],
+        "consumes": [
+          "results/ops/agents/daily_operation/latest_summary.json",
+          "results/ops/site_data/latest_site_snapshot.json"
+        ],
+        "produces": [
+          "results/ops/agents/daily_vigilance/latest_summary.json"
+        ],
+        "rules": [
+          "nao_mudar_parametros_do_motor",
+          "so_alertar_e_documentar"
+        ]
+      }
     },
     "daily_data_quality": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T02:28:30.707201+00:00",
+      "generated_at_utc": "2026-03-14T04:47:55.442221+00:00",
       "reference_data_date": "2026-03-14",
       "site_as_of_date": "2026-03-14",
       "site_lag_days": 0,
-      "operation_generated_at_utc": "2026-03-14T02:20:51.091335+00:00",
+      "operation_generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "total_assets": 853,
       "fresh_assets": 719,
@@ -1065,10 +1131,11 @@
       ],
       "ingestion_status": "warn",
       "ingestion_warning_reasons": [
+        "priority_daily_scope",
         "assets_without_remote_data"
       ],
       "ingestion_provider_counts": {
-        "local_fresh": 22,
+        "local_fresh": 5,
         "brapi": 3,
         "yfinance": 46
       },
@@ -1083,6 +1150,8 @@
           "message": "55 ativos periféricos estão velhos o suficiente para revisão ou poda."
         }
       ],
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044741Z",
       "agent": {
         "agent_id": "daily-data-quality-agent",
         "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
@@ -1108,20 +1177,63 @@
         ]
       }
     },
-    "daily_publish": {},
+    "daily_publish": {
+      "status": "ok",
+      "run_id": "20260314T044017Z",
+      "cycle_run_id": "20260314T044017Z",
+      "generated_at_utc": "2026-03-14T04:49:02.093636+00:00",
+      "master_code": 143,
+      "deploy_code": 0,
+      "smoke_code": 0,
+      "failed_step": "",
+      "last_completed_step": "daily_smoke_test",
+      "agent": {
+        "agent_id": "daily-publish",
+        "guide_path": "scripts/ops/agent_guides/daily-publish.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de publicação",
+        "mission": "Regerar snapshot, sincronizar artefatos públicos e publicar o site com a leitura mais recente.",
+        "run_order": "6",
+        "depends_on": [
+          "daily-operation-agent",
+          "daily-vigilance-agent",
+          "daily-data-quality-agent"
+        ],
+        "consumes": [
+          "results/ops/site_data/latest_site_snapshot.json",
+          "website-ui"
+        ],
+        "produces": [
+          "results/ops/agents/daily_publish/latest_summary.json"
+        ],
+        "rules": [
+          "publicacao_sem_estado_falso",
+          "deploy_so_com_artefato_coerente"
+        ]
+      }
+    },
     "daily_smoke_test": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T01:58:42.686919+00:00",
+      "generated_at_utc": "2026-03-14T04:49:01.789728+00:00",
       "finance_last_date": "2026-03-14",
       "operation_attack_latest_date": "2026-03-13",
       "operation_candidate_id": "criticality_free_energy_attack",
       "registry_candidate_id": "criticality_free_energy_attack",
+      "cycle_values": {
+        "operation": "20260314T044017Z",
+        "quality": "20260314T044017Z",
+        "vigilance": "20260314T044017Z",
+        "publish": "20260314T044017Z",
+        "snapshot": "20260314T044017Z"
+      },
       "http_checks": [],
       "checks": [],
       "notes": [
         "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
         "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
       ],
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044901Z",
       "agent": {
         "agent_id": "daily-smoke-test-agent",
         "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",
@@ -1147,7 +1259,7 @@
     },
     "daily_watchdog": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T01:58:42.572048+00:00",
+      "generated_at_utc": "2026-03-14T04:49:49.871118+00:00",
       "retries_attempted": 0,
       "retries": [],
       "checks": [],
@@ -1155,6 +1267,8 @@
         "O watchdog só faz retry controlado. Ele não substitui o papel dos agentes principais.",
         "Se a falha persistir depois do retry, o estado fica explícito como fail."
       ],
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044949Z",
       "agent": {
         "agent_id": "daily-watchdog-agent",
         "guide_path": "scripts/ops/agent_guides/daily-watchdog-agent.md",
@@ -1181,7 +1295,7 @@
   },
   "daily_operation": {
     "status": "ok",
-    "generated_at_utc": "2026-03-14T02:20:51.091335+00:00",
+    "generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
     "mode_attack": {
       "label": "Modo ataque",
       "candidate_id": "criticality_free_energy_attack",
@@ -1189,15 +1303,15 @@
       "latest_source": "protect",
       "weights": {
         "crypto": 0.0,
-        "equity": 0.0375,
-        "cash": 0.9625
+        "equity": 0.005625,
+        "cash": 0.994375
       },
-      "gross_exposure": 0.0375,
-      "net_ann_return": 0.37060211336830395,
-      "net_total_return": 23.687427450769178,
-      "net_sharpe": 0.7751190912348497,
-      "net_max_drawdown": -0.7093886896221167,
-      "avg_turnover_daily": 0.0591200741318767,
+      "gross_exposure": 0.005625,
+      "net_ann_return": 0.39452879794215745,
+      "net_total_return": 28.43874179656068,
+      "net_sharpe": 0.7994156598342201,
+      "net_max_drawdown": -0.6911368102773836,
+      "avg_turnover_daily": 0.058973614904408896,
       "notes": "combina criticidade relativa com penalidade leve de reorganização medida no turnover efetivo"
     },
     "mode_main": {
@@ -1222,36 +1336,36 @@
       "label": "Modo ataque com guarda",
       "candidate_id": "criticality_guard_attack",
       "latest_date": "2026-03-13",
-      "latest_source": "attack",
+      "latest_source": "protect",
       "weights": {
         "crypto": 0.0,
-        "equity": 0.1875,
-        "cash": 0.8125
+        "equity": 0.005625,
+        "cash": 0.994375
       },
-      "gross_exposure": 0.1875,
-      "net_ann_return": 0.3576609327231919,
-      "net_total_return": 21.41671902157292,
-      "net_sharpe": 0.7592667199244411,
-      "net_max_drawdown": -0.7186641609890578,
-      "avg_turnover_daily": 0.059540967616074914,
+      "gross_exposure": 0.005625,
+      "net_ann_return": 0.367485598778313,
+      "net_total_return": 23.12241493658742,
+      "net_sharpe": 0.76860052817762,
+      "net_max_drawdown": -0.7123720188273154,
+      "avg_turnover_daily": 0.060630608661724546,
       "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
     },
     "mode_main_guard": {
       "label": "Modo principal com guarda",
       "candidate_id": "meta_major8_eq_a2r1_mc_guard",
       "latest_date": "2026-03-13",
-      "latest_source": "cash",
+      "latest_source": "guarded",
       "weights": {
         "crypto": 0.0,
         "equity": 0.0,
         "cash": 1.0
       },
       "gross_exposure": 0.0,
-      "net_ann_return": 0.33124346807586824,
-      "net_total_return": 17.355979565944157,
-      "net_sharpe": 0.8669640989791038,
+      "net_ann_return": 0.3324463674661544,
+      "net_total_return": 17.525373376044616,
+      "net_sharpe": 0.8692215374059025,
       "net_max_drawdown": -0.5181024341952021,
-      "avg_turnover_daily": 0.04036285602809208,
+      "avg_turnover_daily": 0.040304330862270775,
       "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
     },
     "artifacts": {
@@ -1262,7 +1376,7 @@
     "current_posture": {
       "mode_attack": {
         "posture": "quase_caixa",
-        "gross_exposure": 0.0375,
+        "gross_exposure": 0.005625,
         "latest_source": "protect"
       },
       "mode_main": {
@@ -1271,52 +1385,59 @@
         "latest_source": "cash"
       },
       "mode_attack_guard": {
-        "posture": "ataque_parcial",
-        "gross_exposure": 0.1875,
-        "latest_source": "attack"
+        "posture": "quase_caixa",
+        "gross_exposure": 0.005625,
+        "latest_source": "protect"
       },
       "mode_main_guard": {
         "posture": "quase_caixa",
         "gross_exposure": 0.0,
-        "latest_source": "cash"
+        "latest_source": "guarded"
       }
     },
     "mode_confidence": {
       "recommended_mode": "ataque",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "confidence_level": "média",
-      "attack_score": 0.62068579401297,
-      "protection_score": 0.5504306159783265,
+      "attack_score": 0.6932410571212325,
+      "protection_score": 0.49824039045695856,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
         "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
-        "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
       "metrics": {
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
-        "vigilance_status": "warn",
-        "vigilance_alert_count": 1,
+        "vigilance_status": "ok",
+        "vigilance_alert_count": 0,
         "pbo_verdict": "provavel_overfit",
         "attack_underperform_prob_63": 0.5626666666666666,
         "attack_top3_retention": 0.2872230995558317,
-        "attack_drawdown_abs": 0.7093886896221167,
+        "attack_drawdown_abs": 0.6911368102773836,
         "protection_drawdown_abs": 0.5181024341952021,
         "execution_winner": ""
       }
+    },
+    "official_structural_regime": {
+      "as_of_date": "2026-03-13",
+      "regime": "stress",
+      "criticality": 0.595779204747153,
+      "structural_stress": 0.7593793490588312,
+      "market_mode_share_pct": 0.6984126984126984,
+      "classification_method": "daily_live_nowcast"
     },
     "recommended_live_mode": {
       "mode": "ataque",
       "label": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "current_posture": {
         "posture": "quase_caixa",
-        "gross_exposure": 0.0375,
+        "gross_exposure": 0.005625,
         "latest_source": "protect"
       }
     },
@@ -1338,17 +1459,21 @@
       "data_quality": {
         "cmd": [
           "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-          "scripts/ops/run_daily_data_quality_agent.py"
+          "scripts/ops/run_daily_data_quality_agent.py",
+          "--cycle-run-id",
+          "20260314T044017Z"
         ],
         "returncode": 0,
-        "stdout": "2\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 22, \"brapi\": 3, \"yfinance\": 46}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
+        "stdout": "st_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"priority_daily_scope\", \"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"brapi\": 3, \"yfinance\": 46}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T044017Z\", \"agent_run_id\": \"20260314T044721Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
         "stderr": "",
         "ok": true
       },
       "site_snapshot": {
         "cmd": [
           "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-          "scripts/ops/build_site_finance_snapshot.py"
+          "scripts/ops/build_site_finance_snapshot.py",
+          "--cycle-run-id",
+          "20260314T044017Z"
         ],
         "returncode": 0,
         "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
@@ -1357,6 +1482,8 @@
       }
     },
     "publish_ready": true,
+    "cycle_run_id": "20260314T044017Z",
+    "agent_run_id": "20260314T044512Z",
     "agent": {
       "agent_id": "daily-operation-agent",
       "guide_path": "scripts/ops/agent_guides/daily-operation-agent.md",
@@ -1379,15 +1506,29 @@
         "uma_unica_verdade_operacional",
         "sem_usar_dado_velho_como_atual"
       ]
+    },
+    "official_structural_regime_artifact": {
+      "status": "ok",
+      "generated_at_utc": "2026-03-14T04:47:19.439767+00:00",
+      "cycle_run_id": "20260314T044017Z",
+      "agent_run_id": "20260314T044512Z",
+      "as_of_date": "2026-03-13",
+      "regime": "stress",
+      "criticality": 0.595779204747153,
+      "structural_stress": 0.7593793490588312,
+      "market_mode_share_pct": 0.6984126984126984,
+      "classification_method": "daily_live_nowcast",
+      "base_run_dir": "",
+      "base_regime_source": ""
     }
   },
   "automation": {
     "ingestion_status": "warn",
     "backfill_status": "ok",
     "operation_status": "ok",
-    "vigilance_status": "warn",
+    "vigilance_status": "ok",
     "data_quality_status": "ok",
-    "publish_status": null,
+    "publish_status": "ok",
     "smoke_test_status": "ok",
     "watchdog_status": "ok"
   },
@@ -1396,77 +1537,85 @@
       "mode": "ataque",
       "label": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "current_posture": {
         "posture": "quase_caixa",
-        "gross_exposure": 0.0375,
+        "gross_exposure": 0.005625,
         "latest_source": "protect"
       }
     },
     "mode_confidence": {
       "recommended_mode": "ataque",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "confidence_level": "média",
-      "attack_score": 0.62068579401297,
-      "protection_score": 0.5504306159783265,
+      "attack_score": 0.6932410571212325,
+      "protection_score": 0.49824039045695856,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
         "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
-        "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
       "metrics": {
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
-        "vigilance_status": "warn",
-        "vigilance_alert_count": 1,
+        "vigilance_status": "ok",
+        "vigilance_alert_count": 0,
         "pbo_verdict": "provavel_overfit",
         "attack_underperform_prob_63": 0.5626666666666666,
         "attack_top3_retention": 0.2872230995558317,
-        "attack_drawdown_abs": 0.7093886896221167,
+        "attack_drawdown_abs": 0.6911368102773836,
         "protection_drawdown_abs": 0.5181024341952021,
         "execution_winner": ""
       }
     },
-    "vigilance_status": "warn",
-    "vigilance_alerts": [
-      {
-        "level": "warn",
-        "code": "main_deep_drawdown",
-        "message": "Modo principal ainda tem tombo histórico pesado."
-      }
-    ]
+    "vigilance_status": "ok",
+    "vigilance_alerts": []
   },
   "forecast_horizons": {
     "daily": {
       "label": "Leitura diária",
+      "horizon_type": "shared_live_reading",
+      "is_distinct_model": false,
+      "source": "shared_mode_projection",
+      "as_of_date": "2026-03-14",
       "mode": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "risk_level": "baixo",
-      "exposure_target": 0.0375,
-      "summary": "No horizonte diário, o motor pede mais disciplina: operar menor e respeitar os alertas."
+      "exposure_target": 0.005625,
+      "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
+      "summary": "No horizonte diário, esta leitura reaproveita o mesmo estado vivo do motor; ainda não existe um modelo separado por horizonte. Hoje essa leitura ainda favorece ataque disciplinado."
     },
     "weekly": {
       "label": "Leitura semanal",
+      "horizon_type": "shared_live_reading",
+      "is_distinct_model": false,
+      "source": "shared_mode_projection",
+      "as_of_date": "2026-03-14",
       "mode": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "risk_level": "baixo",
-      "exposure_target": 0.0375,
-      "summary": "No horizonte semanal, o motor pede mais disciplina: operar menor e respeitar os alertas."
+      "exposure_target": 0.005625,
+      "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
+      "summary": "No horizonte semanal, esta leitura reaproveita o mesmo estado vivo do motor; ainda não existe um modelo separado por horizonte. Hoje essa leitura ainda favorece ataque disciplinado."
     },
     "monthly": {
       "label": "Leitura mensal",
+      "horizon_type": "shared_live_reading",
+      "is_distinct_model": false,
+      "source": "shared_mode_projection",
+      "as_of_date": "2026-03-14",
       "mode": "Modo ataque",
       "confidence_level": "média",
-      "confidence_score": 0.5979920168227231,
+      "confidence_score": 0.6940328814156012,
       "risk_level": "baixo",
-      "exposure_target": 0.0375,
-      "summary": "No horizonte mensal, o motor pede mais disciplina: operar menor e respeitar os alertas."
+      "exposure_target": 0.005625,
+      "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
+      "summary": "No horizonte mensal, esta leitura reaproveita o mesmo estado vivo do motor; ainda não existe um modelo separado por horizonte. Hoje essa leitura ainda favorece ataque disciplinado."
     }
   },
   "shadow": {
@@ -1530,28 +1679,28 @@
       "what_it_is": "Modo ataque",
       "what_varies": "Varia o tamanho da aposta conforme a confiança e libera mais risco quando o cripto está saudável.",
       "latest_date": "2026-03-13",
-      "last_action": "Carteira alvo: cash 96%, equity 4%, crypto 0%. Exposição total em torno de 4%.",
+      "last_action": "Carteira alvo: cash 99%, equity 1%, crypto 0%. Exposição total em torno de 1%.",
       "forecast": "Se a leitura continuar limpa, este modo segue como candidato natural para atacar.",
-      "net_ann_return": 0.37060211336830395,
-      "net_total_return": 23.687427450769178,
-      "net_sharpe": 0.7751190912348497,
-      "net_max_drawdown": -0.7093886896221167,
-      "gross_exposure": 0.0375,
+      "net_ann_return": 0.39452879794215745,
+      "net_total_return": 28.43874179656068,
+      "net_sharpe": 0.7994156598342201,
+      "net_max_drawdown": -0.6911368102773836,
+      "gross_exposure": 0.005625,
       "weights": [
         {
           "asset": "cash",
-          "weight": 0.9625
+          "weight": 0.994375
         },
         {
           "asset": "equity",
-          "weight": 0.0375
+          "weight": 0.005625
         },
         {
           "asset": "crypto",
           "weight": 0.0
         }
       ],
-      "weights_preview": "cash 96%, equity 4%, crypto 0%",
+      "weights_preview": "cash 99%, equity 1%, crypto 0%",
       "notes": "combina criticidade relativa com penalidade leve de reorganização medida no turnover efetivo"
     },
     {
@@ -1600,28 +1749,28 @@
       "what_it_is": "Modo ataque com guarda",
       "what_varies": "Mesmo ataque, mas com trava extra quando a cauda do risco piora.",
       "latest_date": "2026-03-13",
-      "last_action": "Carteira alvo: cash 81%, equity 19%, crypto 0%. Exposição total em torno de 19%.",
+      "last_action": "Carteira alvo: cash 99%, equity 1%, crypto 0%. Exposição total em torno de 1%.",
       "forecast": "Se a leitura continuar limpa, este modo segue como candidato natural para atacar.",
-      "net_ann_return": 0.3576609327231919,
-      "net_total_return": 21.41671902157292,
-      "net_sharpe": 0.7592667199244411,
-      "net_max_drawdown": -0.7186641609890578,
-      "gross_exposure": 0.1875,
+      "net_ann_return": 0.367485598778313,
+      "net_total_return": 23.12241493658742,
+      "net_sharpe": 0.76860052817762,
+      "net_max_drawdown": -0.7123720188273154,
+      "gross_exposure": 0.005625,
       "weights": [
         {
           "asset": "cash",
-          "weight": 0.8125
+          "weight": 0.994375
         },
         {
           "asset": "equity",
-          "weight": 0.1875
+          "weight": 0.005625
         },
         {
           "asset": "crypto",
           "weight": 0.0
         }
       ],
-      "weights_preview": "cash 81%, equity 19%, crypto 0%",
+      "weights_preview": "cash 99%, equity 1%, crypto 0%",
       "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
     },
     {
@@ -1637,9 +1786,9 @@
       "latest_date": "2026-03-13",
       "last_action": "Carteira alvo: cash 100%, crypto 0%, equity 0%.",
       "forecast": "Este modo tende a assumir o controle quando o ataque perde clareza.",
-      "net_ann_return": 0.33124346807586824,
-      "net_total_return": 17.355979565944157,
-      "net_sharpe": 0.8669640989791038,
+      "net_ann_return": 0.3324463674661544,
+      "net_total_return": 17.525373376044616,
+      "net_sharpe": 0.8692215374059025,
       "net_max_drawdown": -0.5181024341952021,
       "gross_exposure": null,
       "weights": [
@@ -2207,16 +2356,17 @@
     ],
     "smoke_test_status": "ok",
     "watchdog_status": "ok",
-    "last_ingestion_at": "2026-03-14T01:33:16.432503+00:00",
+    "last_ingestion_at": "2026-03-14T04:41:15.621867+00:00",
     "last_ingestion_data_date": "2026-03-14",
-    "ingestion_updated_assets": 49,
-    "ingestion_refreshed_assets": 71,
-    "ingestion_no_remote_data_assets": 782,
+    "ingestion_updated_assets": 48,
+    "ingestion_refreshed_assets": 54,
+    "ingestion_no_remote_data_assets": 2,
     "ingestion_skipped_remote_assets": 0,
     "ingestion_failed_assets": 0,
     "ingestion_stale_days": 0,
     "ingestion_fatal_reason": null,
     "ingestion_warning_reasons": [
+      "priority_daily_scope",
       "assets_without_remote_data"
     ],
     "quality_status": "ok",
@@ -2379,13 +2529,7 @@
     "volume_total_assets": 140,
     "volume_coverage_ratio": 0.0,
     "volume_note": "Os CSVs publicados hoje não trazem volume. O site deve usar confiança, drawdown e volatilidade em vez de fingir volume.",
-    "snapshot_read_warnings": [
-      {
-        "path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json",
-        "reason": "missing_or_unreadable",
-        "detail": "[Errno 2] No such file or directory: '/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json'"
-      }
-    ]
+    "snapshot_read_warnings": []
   },
   "charts": {
     "sector_pressure": [
