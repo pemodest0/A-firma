@@ -140,6 +140,10 @@ export default async function DashboardPage() {
           Aqui a ideia é simples: o motor resume o risco do mercado, sugere uma faixa de exposição e mostra se o
           contexto está limpo ou perigoso. Nada de linguagem de fundo quantitativo para esconder o básico.
         </p>
+        <p className="mt-3 max-w-3xl rounded-2xl border border-amber-900/40 bg-amber-950/15 px-4 py-3 text-sm text-amber-100/90">
+          Leitura para pesquisa, simulação e uso pessoal. Não trate estes sinais como consultoria individualizada nem
+          como mandato de execução para terceiros.
+        </p>
         <div className="mt-4">
           <Link
             href="/app/shadow-mode"

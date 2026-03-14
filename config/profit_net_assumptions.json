@@ -1,5 +1,5 @@
 {
-  "version": "profit_net_assumptions_v2",
+  "version": "profit_net_assumptions_v3",
   "statement": "Premissas líquidas para pesquisa de lucro da Assyntrax. Alíquotas e enquadramentos usam fontes oficiais; custos em bps são cenários internos conservadores e a tributação é modelada por proxies rastreáveis de caixa, vendas mensais, retenções e compensação, não por apuração fiscal lote a lote.",
   "official_sources": {
     "br_foreign_financial_investments": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tributacao-de-aplicacoes-financeiras-no-exterior",
@@ -38,7 +38,7 @@
       "transaction_cost_bps_assumed": 15.0,
       "fx_spread_bps_assumed": 0.0,
       "capital_gains_tax_rate": 0.15,
-      "tax_timing": "monthly_realistic_proxy",
+      "tax_timing": "monthly_inventory_proxy",
       "dividend_withholding_mode": "not_applicable",
       "monthly_sales_exemption_modeled": true,
       "monthly_sales_exemption_brl": 20000.0,
@@ -51,7 +51,7 @@
       "cash_rate_source_path": "data/raw/realestate/bcb/SELIC_D_11.csv",
       "cash_rate_annual_fallback": 0.10,
       "notes": [
-        "IR de 15% modelado por proxy mensal com compensação de perdas e dedo-duro aproximado sobre o lado vendedor.",
+        "IR de 15% modelado por proxy mensal de inventário agregado, com compensação de perdas e dedo-duro aproximado sobre o lado vendedor.",
         "A isenção de vendas mensais até R$ 20 mil entra por proxy de vendas mensais estimadas a partir do turnover e do capital de referência.",
         "Caixa em BRL rende proxy SELIC quando o motor fica defensivo.",
         "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora nem apuração fiscal lote a lote."
@@ -63,7 +63,7 @@
       "transaction_cost_bps_assumed": 25.0,
       "fx_spread_bps_assumed": 35.0,
       "capital_gains_tax_rate": 0.15,
-      "tax_timing": "monthly_realistic_proxy",
+      "tax_timing": "monthly_inventory_proxy",
       "dividend_withholding_mode": "not_applicable",
       "monthly_sales_exemption_modeled": true,
       "monthly_sales_exemption_brl": 35000.0,
@@ -80,7 +80,7 @@
       "cash_rate_source_path": "data/raw/realestate/bcb/SELIC_D_11.csv",
       "cash_rate_annual_fallback": 0.10,
       "notes": [
-        "A alienação mensal até R$ 35 mil entra por proxy de vendas mensais estimadas a partir do turnover e do capital de referência.",
+        "A alienação mensal até R$ 35 mil entra por proxy de inventário agregado e vendas mensais estimadas a partir do turnover e do capital de referência.",
         "Acima do limite, o ganho positivo usa escada progressiva de ganho de capital como proxy conservadora.",
         "Caixa em BRL rende proxy SELIC quando o motor fica defensivo.",
         "Custos em bps agregam fee de exchange, spread/slippage e friccao operacional de remessa, em cenario conservador."

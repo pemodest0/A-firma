@@ -66,6 +66,10 @@ export default async function ProductPage() {
             mostra o contexto de forma humana. A promessa aqui não é milagre. É disciplina, trilha auditável e menos
             chance de operar na base do impulso.
           </p>
+          <p className="mt-4 max-w-2xl rounded-2xl border border-amber-900/40 bg-amber-950/15 px-4 py-3 text-sm leading-7 text-amber-100/90">
+            Uso proposto: pesquisa, simulação e uso pessoal. Esta interface não deve ser tratada como consultoria,
+            gestão para terceiros ou copytrade público.
+          </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/app/dashboard" className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-medium text-zinc-950 hover:bg-emerald-300">
               Abrir plataforma

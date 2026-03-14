@@ -219,6 +219,98 @@ def _apply_monthly_realistic_tax_proxy(
     return after_withholding, tax_ret, withholding_ret
 
 
+def _apply_monthly_inventory_tax_proxy(
+    *,
+    after_cost: pd.Series,
+    turnover: pd.Series,
+    profile: NetAssumptionProfile,
+    initial_capital_brl: float,
+) -> tuple[pd.Series, pd.Series, pd.Series]:
+    idx = after_cost.index
+    turnover_s = pd.to_numeric(turnover, errors="coerce").reindex(idx).fillna(0.0).clip(lower=0.0).astype(float)
+    sell_fraction = float(np.clip(float(profile.sell_turnover_fraction_proxy), 0.0, 1.0))
+    withholding_ret = (
+        turnover_s
+        * sell_fraction
+        * (float(max(0.0, profile.withholding_bps_on_sales)) / 10000.0)
+    ).astype(float)
+    after_withholding = (after_cost - withholding_ret).astype(float)
+    labels = _group_labels(idx, mode="monthly_inventory_proxy")
+    tax_ret = pd.Series(np.zeros(len(idx), dtype=float), index=idx, dtype=float)
+
+    market_value_brl = float(max(1.0, initial_capital_brl))
+    book_basis_brl = float(max(1.0, initial_capital_brl))
+    carry_loss_brl = 0.0
+    month_sales_brl = 0.0
+    month_realized_gain_brl = 0.0
+    month_withholding_brl = 0.0
+    month_last_idx: Any | None = None
+    current_label: str | None = None
+
+    def finalize_month(last_idx: Any, ending_nav_brl: float) -> None:
+        nonlocal carry_loss_brl, month_sales_brl, month_realized_gain_brl, month_withholding_brl
+        taxable_brl = 0.0
+        exempt_limit = float(max(0.0, profile.monthly_sales_exemption_brl))
+        if not (exempt_limit > 0.0 and month_sales_brl <= exempt_limit):
+            if profile.loss_compensation_enabled:
+                effective_brl = month_realized_gain_brl + carry_loss_brl
+                taxable_brl = float(max(0.0, effective_brl))
+                carry_loss_brl = float(min(0.0, effective_brl))
+            else:
+                taxable_brl = float(max(0.0, month_realized_gain_brl))
+        elif profile.loss_compensation_enabled and month_realized_gain_brl < 0.0:
+            carry_loss_brl += month_realized_gain_brl
+
+        if taxable_brl > 0.0:
+            tax_rate = _resolve_progressive_rate(taxable_brl, profile)
+            tax_brl = taxable_brl * tax_rate
+            if profile.withholding_compensates_tax:
+                tax_brl = max(0.0, tax_brl - month_withholding_brl)
+            tax_ret.loc[last_idx] = float(tax_brl / max(1.0, ending_nav_brl))
+
+        month_sales_brl = 0.0
+        month_realized_gain_brl = 0.0
+        month_withholding_brl = 0.0
+
+    for stamp in idx:
+        label = str(labels.loc[stamp])
+        if current_label is None:
+            current_label = label
+        elif label != current_label and month_last_idx is not None:
+            finalize_month(month_last_idx, market_value_brl)
+            current_label = label
+
+        period_ret = float(after_withholding.loc[stamp])
+        period_turnover = float(turnover_s.loc[stamp])
+        market_value_brl = float(max(0.0, market_value_brl * (1.0 + period_ret)))
+
+        sale_notional_brl = float(
+            min(
+                market_value_brl,
+                max(0.0, market_value_brl * period_turnover * sell_fraction),
+            )
+        )
+        month_sales_brl += sale_notional_brl
+        withholding_brl = float(max(0.0, sale_notional_brl * (float(max(0.0, profile.withholding_bps_on_sales)) / 10000.0)))
+        month_withholding_brl += withholding_brl
+
+        if sale_notional_brl > 0.0 and market_value_brl > 0.0 and book_basis_brl > 0.0:
+            sale_fraction_of_book = float(np.clip(sale_notional_brl / market_value_brl, 0.0, 1.0))
+            cost_basis_sold_brl = float(book_basis_brl * sale_fraction_of_book)
+            realized_gain_brl = float(sale_notional_brl - cost_basis_sold_brl)
+            month_realized_gain_brl += realized_gain_brl
+            remaining_book_brl = float(max(0.0, book_basis_brl - cost_basis_sold_brl))
+            buy_notional_brl = sale_notional_brl
+            book_basis_brl = remaining_book_brl + buy_notional_brl
+
+        month_last_idx = stamp
+
+    if month_last_idx is not None:
+        finalize_month(month_last_idx, market_value_brl)
+
+    return after_withholding, tax_ret, withholding_ret
+
+
 def load_net_assumption_profiles(config_path: str | Path) -> dict[str, Any]:
     path = Path(config_path).resolve()
     payload = _read_json(path)
@@ -351,6 +443,13 @@ def apply_net_assumptions(
             tax = after_cost.clip(lower=0.0) * tax_rate
         elif timing == "monthly_realistic_proxy":
             after_cost, tax, withholding_ret = _apply_monthly_realistic_tax_proxy(
+                after_cost=after_cost,
+                turnover=t,
+                profile=profile,
+                initial_capital_brl=tax_capital_brl,
+            )
+        elif timing == "monthly_inventory_proxy":
+            after_cost, tax, withholding_ret = _apply_monthly_inventory_tax_proxy(
                 after_cost=after_cost,
                 turnover=t,
                 profile=profile,

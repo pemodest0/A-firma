@@ -491,7 +491,7 @@ def _meta_blended_profile(crypto_profile: NetAssumptionProfile, equity_profile: 
         transaction_cost_bps_assumed=0.5 * crypto_profile.transaction_cost_bps_assumed + 0.5 * equity_profile.transaction_cost_bps_assumed,
         fx_spread_bps_assumed=0.5 * crypto_profile.fx_spread_bps_assumed + 0.5 * equity_profile.fx_spread_bps_assumed,
         capital_gains_tax_rate=0.5 * crypto_profile.capital_gains_tax_rate + 0.5 * equity_profile.capital_gains_tax_rate,
-        tax_timing="monthly_realistic_proxy",
+        tax_timing="monthly_inventory_proxy",
         dividend_withholding_mode="not_applicable",
         monthly_sales_exemption_modeled=bool(
             crypto_profile.monthly_sales_exemption_modeled or equity_profile.monthly_sales_exemption_modeled
@@ -508,7 +508,7 @@ def _meta_blended_profile(crypto_profile: NetAssumptionProfile, equity_profile: 
         cash_yield_enabled=bool(crypto_profile.cash_yield_enabled or equity_profile.cash_yield_enabled),
         cash_rate_source_path=str(crypto_profile.cash_rate_source_path or equity_profile.cash_rate_source_path),
         cash_rate_annual_fallback=0.5 * crypto_profile.cash_rate_annual_fallback + 0.5 * equity_profile.cash_rate_annual_fallback,
-        notes=("meta_blended", "monthly_realistic_proxy"),
+        notes=("meta_blended", "monthly_inventory_proxy"),
     )
 
 

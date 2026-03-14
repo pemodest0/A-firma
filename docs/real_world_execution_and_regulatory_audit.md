@@ -5,11 +5,11 @@
 This project now models a more realistic net path for Brazilian-resident research:
 
 - cash in BRL earns a SELIC proxy when the strategy stays defensive
-- Brazilian local equities use a monthly tax proxy with:
+- Brazilian local equities use a monthly inventory proxy with:
   - monthly sales exemption proxy at BRL 20,000
   - local loss-compensation proxy
   - small sell-side withholding proxy (`dedo-duro`) that offsets tax due
-- crypto uses a monthly tax proxy with:
+- crypto uses a monthly inventory proxy with:
   - monthly sales exemption proxy at BRL 35,000
   - progressive capital-gains brackets above the exemption threshold
   - loss-compensation proxy
@@ -21,12 +21,13 @@ This project now models a more realistic net path for Brazilian-resident researc
 - FX spread proxy
 - cash carry via SELIC proxy
 - tax timing proxies
+- aggregate inventory bookkeeping for realized gains driven by turnover
 - exemption thresholds via estimated monthly sales notional
 - compensable withholding proxy for local equities
 
 ## What Is Still A Proxy
 
-- no lot-by-lot tax ledger
+- no exact lot-by-lot tax ledger
 - no broker note reconciliation
 - no exact B3 fee schedule by market, product and venue
 - no exact IRRF bookkeeping by CPF/CNPJ
