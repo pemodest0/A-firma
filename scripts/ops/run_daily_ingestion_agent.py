@@ -85,6 +85,15 @@ PRIORITY_DAILY_TICKERS = REMOTE_FALLBACK_TICKERS | {
 }
 
 
+def _fresh_tolerance_days(ticker: str) -> int:
+    upper = str(ticker or "").upper()
+    if upper.endswith(".SA"):
+        return 2
+    if upper.endswith("-USD"):
+        return 1
+    return 1
+
+
 @dataclass
 class IngestionResult:
     ticker: str
@@ -159,6 +168,17 @@ def update_one_csv(path: Path, lookback_days: int, skip_remote: bool) -> Ingesti
 
     fetched, provider = fetch_market_data(ticker, start=start, end=None, allow_yfinance=allow_yfinance)
     if fetched is None or fetched.empty:
+        if previous_last_date and stale_days is not None and stale_days <= _fresh_tolerance_days(ticker):
+            return IngestionResult(
+                ticker=ticker,
+                status="unchanged",
+                previous_last_date=previous_last_date,
+                latest_date=previous_last_date,
+                rows_before=rows_before,
+                rows_after=rows_before,
+                changed=False,
+                provider="local_fresh_remote_miss",
+            )
         return IngestionResult(
             ticker=ticker,
             status="no_remote_data",
@@ -249,8 +269,6 @@ def build_summary(
         warning_reasons.append("asset_counts_reconstructed")
     if max_assets and max_assets > 0:
         warning_reasons.append("limited_scope")
-    if priority_only:
-        warning_reasons.append("priority_daily_scope")
 
     remote_unavailable_but_local_fresh = (
         not skip_remote

@@ -1,7 +1,7 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T04:49:50.009547+00:00",
-  "cycle_run_id": "20260314T044017Z",
+  "generated_at_utc": "2026-03-14T05:01:32.370116+00:00",
+  "cycle_run_id": "20260314T044017",
   "as_of_date": "2026-03-14",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
@@ -331,9 +331,9 @@
   },
   "agents": {
     "daily_ingestion": {
-      "status": "warn",
-      "run_id": "20260314T044019Z",
-      "generated_at_utc": "2026-03-14T04:41:15.621867+00:00",
+      "status": "ok",
+      "run_id": "20260314T050003Z",
+      "generated_at_utc": "2026-03-14T05:01:02.017158+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "skip_remote": false,
       "limited_scope": false,
@@ -341,26 +341,22 @@
       "max_assets": 0,
       "requested_tickers": [],
       "attempted_assets": 56,
-      "updated_assets": 48,
-      "unchanged_assets": 6,
-      "refreshed_assets": 54,
-      "no_remote_data_assets": 2,
+      "updated_assets": 46,
+      "unchanged_assets": 10,
+      "refreshed_assets": 56,
+      "no_remote_data_assets": 0,
       "skipped_remote_assets": 0,
       "failed_assets": 0,
       "max_latest_date": "2026-03-14",
       "stale_days": 0,
       "fatal_reason": null,
-      "warning_reasons": [
-        "priority_daily_scope",
-        "assets_without_remote_data"
-      ],
+      "warning_reasons": [],
       "sample_updated": [
         "LQD",
         "LREN3.SA",
         "MRVE3.SA",
         "MULT3.SA",
         "PCAR3.SA",
-        "PETR4.SA",
         "PRIO3.SA",
         "QQQ",
         "RADL3.SA",
@@ -369,21 +365,20 @@
         "SHY",
         "SLV",
         "SPY",
-        "STAG"
+        "STAG",
+        "STX"
       ],
-      "sample_no_remote_data": [
-        "GLD",
-        "IWM"
-      ],
+      "sample_no_remote_data": [],
       "sample_skipped_remote": [],
       "sample_failed": [],
       "provider_counts": {
         "local_fresh": 5,
+        "local_fresh_remote_miss": 2,
         "brapi": 3,
         "yfinance": 46
       },
-      "cycle_run_id": "20260314T044017Z",
-      "agent_run_id": "20260314T044019Z",
+      "cycle_run_id": "20260314T_resolve_gld_iwm",
+      "agent_run_id": "20260314T050003Z",
       "agent": {
         "agent_id": "daily-ingestion-agent",
         "guide_path": "scripts/ops/agent_guides/daily-ingestion-agent.md",
@@ -1523,7 +1518,7 @@
     }
   },
   "automation": {
-    "ingestion_status": "warn",
+    "ingestion_status": "ok",
     "backfill_status": "ok",
     "operation_status": "ok",
     "vigilance_status": "ok",
@@ -2347,7 +2342,7 @@
     "price_source": "yfinance_daily_bundle",
     "price_history_start": "2016-01-05",
     "price_history_end": "2026-03-14",
-    "ingestion_status": "warn",
+    "ingestion_status": "ok",
     "backfill_status": "ok",
     "backfill_targeted_assets": 0,
     "backfill_deferred_review_tickers": [
@@ -2356,19 +2351,16 @@
     ],
     "smoke_test_status": "ok",
     "watchdog_status": "ok",
-    "last_ingestion_at": "2026-03-14T04:41:15.621867+00:00",
+    "last_ingestion_at": "2026-03-14T05:01:02.017158+00:00",
     "last_ingestion_data_date": "2026-03-14",
-    "ingestion_updated_assets": 48,
-    "ingestion_refreshed_assets": 54,
-    "ingestion_no_remote_data_assets": 2,
+    "ingestion_updated_assets": 46,
+    "ingestion_refreshed_assets": 56,
+    "ingestion_no_remote_data_assets": 0,
     "ingestion_skipped_remote_assets": 0,
     "ingestion_failed_assets": 0,
     "ingestion_stale_days": 0,
     "ingestion_fatal_reason": null,
-    "ingestion_warning_reasons": [
-      "priority_daily_scope",
-      "assets_without_remote_data"
-    ],
+    "ingestion_warning_reasons": [],
     "quality_status": "ok",
     "quality_reference_date": "2026-03-14",
     "quality_critical_stale_assets": 0,
