@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.ops.agent_guides import attach_agent_guide  # noqa: E402
 from engine.portfolio import decide_attack_vs_protection  # noqa: E402
 from scripts.bench.validation.run_profit_marketmode_criticality_suite import (  # noqa: E402
     build_official_mode_allocations,
@@ -253,6 +254,7 @@ def main() -> None:
         "site_snapshot": snapshot_step,
     }
     operation["publish_ready"] = bool(registry_step["ok"] and data_quality_step["ok"] and snapshot_step["ok"])
+    operation = attach_agent_guide(operation, "daily-operation-agent")
 
     _write_json(outdir / "summary.json", operation)
     latest_dir = (ROOT / args.outdir_root).resolve()

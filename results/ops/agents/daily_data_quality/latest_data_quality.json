@@ -1,16 +1,16 @@
 {
   "status": "warn",
-  "generated_at_utc": "2026-03-14T00:38:33.305050+00:00",
-  "reference_data_date": "2026-03-13",
-  "site_as_of_date": "2026-03-13",
+  "generated_at_utc": "2026-03-14T01:19:40.158873+00:00",
+  "reference_data_date": "2026-03-14",
+  "site_as_of_date": "2026-03-14",
   "site_lag_days": 0,
   "operation_generated_at_utc": "2026-03-14T00:35:54.639751+00:00",
   "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
   "total_assets": 853,
-  "fresh_assets": 720,
-  "stale_assets": 133,
+  "fresh_assets": 719,
+  "stale_assets": 134,
   "critical_stale_assets": 0,
-  "core_stale_assets": 1,
+  "core_stale_assets": 2,
   "peripheral_stale_assets": 132,
   "prune_candidate_count": 54,
   "sample_critical_stale": [],
@@ -18,7 +18,13 @@
     {
       "ticker": "ZD",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
+      "role": "core"
+    },
+    {
+      "ticker": "CCZ",
+      "latest_date": "2026-03-12",
+      "stale_days": 2,
       "role": "core"
     }
   ],
@@ -26,121 +32,121 @@
     {
       "ticker": "SOJD",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "SOJE",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "SOMN",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "SONO",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "SREA",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "STEM",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "STI",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "SYM",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "TBB",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "TLN",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "TRI",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "TTGT",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "TW",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "UBER",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "USAR",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "USGO",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "USGOW",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "UTZ",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "UZD",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     },
     {
       "ticker": "UZE",
       "latest_date": "2026-02-12",
-      "stale_days": 29,
+      "stale_days": 30,
       "role": "peripheral"
     }
   ],
@@ -149,9 +155,10 @@
     "assets_without_remote_data"
   ],
   "ingestion_provider_counts": {
-    "local_fresh": 667,
+    "local_fresh": 9,
+    "binance": 13,
     "brapi": 3,
-    "binance": 2
+    "yfinance": 19
   },
   "notes": [
     "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
@@ -161,12 +168,36 @@
     {
       "level": "warn",
       "code": "core_assets_stale",
-      "message": "1 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+      "message": "2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
     },
     {
       "level": "info",
       "code": "peripheral_prune_candidates",
       "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
     }
-  ]
+  ],
+  "agent": {
+    "agent_id": "daily-data-quality-agent",
+    "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
+    "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+    "display_name": "Agente diário de qualidade",
+    "mission": "Medir cobertura, frescor e poda potencial do universo observado.",
+    "run_order": "5",
+    "depends_on": [
+      "daily-ingestion-agent",
+      "daily-backfill-agent",
+      "daily-operation-agent"
+    ],
+    "consumes": [
+      "data/raw/finance/yfinance_daily",
+      "results/ops/agents/daily_ingestion/latest_summary.json"
+    ],
+    "produces": [
+      "results/ops/agents/daily_data_quality/latest_summary.json"
+    ],
+    "rules": [
+      "separar_critico_nucleo_periferia",
+      "qualidade_publica_e_rastreavel"
+    ]
+  }
 }

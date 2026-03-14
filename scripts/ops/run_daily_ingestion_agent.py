@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.ops.agent_guides import attach_agent_guide
 from scripts.finance.yf_fetch_or_load import fetch_market_data, load_existing_base, unify_to_daily
 
 DEFAULT_PRICES_DIR = ROOT / "data" / "raw" / "finance" / "yfinance_daily"
@@ -268,7 +269,7 @@ def build_summary(
         warning_reasons.append("data_getting_stale")
 
     status = "fail" if fatal_reason else ("warn" if warning_reasons else "ok")
-    return {
+    return attach_agent_guide({
         "status": status,
         "run_id": run_id,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -293,7 +294,7 @@ def build_summary(
         "sample_skipped_remote": [r.ticker for r in skipped_remote[:15]],
         "sample_failed": [{"ticker": r.ticker, "error": r.error or r.status} for r in failed[:15]],
         "provider_counts": provider_counts,
-    }
+    }, "daily-ingestion-agent")
 
 
 def main() -> None:

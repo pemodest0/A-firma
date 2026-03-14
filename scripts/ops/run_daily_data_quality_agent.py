@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,10 @@ from typing import Any
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.ops.agent_guides import attach_agent_guide
 
 CRITICAL_TICKERS = {
     "SPY",
@@ -219,7 +224,7 @@ def main() -> None:
     else:
         status = "ok"
 
-    summary = {
+    summary = attach_agent_guide({
         "status": status,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "reference_data_date": reference_date.isoformat(),
@@ -245,7 +250,7 @@ def main() -> None:
             "Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.",
         ],
         "alerts": alerts,
-    }
+    }, "daily-data-quality-agent")
 
     outroot = (ROOT / args.outdir_root).resolve()
     ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")

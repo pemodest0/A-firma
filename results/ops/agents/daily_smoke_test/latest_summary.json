@@ -1,0 +1,47 @@
+{
+  "status": "warn",
+  "generated_at_utc": "2026-03-14T01:18:14.439950+00:00",
+  "finance_last_date": "2026-03-14",
+  "operation_attack_latest_date": "2026-03-02",
+  "operation_candidate_id": "criticality_free_energy_attack",
+  "registry_candidate_id": "criticality_free_energy_attack",
+  "http_checks": [],
+  "checks": [
+    {
+      "level": "warn",
+      "code": "operation_attack_stale",
+      "message": "O modo ataque ficou 12 dias atrás da base publicada."
+    },
+    {
+      "level": "warn",
+      "code": "core_assets_stale",
+      "message": "O núcleo do motor ainda tem ativos atrasados."
+    }
+  ],
+  "notes": [
+    "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
+    "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
+  ],
+  "agent": {
+    "agent_id": "daily-smoke-test-agent",
+    "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",
+    "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+    "display_name": "Agente diário de smoke test",
+    "mission": "Validar se o snapshot publicado e o modo operacional continuam coerentes após a publicação.",
+    "run_order": "7",
+    "depends_on": [
+      "daily-publish"
+    ],
+    "consumes": [
+      "results/ops/site_data/latest_site_snapshot.json",
+      "results/ops/agents/daily_operation/latest_summary.json"
+    ],
+    "produces": [
+      "results/ops/agents/daily_smoke_test/latest_summary.json"
+    ],
+    "rules": [
+      "falha_visivel",
+      "sem_passar_site_incoerente"
+    ]
+  }
+}

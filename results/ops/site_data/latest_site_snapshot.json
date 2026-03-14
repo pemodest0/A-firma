@@ -1,7 +1,7 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T00:39:22.494914+00:00",
-  "as_of_date": "2026-03-13",
+  "generated_at_utc": "2026-03-14T01:19:41.242422+00:00",
+  "as_of_date": "2026-03-14",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
     "profit_registry": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research/latest_registry.json",
@@ -11,7 +11,7 @@
   },
   "finance": {
     "overall_readiness": "fail",
-    "data_last_date": "2026-03-13",
+    "data_last_date": "2026-03-14",
     "operational_state": "monitoramento_normal",
     "risk_level_next_month": "baixo",
     "confidence_score": 1.0,
@@ -59,10 +59,10 @@
     ],
     "latest_state": {},
     "latest_state_stale": true,
-    "latest_state_stale_days": 14,
+    "latest_state_stale_days": 15,
     "latest_playbook": {},
     "latest_playbook_stale": true,
-    "latest_playbook_stale_days": 14
+    "latest_playbook_stale_days": 15
   },
   "profit_research": {
     "rows_total": 365,
@@ -215,55 +215,348 @@
   "agents": {
     "daily_ingestion": {
       "status": "warn",
-      "run_id": "20260313T224945Z",
-      "generated_at_utc": "2026-03-13T23:03:53.239554+00:00",
+      "run_id": "20260314T002808Z",
+      "generated_at_utc": "2026-03-14T00:47:23.148700+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "skip_remote": false,
       "limited_scope": false,
       "max_assets": 0,
+      "requested_tickers": [],
       "attempted_assets": 853,
-      "updated_assets": 5,
-      "unchanged_assets": 667,
-      "refreshed_assets": 672,
-      "no_remote_data_assets": 181,
+      "updated_assets": 35,
+      "unchanged_assets": 9,
+      "refreshed_assets": 44,
+      "no_remote_data_assets": 809,
       "skipped_remote_assets": 0,
       "failed_assets": 0,
-      "max_latest_date": "2026-03-13",
+      "max_latest_date": "2026-03-14",
       "stale_days": 0,
       "fatal_reason": null,
       "warning_reasons": [
         "assets_without_remote_data"
       ],
       "sample_updated": [
+        "DOGE-USD",
+        "DOT-USD",
+        "ETC-USD",
+        "ETH-USD",
+        "FIL-USD",
+        "ICP-USD",
         "ITUB4.SA",
+        "LINK-USD",
+        "LQD",
+        "LTC-USD",
+        "NEAR-USD",
         "PETR4.SA",
-        "VALE3.SA",
-        "XLM-USD",
-        "XRP-USD"
+        "QQQ",
+        "RSP",
+        "SHY"
       ],
       "sample_no_remote_data": [
-        "CCZ",
-        "LQD",
-        "LREN3.SA",
-        "MATIC-USD",
-        "MRVE3.SA",
-        "MULT3.SA",
-        "PCAR3.SA",
-        "PRIO3.SA",
-        "QQQ",
-        "RADL3.SA",
-        "RAIL3.SA",
-        "RENT3.SA",
-        "RSP",
-        "SHY",
-        "SLV"
+        "A",
+        "AAPL",
+        "ABAT",
+        "ABBV",
+        "ABEV3.SA",
+        "ABNB",
+        "ABT",
+        "ACI",
+        "ACN",
+        "ACTG",
+        "AD",
+        "ADBE",
+        "ADC",
+        "ADI",
+        "ADM"
       ],
       "sample_skipped_remote": [],
       "sample_failed": [],
       "provider_counts": {
-        "local_fresh": 667,
+        "local_fresh": 9,
+        "binance": 13,
         "brapi": 3,
-        "binance": 2
+        "yfinance": 19
+      }
+    },
+    "daily_backfill": {
+      "status": "ok",
+      "generated_at_utc": "2026-03-14T01:19:41.188788+00:00",
+      "reference_data_date": "2026-03-14",
+      "targeted_assets": 0,
+      "updated_assets": 0,
+      "refreshed_assets": 0,
+      "provider_counts": {},
+      "sample_targeted_tickers": [],
+      "deferred_review_tickers": [
+        "ZD",
+        "CCZ"
+      ],
+      "unresolved_targets": [],
+      "quality_after": {
+        "status": "warn",
+        "critical_stale_assets": 0,
+        "core_stale_assets": 2,
+        "peripheral_stale_assets": 132
+      },
+      "steps": {
+        "retry_runs": [],
+        "data_quality": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/run_daily_data_quality_agent.py"
+          ],
+          "returncode": 0,
+          "stdout": "BER\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\"}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh\": 9, \"binance\": 13, \"brapi\": 3, \"yfinance\": 19}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"warn\", \"code\": \"core_assets_stale\", \"message\": \"2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor.\"}, {\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"54 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}",
+          "stderr": "",
+          "ok": true,
+          "parsed": {
+            "status": "warn",
+            "generated_at_utc": "2026-03-14T01:19:39.078354+00:00",
+            "reference_data_date": "2026-03-14",
+            "site_as_of_date": "2026-03-14",
+            "site_lag_days": 0,
+            "operation_generated_at_utc": "2026-03-14T00:35:54.639751+00:00",
+            "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
+            "total_assets": 853,
+            "fresh_assets": 719,
+            "stale_assets": 134,
+            "critical_stale_assets": 0,
+            "core_stale_assets": 2,
+            "peripheral_stale_assets": 132,
+            "prune_candidate_count": 54,
+            "sample_critical_stale": [],
+            "sample_core_stale": [
+              {
+                "ticker": "ZD",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "core"
+              },
+              {
+                "ticker": "CCZ",
+                "latest_date": "2026-03-12",
+                "stale_days": 2,
+                "role": "core"
+              }
+            ],
+            "sample_prune_candidates": [
+              {
+                "ticker": "SOJD",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "SOJE",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "SOMN",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "SONO",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "SREA",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "STEM",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "STI",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "SYM",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "TBB",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "TLN",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "TRI",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "TTGT",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "TW",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "UBER",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "USAR",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "USGO",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "USGOW",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "UTZ",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "UZD",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              },
+              {
+                "ticker": "UZE",
+                "latest_date": "2026-02-12",
+                "stale_days": 30,
+                "role": "peripheral"
+              }
+            ],
+            "ingestion_status": "warn",
+            "ingestion_warning_reasons": [
+              "assets_without_remote_data"
+            ],
+            "ingestion_provider_counts": {
+              "local_fresh": 9,
+              "binance": 13,
+              "brapi": 3,
+              "yfinance": 19
+            },
+            "notes": [
+              "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
+              "Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda."
+            ],
+            "alerts": [
+              {
+                "level": "warn",
+                "code": "core_assets_stale",
+                "message": "2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+              },
+              {
+                "level": "info",
+                "code": "peripheral_prune_candidates",
+                "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
+              }
+            ],
+            "agent": {
+              "agent_id": "daily-data-quality-agent",
+              "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
+              "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+              "display_name": "Agente diário de qualidade",
+              "mission": "Medir cobertura, frescor e poda potencial do universo observado.",
+              "run_order": "5",
+              "depends_on": [
+                "daily-ingestion-agent",
+                "daily-backfill-agent",
+                "daily-operation-agent"
+              ],
+              "consumes": [
+                "data/raw/finance/yfinance_daily",
+                "results/ops/agents/daily_ingestion/latest_summary.json"
+              ],
+              "produces": [
+                "results/ops/agents/daily_data_quality/latest_summary.json"
+              ],
+              "rules": [
+                "separar_critico_nucleo_periferia",
+                "qualidade_publica_e_rastreavel"
+              ]
+            }
+          }
+        },
+        "site_snapshot": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/build_site_finance_snapshot.py"
+          ],
+          "returncode": 0,
+          "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json",
+          "stderr": "",
+          "ok": true,
+          "parsed": {}
+        }
+      },
+      "alerts": [
+        {
+          "level": "info",
+          "code": "deferred_review_assets",
+          "message": "2 ativos do núcleo ficaram fora do backfill automático e pedem revisão manual de universo."
+        }
+      ],
+      "notes": [
+        "Este agente não substitui a ingestão principal; ele só reconcilia o que ficou para trás.",
+        "Ativos marcados para revisão ficam fora do retry automático para não reintroduzir ruído no núcleo."
+      ],
+      "agent": {
+        "agent_id": "daily-backfill-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-backfill-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de reconciliação",
+        "mission": "Reprocessar ativos críticos e do núcleo que ficaram atrasados após a ingestão principal.",
+        "run_order": "2",
+        "depends_on": [
+          "daily-ingestion-agent"
+        ],
+        "consumes": [
+          "results/ops/agents/daily_ingestion/latest_summary.json",
+          "data/raw/finance/yfinance_daily"
+        ],
+        "produces": [
+          "results/ops/agents/daily_backfill/latest_summary.json"
+        ],
+        "rules": [
+          "foco_em_criticos_e_nucleo",
+          "sem_apagar_ativos_as_cego"
+        ]
       }
     },
     "daily_operation": {
@@ -439,17 +732,17 @@
     },
     "daily_data_quality": {
       "status": "warn",
-      "generated_at_utc": "2026-03-14T00:38:33.305050+00:00",
-      "reference_data_date": "2026-03-13",
-      "site_as_of_date": "2026-03-13",
+      "generated_at_utc": "2026-03-14T01:19:40.158873+00:00",
+      "reference_data_date": "2026-03-14",
+      "site_as_of_date": "2026-03-14",
       "site_lag_days": 0,
       "operation_generated_at_utc": "2026-03-14T00:35:54.639751+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "total_assets": 853,
-      "fresh_assets": 720,
-      "stale_assets": 133,
+      "fresh_assets": 719,
+      "stale_assets": 134,
       "critical_stale_assets": 0,
-      "core_stale_assets": 1,
+      "core_stale_assets": 2,
       "peripheral_stale_assets": 132,
       "prune_candidate_count": 54,
       "sample_critical_stale": [],
@@ -457,7 +750,13 @@
         {
           "ticker": "ZD",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
+          "role": "core"
+        },
+        {
+          "ticker": "CCZ",
+          "latest_date": "2026-03-12",
+          "stale_days": 2,
           "role": "core"
         }
       ],
@@ -465,121 +764,121 @@
         {
           "ticker": "SOJD",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "SOJE",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "SOMN",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "SONO",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "SREA",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "STEM",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "STI",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "SYM",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "TBB",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "TLN",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "TRI",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "TTGT",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "TW",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "UBER",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "USAR",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "USGO",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "USGOW",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "UTZ",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "UZD",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         },
         {
           "ticker": "UZE",
           "latest_date": "2026-02-12",
-          "stale_days": 29,
+          "stale_days": 30,
           "role": "peripheral"
         }
       ],
@@ -588,9 +887,10 @@
         "assets_without_remote_data"
       ],
       "ingestion_provider_counts": {
-        "local_fresh": 667,
+        "local_fresh": 9,
+        "binance": 13,
         "brapi": 3,
-        "binance": 2
+        "yfinance": 19
       },
       "notes": [
         "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
@@ -600,15 +900,136 @@
         {
           "level": "warn",
           "code": "core_assets_stale",
-          "message": "1 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+          "message": "2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
         },
         {
           "level": "info",
           "code": "peripheral_prune_candidates",
           "message": "54 ativos periféricos estão velhos o suficiente para revisão ou poda."
         }
-      ]
+      ],
+      "agent": {
+        "agent_id": "daily-data-quality-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de qualidade",
+        "mission": "Medir cobertura, frescor e poda potencial do universo observado.",
+        "run_order": "5",
+        "depends_on": [
+          "daily-ingestion-agent",
+          "daily-backfill-agent",
+          "daily-operation-agent"
+        ],
+        "consumes": [
+          "data/raw/finance/yfinance_daily",
+          "results/ops/agents/daily_ingestion/latest_summary.json"
+        ],
+        "produces": [
+          "results/ops/agents/daily_data_quality/latest_summary.json"
+        ],
+        "rules": [
+          "separar_critico_nucleo_periferia",
+          "qualidade_publica_e_rastreavel"
+        ]
+      }
+    },
+    "daily_publish": {},
+    "daily_smoke_test": {
+      "status": "warn",
+      "generated_at_utc": "2026-03-14T01:18:14.439950+00:00",
+      "finance_last_date": "2026-03-14",
+      "operation_attack_latest_date": "2026-03-02",
+      "operation_candidate_id": "criticality_free_energy_attack",
+      "registry_candidate_id": "criticality_free_energy_attack",
+      "http_checks": [],
+      "checks": [
+        {
+          "level": "warn",
+          "code": "operation_attack_stale",
+          "message": "O modo ataque ficou 12 dias atrás da base publicada."
+        },
+        {
+          "level": "warn",
+          "code": "core_assets_stale",
+          "message": "O núcleo do motor ainda tem ativos atrasados."
+        }
+      ],
+      "notes": [
+        "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
+        "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
+      ],
+      "agent": {
+        "agent_id": "daily-smoke-test-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de smoke test",
+        "mission": "Validar se o snapshot publicado e o modo operacional continuam coerentes após a publicação.",
+        "run_order": "7",
+        "depends_on": [
+          "daily-publish"
+        ],
+        "consumes": [
+          "results/ops/site_data/latest_site_snapshot.json",
+          "results/ops/agents/daily_operation/latest_summary.json"
+        ],
+        "produces": [
+          "results/ops/agents/daily_smoke_test/latest_summary.json"
+        ],
+        "rules": [
+          "falha_visivel",
+          "sem_passar_site_incoerente"
+        ]
+      }
+    },
+    "daily_watchdog": {
+      "status": "warn",
+      "generated_at_utc": "2026-03-14T01:16:38.285519+00:00",
+      "retries_attempted": 0,
+      "retries": [],
+      "checks": [
+        {
+          "level": "warn",
+          "code": "core_still_stale",
+          "message": "O watchdog resolveu o crítico, mas o núcleo ainda tem ativos atrasados."
+        }
+      ],
+      "notes": [
+        "O watchdog só faz retry controlado. Ele não substitui o papel dos agentes principais.",
+        "Se a falha persistir depois do retry, o estado fica explícito como fail."
+      ],
+      "agent": {
+        "agent_id": "daily-watchdog-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-watchdog-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Agente diário de watchdog",
+        "mission": "Auditar os outros agentes e tentar retries controlados quando houver falha ou estado crítico.",
+        "run_order": "8",
+        "depends_on": [
+          "daily-smoke-test-agent"
+        ],
+        "consumes": [
+          "results/ops/agents"
+        ],
+        "produces": [
+          "results/ops/agents/daily_watchdog/latest_summary.json"
+        ],
+        "rules": [
+          "retry_limitado",
+          "sem_loop_infinito",
+          "falha_irresolvida_vira_alerta"
+        ]
+      }
     }
+  },
+  "automation": {
+    "ingestion_status": "warn",
+    "backfill_status": "ok",
+    "operation_status": "ok",
+    "vigilance_status": "warn",
+    "data_quality_status": "warn",
+    "publish_status": null,
+    "smoke_test_status": "warn",
+    "watchdog_status": "warn"
   },
   "confidence": {
     "recommended_live_mode": {
@@ -1220,7 +1641,7 @@
   "proof": {
     "history_window": {
       "start": "2016-02-18",
-      "end": "2026-03-13"
+      "end": "2026-03-14"
     },
     "attack_mode": {
       "generated_at_utc": "2026-03-13T00:35:54.678093+00:00",
@@ -1411,13 +1832,21 @@
   "data_quality": {
     "price_source": "yfinance_daily_bundle",
     "price_history_start": "2016-01-05",
-    "price_history_end": "2026-03-13",
+    "price_history_end": "2026-03-14",
     "ingestion_status": "warn",
-    "last_ingestion_at": "2026-03-13T23:03:53.239554+00:00",
-    "last_ingestion_data_date": "2026-03-13",
-    "ingestion_updated_assets": 5,
-    "ingestion_refreshed_assets": 672,
-    "ingestion_no_remote_data_assets": 181,
+    "backfill_status": "ok",
+    "backfill_targeted_assets": 0,
+    "backfill_deferred_review_tickers": [
+      "ZD",
+      "CCZ"
+    ],
+    "smoke_test_status": "warn",
+    "watchdog_status": "warn",
+    "last_ingestion_at": "2026-03-14T00:47:23.148700+00:00",
+    "last_ingestion_data_date": "2026-03-14",
+    "ingestion_updated_assets": 35,
+    "ingestion_refreshed_assets": 44,
+    "ingestion_no_remote_data_assets": 809,
     "ingestion_skipped_remote_assets": 0,
     "ingestion_failed_assets": 0,
     "ingestion_stale_days": 0,
@@ -1426,16 +1855,16 @@
       "assets_without_remote_data"
     ],
     "quality_status": "warn",
-    "quality_reference_date": "2026-03-13",
+    "quality_reference_date": "2026-03-14",
     "quality_critical_stale_assets": 0,
-    "quality_core_stale_assets": 1,
+    "quality_core_stale_assets": 2,
     "quality_peripheral_stale_assets": 132,
     "quality_prune_candidate_count": 54,
     "quality_alerts": [
       {
         "level": "warn",
         "code": "core_assets_stale",
-        "message": "1 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
+        "message": "2 ativos do núcleo do motor estão atrasados e precisam de cobertura melhor."
       },
       {
         "level": "info",
@@ -1448,121 +1877,121 @@
       {
         "ticker": "SOJD",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "SOJE",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "SOMN",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "SONO",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "SREA",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "STEM",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "STI",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "SYM",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "TBB",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "TLN",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "TRI",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "TTGT",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "TW",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "UBER",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "USAR",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "USGO",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "USGOW",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "UTZ",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "UZD",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       },
       {
         "ticker": "UZE",
         "latest_date": "2026-02-12",
-        "stale_days": 29,
+        "stale_days": 30,
         "role": "peripheral"
       }
     ],
@@ -1570,7 +1999,13 @@
     "volume_total_assets": 140,
     "volume_coverage_ratio": 0.0,
     "volume_note": "Os CSVs publicados hoje não trazem volume. O site deve usar confiança, drawdown e volatilidade em vez de fingir volume.",
-    "snapshot_read_warnings": []
+    "snapshot_read_warnings": [
+      {
+        "path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json",
+        "reason": "missing_or_unreadable",
+        "detail": "[Errno 2] No such file or directory: '/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json'"
+      }
+    ]
   },
   "charts": {
     "sector_pressure": [
@@ -1651,7 +2086,7 @@
       {
         "asset": "AVGO",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1670,7 +2105,7 @@
       {
         "asset": "CSCO",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1689,7 +2124,7 @@
       {
         "asset": "CCZ",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1708,7 +2143,7 @@
       {
         "asset": "AD",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1727,7 +2162,7 @@
       {
         "asset": "CSX",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1746,7 +2181,7 @@
       {
         "asset": "BLK",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1765,7 +2200,7 @@
       {
         "asset": "APA",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1784,7 +2219,7 @@
       {
         "asset": "COR",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1803,7 +2238,7 @@
       {
         "asset": "CAT",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1822,7 +2257,7 @@
       {
         "asset": "CTAS",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1841,7 +2276,7 @@
       {
         "asset": "AIG",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1860,7 +2295,7 @@
       {
         "asset": "COP",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1879,7 +2314,7 @@
       {
         "asset": "CTLP",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1898,7 +2333,7 @@
       {
         "asset": "COST",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1917,7 +2352,7 @@
       {
         "asset": "CNP",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1936,7 +2371,7 @@
       {
         "asset": "CHRD",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1955,7 +2390,7 @@
       {
         "asset": "AES",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1974,7 +2409,7 @@
       {
         "asset": "ADM",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -1993,7 +2428,7 @@
       {
         "asset": "CME",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2012,7 +2447,7 @@
       {
         "asset": "CAH",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2031,7 +2466,7 @@
       {
         "asset": "AR",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2050,7 +2485,7 @@
       {
         "asset": "BA",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2069,7 +2504,7 @@
       {
         "asset": "BTC-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2089,7 +2524,7 @@
       {
         "asset": "BWEN",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2108,7 +2543,7 @@
       {
         "asset": "APH",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2127,7 +2562,7 @@
       {
         "asset": "ANET",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2146,7 +2581,7 @@
       {
         "asset": "BR",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2165,7 +2600,7 @@
       {
         "asset": "CMG",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2184,7 +2619,7 @@
       {
         "asset": "BMY",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2203,7 +2638,7 @@
       {
         "asset": "ALL",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2222,7 +2657,7 @@
       {
         "asset": "BG",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2241,7 +2676,7 @@
       {
         "asset": "CLF",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2260,7 +2695,7 @@
       {
         "asset": "AFL",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2279,7 +2714,7 @@
       {
         "asset": "ALNY",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2298,7 +2733,7 @@
       {
         "asset": "AMD",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2317,7 +2752,7 @@
       {
         "asset": "BSM",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2336,7 +2771,7 @@
       {
         "asset": "AME",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2355,7 +2790,7 @@
       {
         "asset": "CSGP",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2374,7 +2809,7 @@
       {
         "asset": "CTRA",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2393,7 +2828,7 @@
       {
         "asset": "BSX",
         "domain": "finance",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "20260301T095915Z",
         "data_adequacy": "ok",
         "source_type": "lab_corr_asset_diag",
@@ -2414,7 +2849,7 @@
       {
         "asset": "BTC-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2434,7 +2869,7 @@
       {
         "asset": "LTC-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2454,7 +2889,7 @@
       {
         "asset": "BNB-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2474,7 +2909,7 @@
       {
         "asset": "SOL-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2494,7 +2929,7 @@
       {
         "asset": "TRX-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2514,7 +2949,7 @@
       {
         "asset": "ETH-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2534,7 +2969,7 @@
       {
         "asset": "LINK-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2554,7 +2989,7 @@
       {
         "asset": "XRP-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2574,7 +3009,7 @@
       {
         "asset": "ADA-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2594,7 +3029,7 @@
       {
         "asset": "AVAX-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2614,7 +3049,7 @@
       {
         "asset": "MATIC-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2634,7 +3069,7 @@
       {
         "asset": "XLM-USD",
         "domain": "crypto",
-        "timestamp": "2026-03-13",
+        "timestamp": "2026-03-14",
         "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
         "data_adequacy": "ok",
         "source_type": "crypto_research",
@@ -2667,7 +3102,7 @@
     {
       "asset": "AVGO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2686,7 +3121,7 @@
     {
       "asset": "CSCO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2705,7 +3140,7 @@
     {
       "asset": "CCZ",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2724,7 +3159,7 @@
     {
       "asset": "AD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2743,7 +3178,7 @@
     {
       "asset": "CSX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2762,7 +3197,7 @@
     {
       "asset": "BLK",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2781,7 +3216,7 @@
     {
       "asset": "APA",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2800,7 +3235,7 @@
     {
       "asset": "COR",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2819,7 +3254,7 @@
     {
       "asset": "CAT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2838,7 +3273,7 @@
     {
       "asset": "CTAS",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2857,7 +3292,7 @@
     {
       "asset": "AIG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2876,7 +3311,7 @@
     {
       "asset": "COP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2895,7 +3330,7 @@
     {
       "asset": "CTLP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2914,7 +3349,7 @@
     {
       "asset": "COST",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2933,7 +3368,7 @@
     {
       "asset": "CNP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2952,7 +3387,7 @@
     {
       "asset": "CHRD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2971,7 +3406,7 @@
     {
       "asset": "AES",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -2990,7 +3425,7 @@
     {
       "asset": "ADM",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3009,7 +3444,7 @@
     {
       "asset": "CME",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3028,7 +3463,7 @@
     {
       "asset": "CAH",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3047,7 +3482,7 @@
     {
       "asset": "AR",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3066,7 +3501,7 @@
     {
       "asset": "BA",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3085,7 +3520,7 @@
     {
       "asset": "BTC-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -3105,7 +3540,7 @@
     {
       "asset": "BWEN",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3124,7 +3559,7 @@
     {
       "asset": "APH",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3143,7 +3578,7 @@
     {
       "asset": "ANET",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3162,7 +3597,7 @@
     {
       "asset": "BR",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3181,7 +3616,7 @@
     {
       "asset": "CMG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3200,7 +3635,7 @@
     {
       "asset": "BMY",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3219,7 +3654,7 @@
     {
       "asset": "ALL",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3238,7 +3673,7 @@
     {
       "asset": "BG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3257,7 +3692,7 @@
     {
       "asset": "CLF",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3276,7 +3711,7 @@
     {
       "asset": "AFL",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3295,7 +3730,7 @@
     {
       "asset": "ALNY",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3314,7 +3749,7 @@
     {
       "asset": "AMD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3333,7 +3768,7 @@
     {
       "asset": "BSM",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3352,7 +3787,7 @@
     {
       "asset": "AME",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3371,7 +3806,7 @@
     {
       "asset": "CSGP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3390,7 +3825,7 @@
     {
       "asset": "CTRA",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3409,7 +3844,7 @@
     {
       "asset": "BSX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3428,7 +3863,7 @@
     {
       "asset": "CPRT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3447,7 +3882,7 @@
     {
       "asset": "CBRE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3466,7 +3901,7 @@
     {
       "asset": "ADI",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3485,7 +3920,7 @@
     {
       "asset": "BK",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3504,7 +3939,7 @@
     {
       "asset": "CRK",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3523,7 +3958,7 @@
     {
       "asset": "CMS",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3542,7 +3977,7 @@
     {
       "asset": "AAPL",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3561,7 +3996,7 @@
     {
       "asset": "AXON",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3580,7 +4015,7 @@
     {
       "asset": "AEP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3599,7 +4034,7 @@
     {
       "asset": "CCI",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3618,7 +4053,7 @@
     {
       "asset": "BAC",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3637,7 +4072,7 @@
     {
       "asset": "ACTG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3656,7 +4091,7 @@
     {
       "asset": "AMAT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3675,7 +4110,7 @@
     {
       "asset": "BIIB",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3694,7 +4129,7 @@
     {
       "asset": "C",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3713,7 +4148,7 @@
     {
       "asset": "AJG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3732,7 +4167,7 @@
     {
       "asset": "CMI",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3751,7 +4186,7 @@
     {
       "asset": "CHTR",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3770,7 +4205,7 @@
     {
       "asset": "AMP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3789,7 +4224,7 @@
     {
       "asset": "CQP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3808,7 +4243,7 @@
     {
       "asset": "ADC",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3827,7 +4262,7 @@
     {
       "asset": "CIEN",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3846,7 +4281,7 @@
     {
       "asset": "CNX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3865,7 +4300,7 @@
     {
       "asset": "LTC-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -3885,7 +4320,7 @@
     {
       "asset": "AMH",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3904,7 +4339,7 @@
     {
       "asset": "COKE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3923,7 +4358,7 @@
     {
       "asset": "AMWD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -3942,7 +4377,7 @@
     {
       "asset": "BNB-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -3962,7 +4397,7 @@
     {
       "asset": "SOL-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -3982,7 +4417,7 @@
     {
       "asset": "TRX-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4002,7 +4437,7 @@
     {
       "asset": "BKNG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4021,7 +4456,7 @@
     {
       "asset": "ETH-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4041,7 +4476,7 @@
     {
       "asset": "AZO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4060,7 +4495,7 @@
     {
       "asset": "ARLP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4079,7 +4514,7 @@
     {
       "asset": "AON",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4098,7 +4533,7 @@
     {
       "asset": "ADSK",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4117,7 +4552,7 @@
     {
       "asset": "CRM",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4136,7 +4571,7 @@
     {
       "asset": "LINK-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4156,7 +4591,7 @@
     {
       "asset": "AMZN",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4175,7 +4610,7 @@
     {
       "asset": "XRP-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4195,7 +4630,7 @@
     {
       "asset": "CI",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4214,7 +4649,7 @@
     {
       "asset": "ADA-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4234,7 +4669,7 @@
     {
       "asset": "ADP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4253,7 +4688,7 @@
     {
       "asset": "CELH",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4272,7 +4707,7 @@
     {
       "asset": "CPB",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4291,7 +4726,7 @@
     {
       "asset": "AVAX-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4311,7 +4746,7 @@
     {
       "asset": "MATIC-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4331,7 +4766,7 @@
     {
       "asset": "XLM-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4351,7 +4786,7 @@
     {
       "asset": "FIL-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4371,7 +4806,7 @@
     {
       "asset": "ATO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4390,7 +4825,7 @@
     {
       "asset": "BCH-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4410,7 +4845,7 @@
     {
       "asset": "ETC-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4430,7 +4865,7 @@
     {
       "asset": "NEAR-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4450,7 +4885,7 @@
     {
       "asset": "ALGO-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4470,7 +4905,7 @@
     {
       "asset": "ATOM-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4490,7 +4925,7 @@
     {
       "asset": "CLW",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4509,7 +4944,7 @@
     {
       "asset": "ICP-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4529,7 +4964,7 @@
     {
       "asset": "ATEN",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4548,7 +4983,7 @@
     {
       "asset": "DOT-USD",
       "domain": "crypto",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "/Users/PedroHenrique/Downloads/Assyntrax/results/validation/profit_10x_rule_search_crypto_plus/20260307T013640Z",
       "data_adequacy": "ok",
       "source_type": "crypto_research",
@@ -4568,7 +5003,7 @@
     {
       "asset": "CALM",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4587,7 +5022,7 @@
     {
       "asset": "ARE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4606,7 +5041,7 @@
     {
       "asset": "CPAY",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4625,7 +5060,7 @@
     {
       "asset": "BRX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4644,7 +5079,7 @@
     {
       "asset": "CDNS",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4663,7 +5098,7 @@
     {
       "asset": "CMCSA",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4682,7 +5117,7 @@
     {
       "asset": "CAG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4701,7 +5136,7 @@
     {
       "asset": "ABT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4720,7 +5155,7 @@
     {
       "asset": "AXP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4739,7 +5174,7 @@
     {
       "asset": "AMCX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4758,7 +5193,7 @@
     {
       "asset": "AKAM",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4777,7 +5212,7 @@
     {
       "asset": "AMGN",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4796,7 +5231,7 @@
     {
       "asset": "AEE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4815,7 +5250,7 @@
     {
       "asset": "APD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4834,7 +5269,7 @@
     {
       "asset": "ABBV",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4853,7 +5288,7 @@
     {
       "asset": "BXP",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4872,7 +5307,7 @@
     {
       "asset": "CLMT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4891,7 +5326,7 @@
     {
       "asset": "CL",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4910,7 +5345,7 @@
     {
       "asset": "AWK",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4929,7 +5364,7 @@
     {
       "asset": "ATNI",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4948,7 +5383,7 @@
     {
       "asset": "CFG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4967,7 +5402,7 @@
     {
       "asset": "ADBE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -4986,7 +5421,7 @@
     {
       "asset": "AMT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5005,7 +5440,7 @@
     {
       "asset": "AIOT",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5024,7 +5459,7 @@
     {
       "asset": "AVB",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5043,7 +5478,7 @@
     {
       "asset": "APPS",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5062,7 +5497,7 @@
     {
       "asset": "BX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5081,7 +5516,7 @@
     {
       "asset": "CDE",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5100,7 +5535,7 @@
     {
       "asset": "BTC-USD",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5119,7 +5554,7 @@
     {
       "asset": "COF",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5138,7 +5573,7 @@
     {
       "asset": "CNC",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5157,7 +5592,7 @@
     {
       "asset": "ARES",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5176,7 +5611,7 @@
     {
       "asset": "CTGO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5195,7 +5630,7 @@
     {
       "asset": "AMPG",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5214,7 +5649,7 @@
     {
       "asset": "BDX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5233,7 +5668,7 @@
     {
       "asset": "CCL",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5252,7 +5687,7 @@
     {
       "asset": "CABO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5271,7 +5706,7 @@
     {
       "asset": "ATEX",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5290,7 +5725,7 @@
     {
       "asset": "AGNC",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5309,7 +5744,7 @@
     {
       "asset": "A",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",
@@ -5328,7 +5763,7 @@
     {
       "asset": "APO",
       "domain": "finance",
-      "timestamp": "2026-03-13",
+      "timestamp": "2026-03-14",
       "run_id": "20260301T095915Z",
       "data_adequacy": "ok",
       "source_type": "lab_corr_asset_diag",

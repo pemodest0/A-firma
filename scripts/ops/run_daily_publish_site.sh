@@ -6,7 +6,11 @@ SEED="${SEED:-23}"
 MAX_ASSETS="${MAX_ASSETS:-80}"
 WITH_HEAVY="${WITH_HEAVY:-0}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"
+SUMMARY_OUTROOT="$ROOT/results/ops/agents/daily_publish"
 PYTHON_BIN="${PYTHON_BIN:-}"
+MASTER_CODE=0
+DEPLOY_CODE=0
+SMOKE_CODE=0
 
 if [[ -z "$PYTHON_BIN" ]]; then
   for candidate in \
@@ -27,6 +31,43 @@ if [[ -z "$PYTHON_BIN" ]]; then
   exit 1
 fi
 
+write_publish_summary() {
+  local status="$1"
+  mkdir -p "$SUMMARY_OUTROOT/$RUN_ID"
+  "$PYTHON_BIN" - <<PY
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from scripts.ops.agent_guides import attach_agent_guide
+
+root = Path(${SUMMARY_OUTROOT@Q})
+run_id = ${RUN_ID@Q}
+payload = attach_agent_guide(
+    {
+        "status": ${status@Q},
+        "run_id": run_id,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "master_code": int(${MASTER_CODE}),
+        "deploy_code": int(${DEPLOY_CODE}),
+        "smoke_code": int(${SMOKE_CODE}),
+    },
+    "daily-publish",
+)
+run_dir = root / run_id
+run_dir.mkdir(parents=True, exist_ok=True)
+for target in [run_dir / "summary.json", root / "latest_summary.json", root / "latest_publish.json"]:
+    target.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+PY
+}
+
+on_error() {
+  local code="$1"
+  write_publish_summary "fail"
+  exit "$code"
+}
+
+trap 'on_error $?' ERR
+
 if [[ -d "$HOME/.nvm/versions/node" ]]; then
   while IFS= read -r node_bin; do
     export PATH="$node_bin:$PATH"
@@ -40,11 +81,10 @@ echo "[daily_publish] repo=$ROOT run_id=$RUN_ID"
 
 # Atualiza preços antes de recalcular qualquer leitura.
 "$PYTHON_BIN" scripts/ops/run_daily_ingestion_agent.py
+"$PYTHON_BIN" scripts/ops/run_daily_backfill_agent.py
 
 # Coleta de acerto/erro diária para histórico do site.
 "$PYTHON_BIN" scripts/ops/update_prediction_truth_daily.py --run-id "$RUN_ID"
-
-MASTER_CODE=0
 if [[ "$WITH_HEAVY" == "1" ]]; then
   "$PYTHON_BIN" scripts/ops/run_daily_master.py --seed "$SEED" --max-assets "$MAX_ASSETS" --run-id "$RUN_ID" --with-heavy || MASTER_CODE=$?
 else
@@ -61,7 +101,18 @@ fi
 bash scripts/sync_lab_corr_to_website.sh
 
 cd "$ROOT/website-ui"
-npx vercel --prod --yes
+npx vercel --prod --yes || DEPLOY_CODE=$?
+cd "$ROOT"
+"$PYTHON_BIN" scripts/ops/run_daily_smoke_test_agent.py || SMOKE_CODE=$?
 
 echo "[daily_publish] done run_id=$RUN_ID master_code=$MASTER_CODE"
+if [[ "$DEPLOY_CODE" -ne 0 ]]; then
+  write_publish_summary "fail"
+  exit "$DEPLOY_CODE"
+fi
+if [[ "$SMOKE_CODE" -ne 0 ]]; then
+  write_publish_summary "fail"
+  exit "$SMOKE_CODE"
+fi
+write_publish_summary "ok"
 exit 0

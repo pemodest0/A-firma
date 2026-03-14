@@ -788,6 +788,10 @@ def build_snapshot() -> dict[str, Any]:
     operation_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json", {})
     vigilance_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json", {})
     data_quality_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json", {})
+    backfill_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json", {})
+    smoke_test_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_smoke_test" / "latest_summary.json", {})
+    watchdog_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_watchdog" / "latest_summary.json", {})
+    publish_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_publish" / "latest_summary.json", {})
     operation_confidence = operation_agent.get("mode_confidence", {}) if isinstance(operation_agent, dict) else {}
     recommended_live_mode = operation_agent.get("recommended_live_mode", {}) if isinstance(operation_agent, dict) else {}
     group_top_candidates = group_method_summary.get("top_candidates", {}) if isinstance(group_method_summary, dict) else {}
@@ -994,9 +998,23 @@ def build_snapshot() -> dict[str, Any]:
         },
         "agents": {
             "daily_ingestion": ingestion_agent,
+            "daily_backfill": backfill_agent,
             "daily_operation": operation_agent,
             "daily_vigilance": vigilance_agent,
             "daily_data_quality": data_quality_agent,
+            "daily_publish": publish_agent,
+            "daily_smoke_test": smoke_test_agent,
+            "daily_watchdog": watchdog_agent,
+        },
+        "automation": {
+            "ingestion_status": ingestion_agent.get("status"),
+            "backfill_status": backfill_agent.get("status"),
+            "operation_status": operation_agent.get("status"),
+            "vigilance_status": vigilance_agent.get("status"),
+            "data_quality_status": data_quality_agent.get("status"),
+            "publish_status": publish_agent.get("status"),
+            "smoke_test_status": smoke_test_agent.get("status"),
+            "watchdog_status": watchdog_agent.get("status"),
         },
         "confidence": {
             "recommended_live_mode": recommended_live_mode,
@@ -1104,6 +1122,11 @@ def build_snapshot() -> dict[str, Any]:
                 or ""
             ),
             "ingestion_status": ingestion_agent.get("status"),
+            "backfill_status": backfill_agent.get("status"),
+            "backfill_targeted_assets": backfill_agent.get("targeted_assets"),
+            "backfill_deferred_review_tickers": backfill_agent.get("deferred_review_tickers") or [],
+            "smoke_test_status": smoke_test_agent.get("status"),
+            "watchdog_status": watchdog_agent.get("status"),
             "last_ingestion_at": ingestion_agent.get("generated_at_utc"),
             "last_ingestion_data_date": ingestion_agent.get("max_latest_date"),
             "ingestion_updated_assets": ingestion_agent.get("updated_assets"),

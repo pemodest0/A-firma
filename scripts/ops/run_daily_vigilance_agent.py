@@ -3,11 +3,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.ops.agent_guides import attach_agent_guide
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -108,7 +113,7 @@ def main() -> None:
     else:
         status = "warn"
 
-    summary = {
+    summary = attach_agent_guide({
         "status": status,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "operation_age_days": op_age,
@@ -120,7 +125,7 @@ def main() -> None:
             "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
             "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham.",
         ],
-    }
+    }, "daily-vigilance-agent")
 
     outroot = (ROOT / args.outdir_root).resolve()
     ts_dir = outroot / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
