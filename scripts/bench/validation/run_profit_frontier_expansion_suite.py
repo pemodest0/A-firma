@@ -119,13 +119,22 @@ def _evaluate_net(
     profile: NetAssumptionProfile,
     benchmark_ret: pd.Series,
     benchmark_profile: NetAssumptionProfile,
+    cash_weight: pd.Series | None = None,
+    initial_capital_brl: float | None = None,
     periods_per_year: int = 252,
 ) -> dict[str, Any]:
     gross_ret = pd.to_numeric(gross_ret, errors="coerce").fillna(0.0).astype(float)
     turnover = pd.to_numeric(turnover, errors="coerce").reindex(gross_ret.index).fillna(0.0).astype(float)
     benchmark_ret = pd.to_numeric(benchmark_ret, errors="coerce").reindex(gross_ret.index).fillna(0.0).astype(float)
 
-    net_frame = apply_net_assumptions(gross_ret, turnover, profile=profile, periods_index=gross_ret.index)
+    net_frame = apply_net_assumptions(
+        gross_ret,
+        turnover,
+        profile=profile,
+        periods_index=gross_ret.index,
+        cash_weight=cash_weight,
+        initial_capital_brl=initial_capital_brl,
+    )
     benchmark_net = apply_net_assumptions(
         benchmark_ret,
         pd.Series(np.zeros(len(benchmark_ret), dtype=float), index=benchmark_ret.index, dtype=float),
@@ -143,6 +152,8 @@ def _evaluate_net(
         "net_max_drawdown": _safe_float(summary.get("max_drawdown")),
         "edge_vs_benchmark": _safe_float(summary.get("total_return")) - _safe_float(bench.get("total_return")),
         "avg_turnover_daily": float(turnover.mean()) if not turnover.empty else float("nan"),
+        "avg_cash_ret": float(pd.to_numeric(net_frame.get("cash_ret"), errors="coerce").fillna(0.0).mean()) if "cash_ret" in net_frame else 0.0,
+        "avg_withholding_ret": float(pd.to_numeric(net_frame.get("withholding_ret"), errors="coerce").fillna(0.0).mean()) if "withholding_ret" in net_frame else 0.0,
     }
 
 

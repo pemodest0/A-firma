@@ -1,9 +1,14 @@
 {
-  "version": "profit_net_assumptions_v1",
-  "statement": "Premissas líquidas para pesquisa de lucro da Assyntrax. Alíquotas e enquadramentos usam fontes oficiais; custos em bps são cenários internos conservadores, não cotações de corretora.",
+  "version": "profit_net_assumptions_v2",
+  "statement": "Premissas líquidas para pesquisa de lucro da Assyntrax. Alíquotas e enquadramentos usam fontes oficiais; custos em bps são cenários internos conservadores e a tributação é modelada por proxies rastreáveis de caixa, vendas mensais, retenções e compensação, não por apuração fiscal lote a lote.",
   "official_sources": {
     "br_foreign_financial_investments": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/tributacao-de-aplicacoes-financeiras-no-exterior",
-    "br_bolsa_capital_gains": "https://www.gov.br/pt-br/servicos/apurar-ganhos-liquidos-em-operacoes-na-bolsa",
+    "br_bolsa_capital_gains": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1",
+    "br_bolsa_isencoes": "https://www.gov.br/receitafederal/pt-br/assuntos/meu-imposto-de-renda/pagamento/renda-variavel/bolsa-de-valores-1/isencoes",
+    "br_crypto_tax": "https://www.gov.br/fazenda/pt-br/assuntos/noticias/2023/marco/receita-federal-esclarece-sobre-declaracao-de-operacoes-com-moedas-virtuais",
+    "cvm_consultores": "https://www.gov.br/cvm/pt-br/assuntos/regulados/consultas-por-participante/consultores-de-valores-mobiliarios/consultores-de-valores-mobiliarios",
+    "cvm_analistas": "https://www.gov.br/cvm/pt-br/assuntos/regulados/consultas-por-participante/analistas-de-valores-mobiliarios",
+    "cvm_copytrade": "https://www.gov.br/cvm/pt-br/assuntos/noticias/2025/area-tecnica-da-cvm-orienta-sobre-prestacao-de-servicos-de-copytrade",
     "irs_nonresident_withholding": "https://www.irs.gov/individuals/international-taxpayers/withholding-of-tax-on-nonresident-aliens-and-foreign-entities",
     "b3_variable_income_fees": "https://www.b3.com.br/pt_br/produtos-e-servicos/tarifas/listados-a-vista-e-derivativos/renda-variavel/"
   },
@@ -16,9 +21,14 @@
       "capital_gains_tax_rate": 0.15,
       "tax_timing": "annual_positive_proxy",
       "dividend_withholding_mode": "not_modeled_adjusted_close",
+      "assumed_portfolio_base_brl": 10000.0,
+      "cash_yield_enabled": true,
+      "cash_rate_source_path": "data/raw/realestate/bcb/SELIC_D_11.csv",
+      "cash_rate_annual_fallback": 0.10,
       "notes": [
         "IR de 15% modelado como proxy anual sobre ganho positivo apos custos.",
         "Retornos via adjusted close não separam dividendo de preço; withholding de dividendos não é modelado separadamente para evitar dupla contagem.",
+        "Caixa em BRL rende proxy SELIC quando o motor fica defensivo.",
         "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora."
       ]
     },
@@ -28,13 +38,23 @@
       "transaction_cost_bps_assumed": 15.0,
       "fx_spread_bps_assumed": 0.0,
       "capital_gains_tax_rate": 0.15,
-      "tax_timing": "monthly_positive_proxy",
+      "tax_timing": "monthly_realistic_proxy",
       "dividend_withholding_mode": "not_applicable",
-      "monthly_sales_exemption_modeled": false,
+      "monthly_sales_exemption_modeled": true,
+      "monthly_sales_exemption_brl": 20000.0,
+      "loss_compensation_enabled": true,
+      "withholding_bps_on_sales": 0.5,
+      "withholding_compensates_tax": true,
+      "assumed_portfolio_base_brl": 10000.0,
+      "sell_turnover_fraction_proxy": 0.5,
+      "cash_yield_enabled": true,
+      "cash_rate_source_path": "data/raw/realestate/bcb/SELIC_D_11.csv",
+      "cash_rate_annual_fallback": 0.10,
       "notes": [
-        "IR de 15% modelado como proxy mensal sobre ganho positivo apos custos.",
-        "A isenção de vendas mensais abaixo de R$ 20 mil não é modelada porque a simulação não conhece o lote do investidor nem a realização fiscal real.",
-        "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora."
+        "IR de 15% modelado por proxy mensal com compensação de perdas e dedo-duro aproximado sobre o lado vendedor.",
+        "A isenção de vendas mensais até R$ 20 mil entra por proxy de vendas mensais estimadas a partir do turnover e do capital de referência.",
+        "Caixa em BRL rende proxy SELIC quando o motor fica defensivo.",
+        "Custos em bps são cenário interno conservador para pesquisa, não tabela oficial de corretora nem apuração fiscal lote a lote."
       ]
     },
     "crypto_global_brazil_resident_conservative": {
@@ -43,12 +63,26 @@
       "transaction_cost_bps_assumed": 25.0,
       "fx_spread_bps_assumed": 35.0,
       "capital_gains_tax_rate": 0.15,
-      "tax_timing": "monthly_positive_proxy",
+      "tax_timing": "monthly_realistic_proxy",
       "dividend_withholding_mode": "not_applicable",
-      "monthly_sales_exemption_modeled": false,
+      "monthly_sales_exemption_modeled": true,
+      "monthly_sales_exemption_brl": 35000.0,
+      "capital_gains_brackets": [
+        {"up_to_brl": 5000000.0, "rate": 0.15},
+        {"up_to_brl": 10000000.0, "rate": 0.175},
+        {"up_to_brl": 30000000.0, "rate": 0.20},
+        {"up_to_brl": 1000000000000.0, "rate": 0.225}
+      ],
+      "loss_compensation_enabled": true,
+      "assumed_portfolio_base_brl": 10000.0,
+      "sell_turnover_fraction_proxy": 0.5,
+      "cash_yield_enabled": true,
+      "cash_rate_source_path": "data/raw/realestate/bcb/SELIC_D_11.csv",
+      "cash_rate_annual_fallback": 0.10,
       "notes": [
-        "Modelo conservador para pesquisa: não aplica a isenção de alienações mensais até R$ 35 mil, para evitar inflar alpha artificialmente.",
-        "A Receita Federal esclarece que ganhos em alienação acima de R$ 35 mil/mês estão sujeitos a ganho de capital, e a atualização de 2025 da DeCripto não alterou a tributação.",
+        "A alienação mensal até R$ 35 mil entra por proxy de vendas mensais estimadas a partir do turnover e do capital de referência.",
+        "Acima do limite, o ganho positivo usa escada progressiva de ganho de capital como proxy conservadora.",
+        "Caixa em BRL rende proxy SELIC quando o motor fica defensivo.",
         "Custos em bps agregam fee de exchange, spread/slippage e friccao operacional de remessa, em cenario conservador."
       ]
     }

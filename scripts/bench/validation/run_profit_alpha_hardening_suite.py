@@ -175,6 +175,8 @@ def _blend_allocation_bundles(
         profile=attack_alloc.bundle.profile,
         benchmark_ret=benchmark,
         benchmark_profile=attack_alloc.bundle.benchmark_profile,
+        cash_weight=weights["cash"],
+        initial_capital_brl=attack_alloc.bundle.profile.assumed_portfolio_base_brl,
     )
     result = StrategyResult(
         suite="alpha_hardening",

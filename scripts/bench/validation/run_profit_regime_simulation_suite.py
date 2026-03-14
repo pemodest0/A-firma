@@ -81,10 +81,24 @@ def _blended_profile(
         + 0.5 * equity_profile.transaction_cost_bps_assumed,
         fx_spread_bps_assumed=0.5 * crypto_profile.fx_spread_bps_assumed + 0.5 * equity_profile.fx_spread_bps_assumed,
         capital_gains_tax_rate=0.5 * crypto_profile.capital_gains_tax_rate + 0.5 * equity_profile.capital_gains_tax_rate,
-        tax_timing="monthly_positive_proxy",
+        tax_timing="monthly_realistic_proxy",
         dividend_withholding_mode="not_applicable",
-        monthly_sales_exemption_modeled=False,
-        notes=("blended meta profile",),
+        monthly_sales_exemption_modeled=bool(
+            crypto_profile.monthly_sales_exemption_modeled or equity_profile.monthly_sales_exemption_modeled
+        ),
+        monthly_sales_exemption_brl=0.5 * crypto_profile.monthly_sales_exemption_brl + 0.5 * equity_profile.monthly_sales_exemption_brl,
+        capital_gains_brackets=tuple(crypto_profile.capital_gains_brackets or equity_profile.capital_gains_brackets),
+        loss_compensation_enabled=bool(crypto_profile.loss_compensation_enabled or equity_profile.loss_compensation_enabled),
+        withholding_bps_on_sales=0.5 * crypto_profile.withholding_bps_on_sales + 0.5 * equity_profile.withholding_bps_on_sales,
+        withholding_compensates_tax=bool(
+            crypto_profile.withholding_compensates_tax or equity_profile.withholding_compensates_tax
+        ),
+        assumed_portfolio_base_brl=0.5 * crypto_profile.assumed_portfolio_base_brl + 0.5 * equity_profile.assumed_portfolio_base_brl,
+        sell_turnover_fraction_proxy=0.5 * crypto_profile.sell_turnover_fraction_proxy + 0.5 * equity_profile.sell_turnover_fraction_proxy,
+        cash_yield_enabled=bool(crypto_profile.cash_yield_enabled or equity_profile.cash_yield_enabled),
+        cash_rate_source_path=str(crypto_profile.cash_rate_source_path or equity_profile.cash_rate_source_path),
+        cash_rate_annual_fallback=0.5 * crypto_profile.cash_rate_annual_fallback + 0.5 * equity_profile.cash_rate_annual_fallback,
+        notes=("blended meta profile", "monthly_realistic_proxy"),
     )
 
 
@@ -117,6 +131,8 @@ def _evaluate_allocation_candidate(
         profile=profile,
         benchmark_ret=benchmark_ret.reindex(idx).fillna(0.0).astype(float),
         benchmark_profile=benchmark_profile,
+        cash_weight=w["cash"],
+        initial_capital_brl=profile.assumed_portfolio_base_brl,
     )
     hit5 = _rolling_ten_x_stats(perf["net_ret"], horizon_days=1260)
     wealth = (1.0 + perf["net_ret"]).cumprod()
