@@ -168,8 +168,10 @@ def _build_meta_v1_allocation(
     spy = pd.to_numeric(spy_prices.reindex(idx), errors="coerce").astype(float)
     btc_ok = (btc.shift(1) > btc.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
     spy_ok = (spy.shift(1) > spy.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
-    crypto_trail = (1.0 + crypto_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
-    equity_trail = (1.0 + equity_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    crypto_signal_ret = crypto_ret.shift(1).fillna(0.0)
+    equity_signal_ret = equity_ret.shift(1).fillna(0.0)
+    crypto_trail = (1.0 + crypto_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    equity_trail = (1.0 + equity_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
     weights = pd.DataFrame(0.0, index=idx, columns=["crypto", "equity", "cash"], dtype=float)
     source = pd.Series(index=idx, dtype=object)
     for dt in idx:
@@ -220,9 +222,11 @@ def _build_meta_hrp_allocation(
     spy = pd.to_numeric(spy_prices.reindex(idx), errors="coerce").astype(float)
     btc_ok = (btc.shift(1) > btc.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
     spy_ok = (spy.shift(1) > spy.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
-    crypto_trail = (1.0 + crypto_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
-    equity_trail = (1.0 + equity_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
-    sleeves = pd.concat({"crypto": crypto_ret, "equity": equity_ret}, axis=1)
+    crypto_signal_ret = crypto_ret.shift(1).fillna(0.0)
+    equity_signal_ret = equity_ret.shift(1).fillna(0.0)
+    crypto_trail = (1.0 + crypto_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    equity_trail = (1.0 + equity_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    sleeves = pd.concat({"crypto": crypto_signal_ret, "equity": equity_signal_ret}, axis=1)
     weights = pd.DataFrame(0.0, index=idx, columns=["crypto", "equity", "cash"], dtype=float)
     source = pd.Series(index=idx, dtype=object)
     for pos, dt in enumerate(idx):

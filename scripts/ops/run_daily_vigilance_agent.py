@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.ops.agent_guides import attach_agent_guide
 from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id
+from scripts.ops.model_validation_metrics import resolve_live_validation_metrics
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -60,7 +61,6 @@ def main() -> None:
     ap.add_argument("--operation-summary", default="results/ops/agents/daily_operation/latest_summary.json")
     ap.add_argument("--site-snapshot", default="results/ops/site_data/latest_site_snapshot.json")
     ap.add_argument("--profit-registry", default="results/ops/profit_research/latest_registry.json")
-    ap.add_argument("--pbo-summary", default="results/validation/profit_pbo_suite/20260309T023026Z/summary.json")
     ap.add_argument("--outdir-root", default="results/ops/agents/daily_vigilance")
     ap.add_argument("--cycle-run-id", default="")
     args = ap.parse_args()
@@ -70,12 +70,15 @@ def main() -> None:
     operation = _read_json((ROOT / args.operation_summary).resolve())
     snapshot = _read_json((ROOT / args.site_snapshot).resolve())
     registry = _read_json((ROOT / args.profit_registry).resolve())
-    pbo = _read_json((ROOT / args.pbo_summary).resolve())
-
     alerts: list[dict[str, Any]] = []
     op_age = _days_old(operation.get("generated_at_utc"))
     snapshot_date = str(snapshot.get("as_of_date") or "").strip()
-    pbo_verdict = str(pbo.get("overall_verdict") or "").strip() or "desconhecido"
+    attack = operation.get("mode_attack", {}) if isinstance(operation.get("mode_attack"), dict) else {}
+    validation_metrics = resolve_live_validation_metrics(
+        root=ROOT,
+        candidate_id=str(attack.get("candidate_id") or ""),
+    )
+    pbo_verdict = str(validation_metrics.get("pbo_verdict") or "").strip() or "desconhecido"
 
     if not operation:
         _push_alert(alerts, level="fail", code="operation_missing", message="Agente de operação sem resumo publicado.")
@@ -93,7 +96,6 @@ def main() -> None:
     if pbo_verdict not in {"robusto", "aceitavel"}:
         _push_alert(alerts, level="warn", code="pbo_soft", message="Teste de overfit não está no nível mais forte.")
 
-    attack = operation.get("mode_attack", {}) if isinstance(operation.get("mode_attack"), dict) else {}
     main_mode = operation.get("mode_main", {}) if isinstance(operation.get("mode_main"), dict) else {}
     attack_dd = attack.get("net_max_drawdown")
     main_dd = main_mode.get("net_max_drawdown")
@@ -124,6 +126,7 @@ def main() -> None:
         "snapshot_as_of_date": snapshot_date,
         "research_rows_total": registry.get("rows_total"),
         "pbo_verdict": pbo_verdict,
+        "validation_metrics_source": validation_metrics,
         "alerts": alerts,
         "notes": [
             "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",

@@ -81,6 +81,17 @@ def _normalize_visible_text(value: Any) -> Any:
     return text
 
 
+def _latest_suite_summary(results_root: Path, suite_name: str) -> dict[str, Any]:
+    base = results_root / "validation" / suite_name
+    if not base.exists():
+        return {}
+    runs = sorted([path for path in base.iterdir() if path.is_dir()], reverse=True)
+    if not runs:
+        return {}
+    payload = _read_json(runs[0] / "summary.json")
+    return payload if isinstance(payload, dict) else {}
+
+
 def _shadow_rows_from_lock(lock_path: Path) -> list[dict[str, Any]]:
     if not lock_path.exists():
         return []
@@ -372,6 +383,22 @@ def main() -> None:
             top_oos = {**match.iloc[0].to_dict(), "selection_basis": "oos_consistency", "oos": oos_best}
         else:
             top_oos = {"selection_basis": "oos_consistency", "oos": oos_best}
+    official_attack = {}
+    champion_summary = _latest_suite_summary(results_root, "profit_champion_timing_robustness_suite")
+    official_candidate_id = str(
+        champion_summary.get("baseline_candidate")
+        or champion_summary.get("best_candidate")
+        or ""
+    ).strip()
+    if official_candidate_id:
+        match = df[df["candidate_id"].astype(str) == official_candidate_id]
+        if not match.empty:
+            official_attack = {**match.iloc[0].to_dict(), "selection_basis": "official_live_attack"}
+        else:
+            official_attack = {"candidate_id": official_candidate_id, "selection_basis": "official_live_attack"}
+    if not official_attack:
+        official_attack = top
+
     summary = _deep_clean({
         "status": "ok",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -380,6 +407,7 @@ def main() -> None:
         "status_counts": dict(status_counts),
         "methodology_counts": dict(methodology_counts),
         "top_candidate": top,
+        "official_attack_candidate": official_attack,
         "top_oos_candidate": top_oos,
         "oos_best_consistent": oos_best,
         "top_keep_candidates": keep_df.head(10).to_dict(orient="records"),

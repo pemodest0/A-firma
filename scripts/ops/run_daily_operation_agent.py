@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.ops.agent_guides import attach_agent_guide  # noqa: E402
 from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id  # noqa: E402
+from scripts.ops.model_validation_metrics import resolve_live_validation_metrics  # noqa: E402
 from engine.portfolio import decide_attack_vs_protection  # noqa: E402
 from scripts.bench.validation.run_profit_marketmode_criticality_suite import (  # noqa: E402
     build_official_mode_allocations,
@@ -87,6 +88,14 @@ def _latest_source(source: pd.Series) -> str:
     return str(source.tail(1).iloc[0] or "cash").strip() or "cash"
 
 
+def _finance_ready_details() -> dict[str, Any]:
+    latest = _read_json(ROOT / "results" / "ops" / "finance_product_ready" / "latest_finance_product_ready.json")
+    detail_path = str(latest.get("finance_product_ready_json") or "").strip()
+    if not detail_path:
+        return {}
+    return _read_json(Path(detail_path))
+
+
 def _latest_validation_summary(name: str) -> dict[str, Any]:
     root = ROOT / "results" / "validation" / name
     if not root.exists():
@@ -95,14 +104,6 @@ def _latest_validation_summary(name: str) -> dict[str, Any]:
     if not runs:
         return {}
     return _read_json(runs[0] / "summary.json")
-
-
-def _finance_ready_details() -> dict[str, Any]:
-    latest = _read_json(ROOT / "results" / "ops" / "finance_product_ready" / "latest_finance_product_ready.json")
-    detail_path = str(latest.get("finance_product_ready_json") or "").strip()
-    if not detail_path:
-        return {}
-    return _read_json(Path(detail_path))
 
 
 def _normalize_structural_level(finance_ready: dict[str, Any]) -> str:
@@ -121,28 +122,6 @@ def _normalize_structural_level(finance_ready: dict[str, Any]) -> str:
     if raw_state in {"defesa", "stress", "estresse"}:
         return "stress"
     return "transition"
-
-
-def _attack_underperform_prob(summary: dict[str, Any], *, horizon: int) -> float | None:
-    rows = summary.get("attack_mc_base")
-    if not isinstance(rows, list):
-        return None
-    for row in rows:
-        if int(row.get("horizon_days") or 0) == int(horizon):
-            return _safe_float(row.get("underperform_prob"))
-    return None
-
-
-def _attack_top3_retention(summary: dict[str, Any]) -> float | None:
-    rows = summary.get("attack_retention_worst_nonbase")
-    if not isinstance(rows, list):
-        return None
-    for row in rows:
-        if str(row.get("scenario") or "") == "drop_top3_crypto":
-            return _safe_float(row.get("total_retention"))
-    if rows:
-        return _safe_float(rows[0].get("total_retention"))
-    return None
 
 
 def _execution_winner_label(summary: dict[str, Any]) -> str:
@@ -265,23 +244,26 @@ def main() -> None:
 
     finance_ready = _finance_ready_details()
     vigilance = _read_json(ROOT / "results" / "ops" / "agents" / "daily_vigilance" / "latest_summary.json")
-    pbo_summary = _latest_validation_summary("profit_pbo_suite")
-    resilience_summary = _latest_validation_summary("profit_universe_resilience_suite")
     execution_summary = _latest_validation_summary("profit_execution_resilience_suite")
+    validation_metrics = resolve_live_validation_metrics(
+        root=ROOT,
+        candidate_id=str(operation["mode_attack"]["candidate_id"]),
+    )
 
     mode_confidence = decide_attack_vs_protection(
         structural_risk_level=_normalize_structural_level(finance_ready),
         structural_confidence_score=_safe_float(finance_ready.get("confidence_score")),
         vigilance_status=str(vigilance.get("status") or ""),
         vigilance_alert_count=len(vigilance.get("alerts") or []) if isinstance(vigilance.get("alerts"), list) else 0,
-        pbo_verdict=str(pbo_summary.get("overall_verdict") or ""),
-        attack_underperform_prob_63=_attack_underperform_prob(resilience_summary, horizon=63),
-        attack_top3_retention=_attack_top3_retention(resilience_summary),
+        pbo_verdict=str(validation_metrics.get("pbo_verdict") or ""),
+        attack_underperform_prob_63=_safe_float(validation_metrics.get("underperform_prob_63")),
+        attack_top3_retention=_safe_float(validation_metrics.get("top3_total_retention")),
         attack_drawdown=_safe_float(operation["mode_attack"].get("net_max_drawdown")),
         protection_drawdown=_safe_float(operation["mode_main_guard"].get("net_max_drawdown")),
         execution_winner=_execution_winner_label(execution_summary),
     )
     operation["mode_confidence"] = mode_confidence.to_dict()
+    operation["validation_metrics_source"] = validation_metrics
     operation["official_structural_regime"] = official.get("official_structural_now") if isinstance(official.get("official_structural_now"), dict) else {}
     operation["recommended_live_mode"] = {
         "mode": mode_confidence.recommended_mode,

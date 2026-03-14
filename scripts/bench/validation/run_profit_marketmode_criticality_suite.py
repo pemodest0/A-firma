@@ -284,10 +284,12 @@ def build_official_mode_allocations(
         structure_daily.get("market_mode_share_pct"),
         errors="coerce",
     ).reindex(base_score.index).fillna(0.5)
+    criticality_pct_causal = criticality_pct.shift(1).fillna(0.5).clip(0.0, 1.0)
+    market_mode_share_pct_causal = market_mode_share_pct.shift(1).fillna(0.5).clip(0.0, 1.0)
     criticality_rel_score = (
         base_score
-        - 0.18 * criticality_pct
-        - 0.05 * market_mode_share_pct
+        - 0.18 * criticality_pct_causal
+        - 0.05 * market_mode_share_pct_causal
     ).clip(0.0, 1.0)
     criticality_rel_weight = _confidence_weight_from_score(criticality_rel_score)
     criticality_bundle = _blend_allocation_bundles(
@@ -299,8 +301,8 @@ def build_official_mode_allocations(
     )
 
     instability = (
-        0.60 * pd.to_numeric(criticality, errors="coerce").reindex(base_score.index).fillna(0.5)
-        + 0.40 * market_mode_share_pct
+        0.60 * pd.to_numeric(criticality, errors="coerce").reindex(base_score.index).shift(1).fillna(0.5)
+        + 0.40 * market_mode_share_pct_causal
     ).clip(0.0, 1.0)
     provisional_weight = _confidence_weight_from_score(criticality_rel_score)
     provisional_bundle = _blend_allocation_bundles(

@@ -96,7 +96,11 @@ def main() -> None:
     attack = operation.get("mode_attack") if isinstance(operation.get("mode_attack"), dict) else {}
     attack_latest = str(attack.get("latest_date") or "").strip()
     op_candidate = str(attack.get("candidate_id") or "").strip()
-    reg_candidate = str((registry.get("top_candidate") or {}).get("candidate_id") or "").strip()
+    reg_candidate = str(
+        ((registry.get("official_attack_candidate") or {}).get("candidate_id"))
+        or ((registry.get("top_candidate") or {}).get("candidate_id"))
+        or ""
+    ).strip()
 
     if not snapshot:
         _push(checks, level="fail", code="snapshot_missing", message="Snapshot principal do site não existe.")

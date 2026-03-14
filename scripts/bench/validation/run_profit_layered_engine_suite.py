@@ -80,8 +80,10 @@ def _simulate_equity_trail_switch_bundle(
     benchmark = aggressive_bundle.benchmark_gross_ret.reindex(idx).fillna(0.0).astype(float)
     spy = pd.to_numeric(spy_prices.reindex(idx), errors="coerce").astype(float)
     market_ok = (spy.shift(1) > spy.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
-    agg_trail = (1.0 + agg_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
-    rob_trail = (1.0 + rob_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    agg_signal_ret = agg_ret.shift(1).fillna(0.0)
+    rob_signal_ret = rob_ret.shift(1).fillna(0.0)
+    agg_trail = (1.0 + agg_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
+    rob_trail = (1.0 + rob_signal_ret).rolling(63, min_periods=21).apply(np.prod, raw=True) - 1.0
     reg = _regime_forward_fill_local(idx, regime_series)
 
     gross = pd.Series(np.zeros(len(idx), dtype=float), index=idx, dtype=float)
@@ -509,10 +511,12 @@ def _build_meta_switch_v3(
     spy_close = pd.to_numeric(spy_prices.reindex(idx), errors="coerce").astype(float)
     btc_ok = (btc_close.shift(1) > btc_close.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
     spy_ok = (spy_close.shift(1) > spy_close.shift(1).rolling(200, min_periods=100).mean()).fillna(False)
-    crypto_fast = _rolling_total(crypto_ret, int(fast_window), min_periods=max(10, fast_window // 2))
-    crypto_slow = _rolling_total(crypto_ret, int(slow_window), min_periods=max(20, slow_window // 2))
-    equity_fast = _rolling_total(equity_ret, int(fast_window), min_periods=max(10, fast_window // 2))
-    equity_slow = _rolling_total(equity_ret, int(slow_window), min_periods=max(20, slow_window // 2))
+    crypto_signal_ret = crypto_ret.shift(1).fillna(0.0)
+    equity_signal_ret = equity_ret.shift(1).fillna(0.0)
+    crypto_fast = _rolling_total(crypto_signal_ret, int(fast_window), min_periods=max(10, fast_window // 2))
+    crypto_slow = _rolling_total(crypto_signal_ret, int(slow_window), min_periods=max(20, slow_window // 2))
+    equity_fast = _rolling_total(equity_signal_ret, int(fast_window), min_periods=max(10, fast_window // 2))
+    equity_slow = _rolling_total(equity_signal_ret, int(slow_window), min_periods=max(20, slow_window // 2))
 
     gross = pd.Series(np.zeros(len(idx), dtype=float), index=idx, dtype=float)
     turnover = pd.Series(np.zeros(len(idx), dtype=float), index=idx, dtype=float)
