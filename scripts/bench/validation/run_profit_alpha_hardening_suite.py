@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from engine.portfolio.exogenous_features import adjust_confidence_with_feature, build_exogenous_feature_panel  # noqa: E402
 from engine.structural.run_manifest import write_run_manifest  # noqa: E402
 from execution.net_assumptions import load_net_assumption_profiles  # noqa: E402
+from scripts.ops.data_review_policy import DEFERRED_REVIEW_TICKERS  # noqa: E402
 from scripts.bench.validation.run_profit_alpha_war_suite import _blended_profile  # noqa: E402
 from scripts.bench.validation.run_profit_frontier_expansion_suite import (  # noqa: E402
     EQUITY_EXCLUDED,
@@ -99,7 +100,6 @@ def _build_promoted_attack_confidence_score(context: dict[str, Any], attack_retu
     idx = (
         attack_returns.index.intersection(context["btc_prices"].index)
         .intersection(context["spy_prices"].index)
-        .intersection(context["regime_series"].index)
     )
     crypto_ret = pd.to_numeric(attack_returns["crypto"].reindex(idx), errors="coerce").fillna(0.0).astype(float)
     equity_ret = pd.to_numeric(attack_returns["equity"].reindex(idx), errors="coerce").fillna(0.0).astype(float)
@@ -115,6 +115,7 @@ def _build_promoted_attack_confidence_score(context: dict[str, Any], attack_retu
         .reindex(idx)
         .ffill()
         .bfill()
+        .fillna("stable")
         .astype(str)
         .str.lower()
     )
@@ -366,6 +367,8 @@ def _build_candidates(
 
     equity_assets = _load_asset_table(equity_groups, equity_meta)
     equity_assets = equity_assets[~equity_assets["asset_group"].astype(str).isin(EQUITY_EXCLUDED)].copy()
+    ticker_col = "ticker" if "ticker" in equity_assets.columns else "asset_id"
+    equity_assets = equity_assets[~equity_assets[ticker_col].astype(str).isin(DEFERRED_REVIEW_TICKERS)].copy()
     equity_returns, equity_prices, _ = _load_daily_universe(
         prices_dir=prices_dir,
         asset_table=equity_assets,

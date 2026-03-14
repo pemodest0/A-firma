@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.data_review_policy import DEFERRED_REVIEW_TICKERS
 from scripts.ops.run_daily_ingestion_agent import REMOTE_FALLBACK_TICKERS
 from scripts.ops.run_daily_data_quality_agent import (
     CRITICAL_TICKERS,
@@ -22,8 +23,6 @@ from scripts.ops.run_daily_data_quality_agent import (
     _load_universe_assets,
     _parse_date,
 )
-
-DEFERRED_REVIEW_TICKERS = {"ZD"}
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:

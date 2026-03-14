@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.ops.agent_guides import attach_agent_guide
+from scripts.ops.data_review_policy import DEFERRED_REVIEW_TICKERS, is_deferred_review_ticker
 
 CRITICAL_TICKERS = {
     "SPY",
@@ -151,7 +152,7 @@ def main() -> None:
         role = "peripheral"
         if ticker in CRITICAL_TICKERS:
             role = "critical"
-        elif ticker in universe_assets:
+        elif ticker in universe_assets and not is_deferred_review_ticker(ticker):
             role = "core"
         if stale_days <= _fresh_tolerance_days(ticker):
             fresh_assets += 1
@@ -162,6 +163,7 @@ def main() -> None:
                 "latest_date": latest_date.isoformat(),
                 "stale_days": stale_days,
                 "role": role,
+                "deferred_review": ticker in DEFERRED_REVIEW_TICKERS,
             }
         )
 
@@ -239,6 +241,7 @@ def main() -> None:
         "core_stale_assets": len(core_stale),
         "peripheral_stale_assets": len(peripheral_stale),
         "prune_candidate_count": len(prune_candidates),
+        "deferred_review_tickers": sorted(DEFERRED_REVIEW_TICKERS),
         "sample_critical_stale": critical_stale[:20],
         "sample_core_stale": core_stale[:20],
         "sample_prune_candidates": prune_candidates[:20],

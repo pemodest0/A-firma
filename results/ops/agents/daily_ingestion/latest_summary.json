@@ -1,17 +1,17 @@
 {
   "status": "warn",
-  "run_id": "20260314T002808Z",
-  "generated_at_utc": "2026-03-14T00:47:23.148700+00:00",
+  "run_id": "20260314T012136Z",
+  "generated_at_utc": "2026-03-14T01:33:16.432503+00:00",
   "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
   "skip_remote": false,
   "limited_scope": false,
   "max_assets": 0,
   "requested_tickers": [],
   "attempted_assets": 853,
-  "updated_assets": 35,
-  "unchanged_assets": 9,
-  "refreshed_assets": 44,
-  "no_remote_data_assets": 809,
+  "updated_assets": 49,
+  "unchanged_assets": 22,
+  "refreshed_assets": 71,
+  "no_remote_data_assets": 782,
   "skipped_remote_assets": 0,
   "failed_assets": 0,
   "max_latest_date": "2026-03-14",
@@ -21,21 +21,21 @@
     "assets_without_remote_data"
   ],
   "sample_updated": [
-    "DOGE-USD",
-    "DOT-USD",
-    "ETC-USD",
-    "ETH-USD",
-    "FIL-USD",
-    "ICP-USD",
     "ITUB4.SA",
-    "LINK-USD",
     "LQD",
-    "LTC-USD",
-    "NEAR-USD",
+    "LREN3.SA",
+    "MRVE3.SA",
+    "MULT3.SA",
+    "PCAR3.SA",
     "PETR4.SA",
+    "PRIO3.SA",
     "QQQ",
+    "RADL3.SA",
+    "RAIL3.SA",
     "RSP",
-    "SHY"
+    "SHY",
+    "SLV",
+    "SPY"
   ],
   "sample_no_remote_data": [
     "A",
@@ -57,9 +57,28 @@
   "sample_skipped_remote": [],
   "sample_failed": [],
   "provider_counts": {
-    "local_fresh": 9,
-    "binance": 13,
+    "local_fresh": 22,
     "brapi": 3,
-    "yfinance": 19
+    "yfinance": 46
+  },
+  "agent": {
+    "agent_id": "daily-ingestion-agent",
+    "guide_path": "scripts/ops/agent_guides/daily-ingestion-agent.md",
+    "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+    "display_name": "Agente diário de ingestão",
+    "mission": "Atualizar o histórico local de preços com coleta remota e fallback controlado.",
+    "run_order": "1",
+    "depends_on": [],
+    "consumes": [
+      "data/raw/finance/yfinance_daily",
+      "scripts/finance/yf_fetch_or_load.py"
+    ],
+    "produces": [
+      "results/ops/agents/daily_ingestion/latest_summary.json"
+    ],
+    "rules": [
+      "sem_fallback_silencioso",
+      "historico_local_e_a_verdade"
+    ]
   }
 }
