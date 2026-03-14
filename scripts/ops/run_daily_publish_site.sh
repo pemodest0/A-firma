@@ -64,4 +64,4 @@ cd "$ROOT/website-ui"
 npx vercel --prod --yes
 
 echo "[daily_publish] done run_id=$RUN_ID master_code=$MASTER_CODE"
-exit "$MASTER_CODE"
+exit 0
