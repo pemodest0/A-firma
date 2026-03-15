@@ -61,6 +61,100 @@ function describeRecommendedMode(mode: string) {
   return "Hoje a melhor postura é seguir o modo que o motor está recomendando e monitorar a vigilância.";
 }
 
+function asNumber(value: unknown) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatBRL(value: unknown, digits = 0) {
+  const numeric = asNumber(value);
+  if (numeric == null) return "n/d";
+  return numeric.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function formatSignedPct(value: number | null, digits = 1) {
+  if (value == null || !Number.isFinite(value)) return "n/d";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${(value * 100).toFixed(digits)}%`;
+}
+
+function titleCase(raw: string) {
+  return String(raw || "")
+    .replace(/_/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
+    .join(" ");
+}
+
+function marketTone(state: string) {
+  const normalized = String(state || "").toLowerCase();
+  if (normalized.includes("attack")) return "border-emerald-600/60 bg-emerald-500/15 text-emerald-100";
+  if (normalized.includes("risk")) return "border-sky-600/60 bg-sky-500/15 text-sky-100";
+  if (normalized.includes("transition")) return "border-amber-600/60 bg-amber-500/15 text-amber-100";
+  return "border-zinc-700 bg-zinc-900/80 text-zinc-200";
+}
+
+function godColor(alias: string) {
+  if (alias === "Apollo") return "#f59e0b";
+  if (alias === "Zeus") return "#38bdf8";
+  if (alias === "Hephaestus") return "#fb923c";
+  if (alias === "Hermes") return "#34d399";
+  return "#a1a1aa";
+}
+
+function DashboardGodArt({ alias }: { alias: string }) {
+  const color = godColor(alias);
+  if (alias === "Apollo") {
+    return (
+      <svg viewBox="0 0 120 88" className="h-20 w-24">
+        <circle cx="60" cy="44" r="16" fill={color} opacity="0.22" />
+        <circle cx="60" cy="44" r="11" fill="none" stroke={color} strokeWidth="3" />
+        {[...Array(10)].map((_, i) => {
+          const angle = (i / 10) * Math.PI * 2;
+          const x1 = 60 + Math.cos(angle) * 18;
+          const y1 = 44 + Math.sin(angle) * 18;
+          const x2 = 60 + Math.cos(angle) * 30;
+          const y2 = 44 + Math.sin(angle) * 30;
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="3" strokeLinecap="round" />;
+        })}
+      </svg>
+    );
+  }
+  if (alias === "Zeus") {
+    return (
+      <svg viewBox="0 0 120 88" className="h-20 w-24">
+        <path d="M32 38 C32 24, 44 18, 54 24 C58 14, 75 14, 82 24 C94 20, 104 28, 102 40 C100 50, 90 54, 80 54 H46 C38 54, 30 48, 32 38Z" fill="rgba(255,255,255,0.12)" stroke={color} strokeWidth="2.5" />
+        <path d="M62 34 L49 55 H63 L55 74 L77 49 H64 L73 34 Z" fill={color} />
+      </svg>
+    );
+  }
+  if (alias === "Hephaestus") {
+    return (
+      <svg viewBox="0 0 120 88" className="h-20 w-24">
+        <path d="M42 66 H82 L76 76 H48 Z" fill="rgba(255,255,255,0.16)" />
+        <path d="M52 28 H88 V52 H68 C59 52, 52 45, 52 36 Z" fill="none" stroke={color} strokeWidth="3.5" />
+        <path d="M38 66 L53 38" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="4" strokeLinecap="round" />
+        <path d="M72 14 C68 24, 78 29, 74 38 C84 31, 88 22, 82 14 C78 9, 73 9, 72 14Z" fill={color} />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 120 88" className="h-20 w-24">
+      <path d="M44 38 C50 24, 70 24, 76 38" fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M60 18 L68 28 L60 38 L52 28 Z" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="3" />
+      <path d="M60 38 V72" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="3" strokeLinecap="round" />
+      <path d="M50 48 C56 42, 64 42, 70 48" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" />
+      <path d="M50 60 C56 54, 64 54, 70 60" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default async function DashboardPage() {
   const snapshot = (await readSiteFinanceSnapshot()) as Record<string, unknown>;
   const finance = ((snapshot.finance as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
@@ -129,6 +223,12 @@ export default async function DashboardPage() {
   const scenarioBase = String(modeConfidence.scenario_base || "").trim();
   const confidenceReasons = Array.isArray(modeConfidence.reasons)
     ? (modeConfidence.reasons as unknown[]).map((item) => String(item || "").trim()).filter(Boolean)
+    : [];
+  const shadowGods = ((snapshot.shadow_gods as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const shadowGodsOverview =
+    ((snapshot.shadow_gods_overview as Record<string, unknown> | undefined) || {}) as Record<string, unknown>;
+  const shadowGodsList = Array.isArray(shadowGods.gods)
+    ? (shadowGods.gods as Array<Record<string, unknown>>)
     : [];
 
   return (
@@ -309,6 +409,83 @@ export default async function DashboardPage() {
       <div className="px-5 md:px-6">
         <SignalSnapshotSection snapshot={snapshot as Record<string, unknown>} compact />
       </div>
+
+      {shadowGodsList.length ? (
+        <section className="px-5 md:px-6">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/55 p-5">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-[0.16em] text-zinc-500">Shadow gods</div>
+                <div className="mt-2 text-xl font-semibold text-zinc-100">
+                  Os 4 deuses simulados que rodam todo dia com ordem, fill e historico
+                </div>
+                <p className="mt-2 max-w-3xl text-sm text-zinc-300">
+                  Eles mostram o que cada tese faria com `R$200`, `R$1.000` e `R$10.000`. Se o dia pede defesa, o card mostra
+                  caixa e no-trade. Se pede ordem, o pedido aparece.
+                </p>
+              </div>
+              <div className="text-sm text-zinc-400">
+                {String(shadowGodsOverview.total_gods || shadowGodsList.length)} deuses ·{" "}
+                {String(shadowGodsOverview.total_scenarios || 0)} cenarios ·{" "}
+                {String(shadowGodsOverview.order_count_total || 0)} ordens
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 xl:grid-cols-2">
+              {shadowGodsList.map((god) => {
+                const alias = String(god.alias || "Shadow");
+                const scenarios = Array.isArray(god.scenarios) ? (god.scenarios as Array<Record<string, unknown>>) : [];
+                return (
+                  <article key={alias} className="rounded-2xl border border-zinc-800 bg-zinc-900/45 p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950/70">
+                        <DashboardGodArt alias={alias} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-zinc-100">{alias}</h3>
+                          <span className={`rounded-full border px-2 py-1 text-[11px] uppercase tracking-[0.14em] ${marketTone(String(scenarios[0]?.market_state || ""))}`}>
+                            {titleCase(String(scenarios[0]?.market_state || "unknown"))}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm text-zinc-300">{String(god.thesis || "Sem tese publicada.")}</p>
+                        <p className="mt-2 text-xs text-zinc-500">{String(god.candidate_id || "n/d")}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      {scenarios.map((scenario) => {
+                        const capital = asNumber(scenario.capital_brl) || 0;
+                        const navAfter = asNumber(scenario.nav_after_brl) || capital;
+                        const totalReturn = capital > 0 ? navAfter / capital - 1 : null;
+                        return (
+                          <div key={String(scenario.scenario_id || capital)} className="rounded-xl border border-zinc-800 bg-zinc-950/75 p-3">
+                            <div className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">{formatBRL(capital)}</div>
+                            <div className="mt-2 text-base font-semibold text-zinc-100">{formatBRL(navAfter, 2)}</div>
+                            <div className="mt-1 text-sm text-zinc-300">{formatSignedPct(totalReturn, 1)}</div>
+                            <div className="mt-2 text-xs text-zinc-400">
+                              ordens {String(scenario.order_count || 0)} · fills {String(scenario.fill_count || 0)}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="mt-4">
+                      <Link
+                        href="/app/shadow-mode"
+                        className="inline-flex rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
+                      >
+                        Abrir painel completo dos deuses
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="px-5 md:px-6">
         <div className="rounded-2xl border border-cyan-900/40 bg-cyan-950/15 p-5">

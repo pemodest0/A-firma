@@ -90,9 +90,26 @@
     "execution_report_json": "data/live_execution/execution_report.json",
     "shadow_watchlist_json": "config/live_shadow_watchlist.json"
   },
+  "broker_adapter": {
+    "name": "mercado_bitcoin",
+    "mode": "preview_only",
+    "submit_enabled": false,
+    "quote_currency": "BRL",
+    "supported_pairs": {
+      "BTC-USD": "BTC-BRL",
+      "ETH-USD": "ETH-BRL",
+      "SOL-USD": "SOL-BRL"
+    },
+    "default_order_type": "market",
+    "paths": {
+      "latest_preview_json": "results/ops/execution_live/latest_mercado_bitcoin_order_preview.json",
+      "latest_preview_csv": "results/ops/execution_live/latest_mercado_bitcoin_order_preview.csv"
+    }
+  },
   "notes": [
     "A primeira versao live simplifica a execucao real para poucos ativos liquidos, mesmo quando o motor observa um universo bem maior.",
     "Core, guard e attack ficam congelados para reduzir complexidade operacional; o resto permanece em shadow.",
-    "O modo attack real usa um proxy executavel em BTC e ETH para conta pequena, em vez de tentar replicar literalmente todo o universo do laboratorio."
+    "O modo attack real usa um proxy executavel em BTC e ETH para conta pequena, em vez de tentar replicar literalmente todo o universo do laboratorio.",
+    "A exportacao para corretora comeca em preview_only na Mercado Bitcoin; envio automatico fica bloqueado ate leitura real da conta e confirmacao humana."
   ]
 }

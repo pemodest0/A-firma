@@ -480,6 +480,24 @@ export async function readSiteFinanceSnapshot() {
       best_by_return: {},
       best_by_drawdown: {},
     },
+    shadow_gods: {
+      status: "missing",
+      run_id: "",
+      as_of_date: "",
+      overview: {
+        total_gods: 0,
+        total_scenarios: 0,
+        order_count_total: 0,
+        fill_count_total: 0,
+      },
+      gods: [],
+    },
+    shadow_gods_overview: {
+      total_gods: 0,
+      total_scenarios: 0,
+      order_count_total: 0,
+      fill_count_total: 0,
+    },
     layered_engine: {
       best_meta_candidate: {},
       drawdown_best_balanced: {},

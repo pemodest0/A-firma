@@ -1,7 +1,7 @@
 {
   "status": "ok",
-  "generated_at_utc": "2026-03-14T10:55:29.694350+00:00",
-  "cycle_run_id": "20260314T105413Z",
+  "generated_at_utc": "2026-03-15T10:38:38.677688+00:00",
+  "cycle_run_id": "20260315T103242Z",
   "as_of_date": "2026-03-14",
   "sources": {
     "finance_product_ready": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/finance_product_ready/latest_finance_product_ready.json",
@@ -11,6 +11,7 @@
     "daily_ingestion": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_ingestion/latest_summary.json",
     "daily_backfill": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_backfill/latest_summary.json",
     "daily_operation": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_operation/latest_summary.json",
+    "daily_shadow_gods": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_shadow_gods/latest_summary.json",
     "daily_vigilance": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_vigilance/latest_summary.json",
     "daily_data_quality": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_data_quality/latest_summary.json",
     "daily_publish": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_publish/latest_summary.json",
@@ -26,15 +27,16 @@
     "confidence_score": 1.0,
     "mode_confidence": {
       "recommended_mode": "proteção",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "confidence_level": "média",
-      "attack_score": 0.542465476605044,
-      "protection_score": 0.5866867890041698,
+      "attack_score": 0.5468805657014839,
+      "protection_score": 0.5632097049788064,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
+        "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
         "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
@@ -42,12 +44,12 @@
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
         "vigilance_status": "warn",
-        "vigilance_alert_count": 3,
-        "pbo_verdict": "desconhecido",
-        "attack_underperform_prob_63": 0.5,
+        "vigilance_alert_count": 2,
+        "pbo_verdict": "provavel_overfit",
+        "attack_underperform_prob_63": 0.570171931227509,
         "attack_top3_retention": 0.0,
-        "attack_drawdown_abs": 0.8609608813925439,
-        "protection_drawdown_abs": 0.6937659852860705,
+        "attack_drawdown_abs": 0.7254232740634854,
+        "protection_drawdown_abs": 0.7010333336845964,
         "execution_winner": ""
       }
     },
@@ -55,7 +57,7 @@
       "mode": "proteção",
       "label": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "current_posture": {
         "posture": "quase_caixa",
         "gross_exposure": 0.0,
@@ -74,11 +76,11 @@
           "cash": 0.994375
         },
         "gross_exposure": 0.005625,
-        "net_ann_return": 0.06818066454808824,
-        "net_total_return": 0.9558471536444626,
-        "net_sharpe": 0.38848410018967516,
-        "net_max_drawdown": -0.8609608813925439,
-        "avg_turnover_daily": 0.0584482198595396,
+        "net_ann_return": 0.37279836231286234,
+        "net_total_return": 26.332541878460045,
+        "net_sharpe": 0.7919079369056886,
+        "net_max_drawdown": -0.7254232740634854,
+        "avg_turnover_daily": 0.06068129038388445,
         "notes": "combina criticidade relativa, reorganização leve e trava parcial de lucro baseada apenas no histórico realizado"
       },
       "mode_main": {
@@ -92,11 +94,11 @@
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.18242861134187027,
-        "net_total_return": 4.497525377602256,
-        "net_sharpe": 0.5726543731585344,
-        "net_max_drawdown": -0.7633901416019916,
-        "avg_turnover_daily": 0.0444791260241904,
+        "net_ann_return": 0.5268015147810008,
+        "net_total_return": 81.94260537162565,
+        "net_sharpe": 0.9967290356071081,
+        "net_max_drawdown": -0.7587660400947667,
+        "avg_turnover_daily": 0.04522995058912961,
         "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
       },
       "mode_attack_guard": {
@@ -110,11 +112,11 @@
           "cash": 0.994375
         },
         "gross_exposure": 0.005625,
-        "net_ann_return": 0.006869713975627745,
-        "net_total_return": 0.07211191455197863,
-        "net_sharpe": 0.3162580079995102,
-        "net_max_drawdown": -0.9010392907180363,
-        "avg_turnover_daily": 0.05882896020288724,
+        "net_ann_return": 0.30844391578662766,
+        "net_total_return": 15.556897791726268,
+        "net_sharpe": 0.6935316562812864,
+        "net_max_drawdown": -0.7954231071327552,
+        "avg_turnover_daily": 0.0633563759026986,
         "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
       },
       "mode_main_guard": {
@@ -128,19 +130,19 @@
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.1505036972987308,
-        "net_total_return": 3.1616907858657175,
-        "net_sharpe": 0.5283323886746023,
-        "net_max_drawdown": -0.6937659852860705,
-        "avg_turnover_daily": 0.0408115489660554,
+        "net_ann_return": 0.40275083965144565,
+        "net_total_return": 33.241028449508775,
+        "net_sharpe": 0.9535383418871418,
+        "net_max_drawdown": -0.7010333336845964,
+        "avg_turnover_daily": 0.04234131508931965,
         "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
       }
     },
     "official_structural_regime": {
       "as_of_date": "2026-03-13",
       "regime": "stress",
-      "criticality": 0.595779204747153,
-      "structural_stress": 0.7593793490588312,
+      "criticality": 0.6567165746389131,
+      "structural_stress": 0.7814514606748453,
       "market_mode_share_pct": 0.6984126984126984,
       "classification_method": "daily_live_nowcast"
     },
@@ -332,9 +334,9 @@
   },
   "agents": {
     "daily_ingestion": {
-      "status": "ok",
-      "run_id": "20260314T105414Z",
-      "generated_at_utc": "2026-03-14T10:54:18.771856+00:00",
+      "status": "warn",
+      "run_id": "20260315T103245Z",
+      "generated_at_utc": "2026-03-15T10:32:49.692761+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "skip_remote": false,
       "limited_scope": false,
@@ -343,25 +345,42 @@
       "requested_tickers": [],
       "attempted_assets": 56,
       "updated_assets": 0,
-      "unchanged_assets": 56,
-      "refreshed_assets": 56,
-      "no_remote_data_assets": 0,
+      "unchanged_assets": 12,
+      "refreshed_assets": 12,
+      "no_remote_data_assets": 44,
       "skipped_remote_assets": 0,
       "failed_assets": 0,
       "max_latest_date": "2026-03-14",
-      "stale_days": 0,
+      "stale_days": 1,
       "fatal_reason": null,
-      "warning_reasons": [],
+      "warning_reasons": [
+        "assets_without_remote_data"
+      ],
       "sample_updated": [],
-      "sample_no_remote_data": [],
+      "sample_no_remote_data": [
+        "GLD",
+        "ITUB4.SA",
+        "IWM",
+        "LQD",
+        "PETR4.SA",
+        "QQQ",
+        "RSP",
+        "SHY",
+        "SLV",
+        "SPY",
+        "STAG",
+        "STX",
+        "SU",
+        "TAP",
+        "TD"
+      ],
       "sample_skipped_remote": [],
       "sample_failed": [],
       "provider_counts": {
-        "local_fresh": 5,
-        "local_fresh_remote_miss": 51
+        "local_fresh_remote_miss": 12
       },
-      "cycle_run_id": "20260314T105413Z",
-      "agent_run_id": "20260314T105414Z",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103245Z",
       "agent": {
         "agent_id": "daily-ingestion-agent",
         "guide_path": "scripts/ops/agent_guides/daily-ingestion-agent.md",
@@ -385,7 +404,7 @@
     },
     "daily_backfill": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T10:54:46.865745+00:00",
+      "generated_at_utc": "2026-03-15T10:33:39.775146+00:00",
       "reference_data_date": "2026-03-14",
       "targeted_assets": 0,
       "updated_assets": 0,
@@ -410,19 +429,19 @@
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
             "scripts/ops/run_daily_data_quality_agent.py",
             "--cycle-run-id",
-            "20260314T105413Z"
+            "20260315T103242Z"
           ],
           "returncode": 0,
-          "stdout": " \"deferred_review\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"ok\", \"ingestion_warning_reasons\": [], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"local_fresh_remote_miss\": 51}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T105413Z\", \"agent_run_id\": \"20260314T105434Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}",
+          "stdout": "eview\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh_remote_miss\": 12}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260315T103242Z\", \"agent_run_id\": \"20260315T103316Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}",
           "stderr": "",
           "ok": true,
           "parsed": {
             "status": "ok",
-            "generated_at_utc": "2026-03-14T10:54:46.000124+00:00",
+            "generated_at_utc": "2026-03-15T10:33:38.027413+00:00",
             "reference_data_date": "2026-03-14",
             "site_as_of_date": "2026-03-14",
             "site_lag_days": 0,
-            "operation_generated_at_utc": "2026-03-14T10:52:29.648485+00:00",
+            "operation_generated_at_utc": "2026-03-15T00:15:28.564629+00:00",
             "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
             "total_assets": 853,
             "fresh_assets": 719,
@@ -579,11 +598,12 @@
                 "deferred_review": false
               }
             ],
-            "ingestion_status": "ok",
-            "ingestion_warning_reasons": [],
+            "ingestion_status": "warn",
+            "ingestion_warning_reasons": [
+              "assets_without_remote_data"
+            ],
             "ingestion_provider_counts": {
-              "local_fresh": 5,
-              "local_fresh_remote_miss": 51
+              "local_fresh_remote_miss": 12
             },
             "notes": [
               "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
@@ -596,8 +616,8 @@
                 "message": "55 ativos periféricos estão velhos o suficiente para revisão ou poda."
               }
             ],
-            "cycle_run_id": "20260314T105413Z",
-            "agent_run_id": "20260314T105434Z",
+            "cycle_run_id": "20260315T103242Z",
+            "agent_run_id": "20260315T103316Z",
             "agent": {
               "agent_id": "daily-data-quality-agent",
               "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
@@ -629,7 +649,7 @@
             "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
             "scripts/ops/build_site_finance_snapshot.py",
             "--cycle-run-id",
-            "20260314T105413Z"
+            "20260315T103242Z"
           ],
           "returncode": 0,
           "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json",
@@ -649,8 +669,8 @@
         "Este agente não substitui a ingestão principal; ele só reconcilia o que ficou para trás.",
         "Ativos marcados para revisão ficam fora do retry automático para não reintroduzir ruído no núcleo."
       ],
-      "cycle_run_id": "20260314T105413Z",
-      "agent_run_id": "20260314T105420Z",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103251Z",
       "agent": {
         "agent_id": "daily-backfill-agent",
         "guide_path": "scripts/ops/agent_guides/daily-backfill-agent.md",
@@ -676,7 +696,7 @@
     },
     "daily_operation": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T10:54:54.304669+00:00",
+      "generated_at_utc": "2026-03-15T10:37:39.587773+00:00",
       "mode_attack": {
         "label": "Modo ataque",
         "candidate_id": "champion_profit_lock_partial",
@@ -688,11 +708,11 @@
           "cash": 0.994375
         },
         "gross_exposure": 0.005625,
-        "net_ann_return": 0.06818066454808824,
-        "net_total_return": 0.9558471536444626,
-        "net_sharpe": 0.38848410018967516,
-        "net_max_drawdown": -0.8609608813925439,
-        "avg_turnover_daily": 0.0584482198595396,
+        "net_ann_return": 0.37279836231286234,
+        "net_total_return": 26.332541878460045,
+        "net_sharpe": 0.7919079369056886,
+        "net_max_drawdown": -0.7254232740634854,
+        "avg_turnover_daily": 0.06068129038388445,
         "notes": "combina criticidade relativa, reorganização leve e trava parcial de lucro baseada apenas no histórico realizado"
       },
       "mode_main": {
@@ -706,11 +726,11 @@
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.18242861134187027,
-        "net_total_return": 4.497525377602256,
-        "net_sharpe": 0.5726543731585344,
-        "net_max_drawdown": -0.7633901416019916,
-        "avg_turnover_daily": 0.0444791260241904,
+        "net_ann_return": 0.5268015147810008,
+        "net_total_return": 81.94260537162565,
+        "net_sharpe": 0.9967290356071081,
+        "net_max_drawdown": -0.7587660400947667,
+        "avg_turnover_daily": 0.04522995058912961,
         "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
       },
       "mode_attack_guard": {
@@ -724,11 +744,11 @@
           "cash": 0.994375
         },
         "gross_exposure": 0.005625,
-        "net_ann_return": 0.006869713975627745,
-        "net_total_return": 0.07211191455197863,
-        "net_sharpe": 0.3162580079995102,
-        "net_max_drawdown": -0.9010392907180363,
-        "avg_turnover_daily": 0.05882896020288724,
+        "net_ann_return": 0.30844391578662766,
+        "net_total_return": 15.556897791726268,
+        "net_sharpe": 0.6935316562812864,
+        "net_max_drawdown": -0.7954231071327552,
+        "avg_turnover_daily": 0.0633563759026986,
         "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
       },
       "mode_main_guard": {
@@ -742,11 +762,11 @@
           "cash": 1.0
         },
         "gross_exposure": 0.0,
-        "net_ann_return": 0.1505036972987308,
-        "net_total_return": 3.1616907858657175,
-        "net_sharpe": 0.5283323886746023,
-        "net_max_drawdown": -0.6937659852860705,
-        "avg_turnover_daily": 0.0408115489660554,
+        "net_ann_return": 0.40275083965144565,
+        "net_total_return": 33.241028449508775,
+        "net_sharpe": 0.9535383418871418,
+        "net_max_drawdown": -0.7010333336845964,
+        "avg_turnover_daily": 0.04234131508931965,
         "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
       },
       "artifacts": {
@@ -754,7 +774,7 @@
         "crypto_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_crypto_top_liquid_plus.csv",
         "equity_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_target_800_clean_plus.csv"
       },
-      "reused_previous_operation": true,
+      "reused_previous_operation": false,
       "current_posture": {
         "mode_attack": {
           "posture": "quase_caixa",
@@ -779,15 +799,16 @@
       },
       "mode_confidence": {
         "recommended_mode": "proteção",
-        "confidence_score": 0.5675773245319,
+        "confidence_score": 0.5421134504131386,
         "confidence_level": "média",
-        "attack_score": 0.542465476605044,
-        "protection_score": 0.5866867890041698,
+        "attack_score": 0.5468805657014839,
+        "protection_score": 0.5632097049788064,
         "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
         "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
         "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
         "reasons": [
           "O ganho continua dependente dos nomes cripto mais fortes.",
+          "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
           "Os alertas diários pedem leitura mais defensiva.",
           "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
         ],
@@ -795,27 +816,27 @@
           "structural_risk_level": "stable",
           "structural_confidence_score": 1.0,
           "vigilance_status": "warn",
-          "vigilance_alert_count": 3,
-          "pbo_verdict": "desconhecido",
-          "attack_underperform_prob_63": 0.5,
+          "vigilance_alert_count": 2,
+          "pbo_verdict": "provavel_overfit",
+          "attack_underperform_prob_63": 0.570171931227509,
           "attack_top3_retention": 0.0,
-          "attack_drawdown_abs": 0.8609608813925439,
-          "protection_drawdown_abs": 0.6937659852860705,
+          "attack_drawdown_abs": 0.7254232740634854,
+          "protection_drawdown_abs": 0.7010333336845964,
           "execution_winner": ""
         }
       },
       "validation_metrics_source": {
         "candidate_id": "champion_profit_lock_partial",
-        "source_suite": "profit_champion_extension_suite",
-        "underperform_prob_63": null,
+        "source_suite": "profit_official_post_fiscal_validation",
+        "underperform_prob_63": 0.570171931227509,
         "top3_total_retention": null,
-        "pbo_verdict": "desconhecido"
+        "pbo_verdict": "provavel_overfit"
       },
       "official_structural_regime": {
         "as_of_date": "2026-03-13",
         "regime": "stress",
-        "criticality": 0.595779204747153,
-        "structural_stress": 0.7593793490588312,
+        "criticality": 0.6567165746389131,
+        "structural_stress": 0.7814514606748453,
         "market_mode_share_pct": 0.6984126984126984,
         "classification_method": "daily_live_nowcast"
       },
@@ -823,7 +844,7 @@
         "mode": "proteção",
         "label": "Modo principal com guarda",
         "confidence_level": "média",
-        "confidence_score": 0.5675773245319,
+        "confidence_score": 0.5421134504131386,
         "current_posture": {
           "posture": "quase_caixa",
           "gross_exposure": 0.0,
@@ -834,47 +855,10 @@
         "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",
         "A proteção continua preferível quando o mercado inteiro aperta junto, a confiança cai e o atrito operacional sobe."
       ],
-      "post_steps": {
-        "registry": {
-          "cmd": [
-            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/build_profit_research_registry.py"
-          ],
-          "returncode": 0,
-          "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 377}\n",
-          "stderr": "",
-          "ok": true
-        },
-        "data_quality": {
-          "cmd": [
-            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/run_daily_data_quality_agent.py",
-            "--cycle-run-id",
-            "20260314T105413Z"
-          ],
-          "returncode": 0,
-          "stdout": "\"deferred_review\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"ok\", \"ingestion_warning_reasons\": [], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"local_fresh_remote_miss\": 51}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T105413Z\", \"agent_run_id\": \"20260314T105457Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
-          "stderr": "",
-          "ok": true
-        },
-        "site_snapshot": {
-          "cmd": [
-            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-            "scripts/ops/build_site_finance_snapshot.py",
-            "--cycle-run-id",
-            "20260314T105413Z"
-          ],
-          "returncode": 0,
-          "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
-          "stderr": "",
-          "ok": true
-        }
-      },
-      "publish_ready": true,
       "inputs_as_of_date": "2026-03-14",
-      "code_revision": "8266049-dirty",
-      "cycle_run_id": "20260314T105413Z",
-      "agent_run_id": "20260314T105453Z",
+      "code_revision": "d616c2b-dirty",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103347Z",
       "agent": {
         "agent_id": "daily-operation-agent",
         "guide_path": "scripts/ops/agent_guides/daily-operation-agent.md",
@@ -900,44 +884,1099 @@
       },
       "official_structural_regime_artifact": {
         "status": "ok",
-        "generated_at_utc": "2026-03-14T10:50:13.623003+00:00",
-        "cycle_run_id": "20260314T103345Z",
-        "agent_run_id": "20260314T103438Z",
+        "generated_at_utc": "2026-03-15T10:37:39.587773+00:00",
+        "cycle_run_id": "20260315T103242Z",
+        "agent_run_id": "20260315T103347Z",
         "as_of_date": "2026-03-13",
         "regime": "stress",
-        "criticality": 0.595779204747153,
-        "structural_stress": 0.7593793490588312,
+        "criticality": 0.6567165746389131,
+        "structural_stress": 0.7814514606748453,
         "market_mode_share_pct": 0.6984126984126984,
         "classification_method": "daily_live_nowcast",
         "base_run_dir": "",
         "base_regime_source": ""
       },
-      "reuse_reason": "same_inputs_and_code_revision"
+      "post_steps": {
+        "registry": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/build_profit_research_registry.py"
+          ],
+          "returncode": 0,
+          "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 377}\n",
+          "stderr": "",
+          "ok": true
+        },
+        "data_quality": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/run_daily_data_quality_agent.py",
+            "--cycle-run-id",
+            "20260315T103242Z"
+          ],
+          "returncode": 0,
+          "stdout": "view\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh_remote_miss\": 12}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260315T103242Z\", \"agent_run_id\": \"20260315T103743Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
+          "stderr": "",
+          "ok": true
+        },
+        "live_execution": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/run_live_execution_plan.py",
+            "--cycle-run-id",
+            "20260315T103242Z"
+          ],
+          "returncode": 0,
+          "stdout": "t\": {\"BTC-USD\": {\"price_native\": 70892.36, \"price_brl\": 354461.8}, \"ETH-USD\": {\"price_native\": 2089.76, \"price_brl\": 10448.800000000001}, \"SOL-USD\": {\"price_native\": 88.07, \"price_brl\": 440.34999999999997}}, \"selected_mode\": {\"mode_key\": \"guard\", \"candidate_id\": \"meta_dd_combo__conv25_vol25\", \"alias\": \"Hestia\", \"label\": \"Guard de drawdown\", \"confidence_score\": 0.5421134504131386, \"recommended_mode\": \"proteção\", \"vigilance_status\": \"warn\", \"attack_gross_exposure\": 0.005625}, \"target_notional_brl\": {\"CASH-BRL\": 400.0}, \"target_notional_after_caps_brl\": {\"CASH-BRL\": 400.0}, \"turnover_requested_brl\": 0.0, \"turnover_cap_brl\": 260.0, \"turnover_scale_applied\": 1.0, \"tickets\": [], \"blocked\": [], \"notes\": [\"O plano live usa proxy executavel em poucos ativos, não replica literalmente toda a cesta teorica do laboratorio.\", \"A emissao continua semi-automatica: o sistema sugere notional e lado, e a revisao humana ainda fica obrigatoria.\"], \"manual_steps\": [\"Revisar o selected_mode e confirmar se ele faz sentido para o contexto do dia.\", \"Checar se a carteira real e o saldo em caixa batem com o portfolio_state.json.\", \"Executar apenas os tickets com notional_brl acima do minimo e sem blocked.\", \"Depois da execucao, preencher execution_report.json e rodar a reconciliacao.\"], \"agent_run_id\": \"20260315T103808Z\", \"agent\": {\"agent_id\": \"daily-operation-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-operation-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de operação\", \"mission\": \"Recalcular os modos oficiais, a confiança e o modo recomendado com base na melhor base local disponível.\", \"run_order\": \"3\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_operation/latest_summary.json\"], \"rules\": [\"uma_unica_verdade_operacional\", \"sem_usar_dado_velho_como_atual\"]}}\n",
+          "stderr": "",
+          "ok": true
+        },
+        "daily_shadow_gods": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/run_daily_shadow_gods_agent.py",
+            "--cycle-run-id",
+            "20260315T103242Z"
+          ],
+          "returncode": 0,
+          "stdout": "oads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_fills.json\"}, \"history_tail\": [{\"agent_run_id\": \"20260315T103137Z\", \"alias\": \"Hermes\", \"as_of_date\": \"2026-03-14\", \"capital_brl\": \"10000.0\", \"cash_after_brl\": \"10000.0\", \"cycle_run_id\": \"20260315T000000Z\", \"fill_count\": \"0\", \"market_state\": \"defense\", \"nav_after_brl\": \"10000.0\", \"nav_before_brl\": \"10000.0\", \"order_count\": \"0\", \"scenario_id\": \"hermes_10000\", \"selected_assets\": \"\"}], \"request_tail\": [], \"fills_tail\": []}], \"order_count_total\": 0, \"fill_count_total\": 0, \"latest_states\": {\"200\": \"defense\", \"1000\": \"defense\", \"10000\": \"defense\"}}], \"overview\": {\"god_count\": 4, \"scenario_count\": 12, \"order_count_total\": 4, \"fill_count_total\": 4}, \"config_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/config/shadow_gods_portfolios.json\", \"operation_summary_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_operation/latest_summary.json\", \"vigilance_summary_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_vigilance/latest_summary.json\", \"prices_dir\": \"/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily\", \"reused_previous_run\": true, \"agent\": {\"agent_id\": \"daily-shadow-gods-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-shadow-gods-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Daily Shadow Gods Agent\", \"mission\": \"Simular diariamente os quatro shadow gods congelados em três blocos de capital e registrar ordens, fills e estados.\", \"run_order\": \"4\", \"depends_on\": [\"daily-operation-agent\"], \"consumes\": [\"results/ops/agents/daily_operation/latest_summary.json\", \"results/ops/agents/daily_vigilance/latest_summary.json\", \"data/raw/finance/yfinance_daily\"], \"produces\": [\"results/ops/agents/daily_shadow_gods/latest_summary.json\"], \"rules\": [\"nao_mascarar_fail\", \"congelar_4_gods\", \"persistir_ordens_e_fills\", \"permitir_no_trade_quando_o_regime_pedir\"]}, \"reuse_reason\": \"same_as_of_date\"}\n",
+          "stderr": "",
+          "ok": true
+        },
+        "site_snapshot": {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/build_site_finance_snapshot.py",
+            "--cycle-run-id",
+            "20260315T103242Z"
+          ],
+          "returncode": 0,
+          "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
+          "stderr": "",
+          "ok": true
+        }
+      },
+      "publish_ready": true
+    },
+    "daily_shadow_gods": {
+      "status": "ok",
+      "generated_at_utc": "2026-03-15T10:38:14.494561+00:00",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103814Z",
+      "as_of_date": "2026-03-14",
+      "gods": [
+        {
+          "alias": "Apollo",
+          "candidate_id": "criticality_free_energy_attack",
+          "role": "structural_anchor",
+          "thesis": "Anchor estrutural com leitura global, Brasil e cripto sem virar turbo.",
+          "scenarios": [
+            {
+              "scenario_id": "apollo_200",
+              "capital_brl": 200.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 200.0,
+              "nav_after_brl": 200.0,
+              "cash_after_brl": 200.0,
+              "target_weights": {
+                "CASH-BRL": 0.7,
+                "SHY": 0.3
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 140.0,
+                "SHY": 60.0
+              },
+              "orders": [],
+              "blocked": [
+                {
+                  "ticker": "SHY",
+                  "reason": "target_below_min_position",
+                  "target_notional_brl": 60.0,
+                  "current_notional_brl": 0.0
+                }
+              ],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/200/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "200.0",
+                  "cash_after_brl": "200.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "200.0",
+                  "nav_before_brl": "200.0",
+                  "order_count": "0",
+                  "scenario_id": "apollo_200",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "apollo_1000",
+              "capital_brl": 1000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 1000.0,
+              "nav_after_brl": 999.7,
+              "cash_after_brl": 699.7,
+              "target_weights": {
+                "CASH-BRL": 0.7,
+                "SHY": 0.3
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 700.0,
+                "SHY": 300.0
+              },
+              "orders": [
+                {
+                  "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "notional_brl": 300.0,
+                  "current_notional_brl": 0.0,
+                  "target_notional_brl": 300.0,
+                  "quantity_estimate": 3.6341609801262367,
+                  "price_brl_reference": 82.55000305175781,
+                  "preferred_order_type": "market_notional",
+                  "reason": "shadow_apollo_defense"
+                }
+              ],
+              "blocked": [],
+              "fills": [
+                {
+                  "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "filled_notional_brl": 300.0,
+                  "filled_quantity": 3.6341609801262367,
+                  "avg_price_brl": 82.55000305175781,
+                  "fee_brl": 0.3,
+                  "status": "filled",
+                  "executed_at": "2026-03-14T00:00:00+00:00"
+                }
+              ],
+              "holdings": [
+                {
+                  "ticker": "SHY",
+                  "quantity": 3.6341609801262367,
+                  "market_value_brl": 300.0,
+                  "avg_price_brl": 82.63255305480958,
+                  "weight": 0.30009002700810244
+                }
+              ],
+              "order_count": 1,
+              "fill_count": 1,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/1000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cash_after_brl": "699.7",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "1",
+                  "market_state": "defense",
+                  "nav_after_brl": "999.7",
+                  "nav_before_brl": "1000.0",
+                  "order_count": "1",
+                  "scenario_id": "apollo_1000",
+                  "selected_assets": "SHY"
+                }
+              ],
+              "request_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "market_state": "defense",
+                  "notional_brl": "300.0",
+                  "reason": "shadow_apollo_defense",
+                  "scenario_id": "apollo_1000",
+                  "side": "buy",
+                  "ticker": "SHY",
+                  "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de"
+                }
+              ],
+              "fills_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "avg_price_brl": "82.55000305175781",
+                  "capital_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "executed_at": "2026-03-14T00:00:00+00:00",
+                  "fee_brl": "0.3",
+                  "filled_notional_brl": "300.0",
+                  "filled_quantity": "3.6341609801262367",
+                  "market_state": "defense",
+                  "scenario_id": "apollo_1000",
+                  "side": "buy",
+                  "status": "filled",
+                  "ticker": "SHY",
+                  "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de"
+                }
+              ]
+            },
+            {
+              "scenario_id": "apollo_10000",
+              "capital_brl": 10000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 10000.0,
+              "nav_after_brl": 9997.0,
+              "cash_after_brl": 6997.0,
+              "target_weights": {
+                "CASH-BRL": 0.7,
+                "SHY": 0.3
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 7000.0,
+                "SHY": 3000.0
+              },
+              "orders": [
+                {
+                  "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "notional_brl": 3000.0,
+                  "current_notional_brl": 0.0,
+                  "target_notional_brl": 3000.0,
+                  "quantity_estimate": 36.341609801262365,
+                  "price_brl_reference": 82.55000305175781,
+                  "preferred_order_type": "market_notional",
+                  "reason": "shadow_apollo_defense"
+                }
+              ],
+              "blocked": [],
+              "fills": [
+                {
+                  "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "filled_notional_brl": 3000.0,
+                  "filled_quantity": 36.341609801262365,
+                  "avg_price_brl": 82.55000305175781,
+                  "fee_brl": 3.0,
+                  "status": "filled",
+                  "executed_at": "2026-03-14T00:00:00+00:00"
+                }
+              ],
+              "holdings": [
+                {
+                  "ticker": "SHY",
+                  "quantity": 36.341609801262365,
+                  "market_value_brl": 3000.0,
+                  "avg_price_brl": 82.63255305480958,
+                  "weight": 0.30009002700810244
+                }
+              ],
+              "order_count": 1,
+              "fill_count": 1,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/10000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cash_after_brl": "6997.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "1",
+                  "market_state": "defense",
+                  "nav_after_brl": "9997.0",
+                  "nav_before_brl": "10000.0",
+                  "order_count": "1",
+                  "scenario_id": "apollo_10000",
+                  "selected_assets": "SHY"
+                }
+              ],
+              "request_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "market_state": "defense",
+                  "notional_brl": "3000.0",
+                  "reason": "shadow_apollo_defense",
+                  "scenario_id": "apollo_10000",
+                  "side": "buy",
+                  "ticker": "SHY",
+                  "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee"
+                }
+              ],
+              "fills_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Apollo",
+                  "as_of_date": "2026-03-14",
+                  "avg_price_brl": "82.55000305175781",
+                  "capital_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "executed_at": "2026-03-14T00:00:00+00:00",
+                  "fee_brl": "3.0",
+                  "filled_notional_brl": "3000.0",
+                  "filled_quantity": "36.341609801262365",
+                  "market_state": "defense",
+                  "scenario_id": "apollo_10000",
+                  "side": "buy",
+                  "status": "filled",
+                  "ticker": "SHY",
+                  "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee"
+                }
+              ]
+            }
+          ],
+          "order_count_total": 2,
+          "fill_count_total": 2,
+          "latest_states": {
+            "200": "defense",
+            "1000": "defense",
+            "10000": "defense"
+          }
+        },
+        {
+          "alias": "Zeus",
+          "candidate_id": "meta_mode_selector",
+          "role": "context_selector",
+          "thesis": "Selector de contexto misturando internacional, Brasil e cripto conforme o regime.",
+          "scenarios": [
+            {
+              "scenario_id": "zeus_200",
+              "capital_brl": 200.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 200.0,
+              "nav_after_brl": 200.0,
+              "cash_after_brl": 200.0,
+              "target_weights": {
+                "CASH-BRL": 0.75,
+                "SHY": 0.25
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 150.0,
+                "SHY": 50.0
+              },
+              "orders": [],
+              "blocked": [
+                {
+                  "ticker": "SHY",
+                  "reason": "target_below_min_position",
+                  "target_notional_brl": 50.0,
+                  "current_notional_brl": 0.0
+                }
+              ],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/200/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "200.0",
+                  "cash_after_brl": "200.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "200.0",
+                  "nav_before_brl": "200.0",
+                  "order_count": "0",
+                  "scenario_id": "zeus_200",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "zeus_1000",
+              "capital_brl": 1000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 1000.0,
+              "nav_after_brl": 999.75,
+              "cash_after_brl": 749.75,
+              "target_weights": {
+                "CASH-BRL": 0.75,
+                "SHY": 0.25
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 750.0,
+                "SHY": 250.0
+              },
+              "orders": [
+                {
+                  "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "notional_brl": 250.0,
+                  "current_notional_brl": 0.0,
+                  "target_notional_brl": 250.0,
+                  "quantity_estimate": 3.0284674834385306,
+                  "price_brl_reference": 82.55000305175781,
+                  "preferred_order_type": "market_notional",
+                  "reason": "shadow_zeus_defense"
+                }
+              ],
+              "blocked": [],
+              "fills": [
+                {
+                  "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "filled_notional_brl": 250.0,
+                  "filled_quantity": 3.0284674834385306,
+                  "avg_price_brl": 82.55000305175781,
+                  "fee_brl": 0.25,
+                  "status": "filled",
+                  "executed_at": "2026-03-14T00:00:00+00:00"
+                }
+              ],
+              "holdings": [
+                {
+                  "ticker": "SHY",
+                  "quantity": 3.0284674834385306,
+                  "market_value_brl": 250.0,
+                  "avg_price_brl": 82.63255305480958,
+                  "weight": 0.25006251562890724
+                }
+              ],
+              "order_count": 1,
+              "fill_count": 1,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/1000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cash_after_brl": "749.75",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "1",
+                  "market_state": "defense",
+                  "nav_after_brl": "999.75",
+                  "nav_before_brl": "1000.0",
+                  "order_count": "1",
+                  "scenario_id": "zeus_1000",
+                  "selected_assets": "SHY"
+                }
+              ],
+              "request_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "market_state": "defense",
+                  "notional_brl": "250.0",
+                  "reason": "shadow_zeus_defense",
+                  "scenario_id": "zeus_1000",
+                  "side": "buy",
+                  "ticker": "SHY",
+                  "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a"
+                }
+              ],
+              "fills_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "avg_price_brl": "82.55000305175781",
+                  "capital_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "executed_at": "2026-03-14T00:00:00+00:00",
+                  "fee_brl": "0.25",
+                  "filled_notional_brl": "250.0",
+                  "filled_quantity": "3.0284674834385306",
+                  "market_state": "defense",
+                  "scenario_id": "zeus_1000",
+                  "side": "buy",
+                  "status": "filled",
+                  "ticker": "SHY",
+                  "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a"
+                }
+              ]
+            },
+            {
+              "scenario_id": "zeus_10000",
+              "capital_brl": 10000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 10000.0,
+              "nav_after_brl": 9997.5,
+              "cash_after_brl": 7497.5,
+              "target_weights": {
+                "CASH-BRL": 0.75,
+                "SHY": 0.25
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 7500.0,
+                "SHY": 2500.0
+              },
+              "orders": [
+                {
+                  "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "notional_brl": 2500.0,
+                  "current_notional_brl": 0.0,
+                  "target_notional_brl": 2500.0,
+                  "quantity_estimate": 30.284674834385306,
+                  "price_brl_reference": 82.55000305175781,
+                  "preferred_order_type": "market_notional",
+                  "reason": "shadow_zeus_defense"
+                }
+              ],
+              "blocked": [],
+              "fills": [
+                {
+                  "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1",
+                  "ticker": "SHY",
+                  "side": "buy",
+                  "filled_notional_brl": 2500.0,
+                  "filled_quantity": 30.284674834385306,
+                  "avg_price_brl": 82.55000305175781,
+                  "fee_brl": 2.5,
+                  "status": "filled",
+                  "executed_at": "2026-03-14T00:00:00+00:00"
+                }
+              ],
+              "holdings": [
+                {
+                  "ticker": "SHY",
+                  "quantity": 30.284674834385306,
+                  "market_value_brl": 2500.0,
+                  "avg_price_brl": 82.63255305480956,
+                  "weight": 0.25006251562890724
+                }
+              ],
+              "order_count": 1,
+              "fill_count": 1,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/10000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cash_after_brl": "7497.5",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "1",
+                  "market_state": "defense",
+                  "nav_after_brl": "9997.5",
+                  "nav_before_brl": "10000.0",
+                  "order_count": "1",
+                  "scenario_id": "zeus_10000",
+                  "selected_assets": "SHY"
+                }
+              ],
+              "request_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "market_state": "defense",
+                  "notional_brl": "2500.0",
+                  "reason": "shadow_zeus_defense",
+                  "scenario_id": "zeus_10000",
+                  "side": "buy",
+                  "ticker": "SHY",
+                  "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1"
+                }
+              ],
+              "fills_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Zeus",
+                  "as_of_date": "2026-03-14",
+                  "avg_price_brl": "82.55000305175781",
+                  "capital_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "executed_at": "2026-03-14T00:00:00+00:00",
+                  "fee_brl": "2.5",
+                  "filled_notional_brl": "2500.0",
+                  "filled_quantity": "30.284674834385306",
+                  "market_state": "defense",
+                  "scenario_id": "zeus_10000",
+                  "side": "buy",
+                  "status": "filled",
+                  "ticker": "SHY",
+                  "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1"
+                }
+              ]
+            }
+          ],
+          "order_count_total": 2,
+          "fill_count_total": 2,
+          "latest_states": {
+            "200": "defense",
+            "1000": "defense",
+            "10000": "defense"
+          }
+        },
+        {
+          "alias": "Hephaestus",
+          "candidate_id": "all_assets__lb126__rb07__k2__mom_total__ama200__mma200__riskon",
+          "role": "brazil_crypto_slow_attack",
+          "thesis": "Ataque mais lento e executável, focado em Brasil mais cripto.",
+          "scenarios": [
+            {
+              "scenario_id": "hephaestus_200",
+              "capital_brl": 200.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 200.0,
+              "nav_after_brl": 200.0,
+              "cash_after_brl": 200.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 200.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/200/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hephaestus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "200.0",
+                  "cash_after_brl": "200.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "200.0",
+                  "nav_before_brl": "200.0",
+                  "order_count": "0",
+                  "scenario_id": "hephaestus_200",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "hephaestus_1000",
+              "capital_brl": 1000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 1000.0,
+              "nav_after_brl": 1000.0,
+              "cash_after_brl": 1000.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 1000.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/1000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hephaestus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cash_after_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "1000.0",
+                  "nav_before_brl": "1000.0",
+                  "order_count": "0",
+                  "scenario_id": "hephaestus_1000",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "hephaestus_10000",
+              "capital_brl": 10000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 10000.0,
+              "nav_after_brl": 10000.0,
+              "cash_after_brl": 10000.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 10000.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/10000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hephaestus",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cash_after_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "10000.0",
+                  "nav_before_brl": "10000.0",
+                  "order_count": "0",
+                  "scenario_id": "hephaestus_10000",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            }
+          ],
+          "order_count_total": 0,
+          "fill_count_total": 0,
+          "latest_states": {
+            "200": "defense",
+            "1000": "defense",
+            "10000": "defense"
+          }
+        },
+        {
+          "alias": "Hermes",
+          "candidate_id": "all_assets__lb021__rb07__k3__mom_vol_adj__ama000__mma000__relshy",
+          "role": "turbo_attack_shadow",
+          "thesis": "Detector de upside extremo, mantido em shadow para medir aceleração sem contaminar o live.",
+          "scenarios": [
+            {
+              "scenario_id": "hermes_200",
+              "capital_brl": 200.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 200.0,
+              "nav_after_brl": 200.0,
+              "cash_after_brl": 200.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 200.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/200/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hermes",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "200.0",
+                  "cash_after_brl": "200.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "200.0",
+                  "nav_before_brl": "200.0",
+                  "order_count": "0",
+                  "scenario_id": "hermes_200",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "hermes_1000",
+              "capital_brl": 1000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 1000.0,
+              "nav_after_brl": 1000.0,
+              "cash_after_brl": 1000.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 1000.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/1000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hermes",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "1000.0",
+                  "cash_after_brl": "1000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "1000.0",
+                  "nav_before_brl": "1000.0",
+                  "order_count": "0",
+                  "scenario_id": "hermes_1000",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            },
+            {
+              "scenario_id": "hermes_10000",
+              "capital_brl": 10000.0,
+              "market_state": "defense",
+              "market_notes": [
+                "Mercado em proteção, vigilância ruim ou stress estrutural."
+              ],
+              "nav_before_brl": 10000.0,
+              "nav_after_brl": 10000.0,
+              "cash_after_brl": 10000.0,
+              "target_weights": {
+                "CASH-BRL": 1.0
+              },
+              "target_notional_brl": {
+                "CASH-BRL": 10000.0
+              },
+              "orders": [],
+              "blocked": [],
+              "fills": [],
+              "holdings": [],
+              "order_count": 0,
+              "fill_count": 0,
+              "artifacts": {
+                "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/10000/portfolio_state.json",
+                "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/requests.csv",
+                "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/fills.csv",
+                "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/history.csv",
+                "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_requests.json",
+                "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_fills.json"
+              },
+              "history_tail": [
+                {
+                  "agent_run_id": "20260315T103137Z",
+                  "alias": "Hermes",
+                  "as_of_date": "2026-03-14",
+                  "capital_brl": "10000.0",
+                  "cash_after_brl": "10000.0",
+                  "cycle_run_id": "20260315T000000Z",
+                  "fill_count": "0",
+                  "market_state": "defense",
+                  "nav_after_brl": "10000.0",
+                  "nav_before_brl": "10000.0",
+                  "order_count": "0",
+                  "scenario_id": "hermes_10000",
+                  "selected_assets": ""
+                }
+              ],
+              "request_tail": [],
+              "fills_tail": []
+            }
+          ],
+          "order_count_total": 0,
+          "fill_count_total": 0,
+          "latest_states": {
+            "200": "defense",
+            "1000": "defense",
+            "10000": "defense"
+          }
+        }
+      ],
+      "overview": {
+        "god_count": 4,
+        "scenario_count": 12,
+        "order_count_total": 4,
+        "fill_count_total": 4
+      },
+      "config_path": "/Users/PedroHenrique/Downloads/Assyntrax/config/shadow_gods_portfolios.json",
+      "operation_summary_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_operation/latest_summary.json",
+      "vigilance_summary_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_vigilance/latest_summary.json",
+      "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
+      "reused_previous_run": true,
+      "agent": {
+        "agent_id": "daily-shadow-gods-agent",
+        "guide_path": "scripts/ops/agent_guides/daily-shadow-gods-agent.md",
+        "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+        "display_name": "Daily Shadow Gods Agent",
+        "mission": "Simular diariamente os quatro shadow gods congelados em três blocos de capital e registrar ordens, fills e estados.",
+        "run_order": "4",
+        "depends_on": [
+          "daily-operation-agent"
+        ],
+        "consumes": [
+          "results/ops/agents/daily_operation/latest_summary.json",
+          "results/ops/agents/daily_vigilance/latest_summary.json",
+          "data/raw/finance/yfinance_daily"
+        ],
+        "produces": [
+          "results/ops/agents/daily_shadow_gods/latest_summary.json"
+        ],
+        "rules": [
+          "nao_mascarar_fail",
+          "congelar_4_gods",
+          "persistir_ordens_e_fills",
+          "permitir_no_trade_quando_o_regime_pedir"
+        ]
+      },
+      "reuse_reason": "same_as_of_date"
     },
     "daily_vigilance": {
       "status": "warn",
-      "generated_at_utc": "2026-03-14T10:55:11.178000+00:00",
-      "operation_age_days": 0.00019527041666666666,
+      "generated_at_utc": "2026-03-15T10:38:14.975086+00:00",
+      "operation_age_days": 0.00040954292824074077,
       "snapshot_as_of_date": "2026-03-14",
       "research_rows_total": 377,
-      "pbo_verdict": "desconhecido",
+      "pbo_verdict": "provavel_overfit",
       "validation_metrics_source": {
         "candidate_id": "champion_profit_lock_partial",
-        "source_suite": "profit_champion_extension_suite",
-        "underperform_prob_63": null,
+        "source_suite": "profit_official_post_fiscal_validation",
+        "underperform_prob_63": 0.570171931227509,
         "top3_total_retention": null,
-        "pbo_verdict": "desconhecido"
+        "pbo_verdict": "provavel_overfit"
       },
       "alerts": [
         {
           "level": "warn",
           "code": "pbo_soft",
           "message": "Teste de overfit não está no nível mais forte."
-        },
-        {
-          "level": "warn",
-          "code": "attack_deep_drawdown",
-          "message": "Modo ataque continua muito agressivo no histórico."
         },
         {
           "level": "warn",
@@ -949,8 +1988,8 @@
         "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
         "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham."
       ],
-      "cycle_run_id": "20260314T105413Z",
-      "agent_run_id": "20260314T105511Z",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103814Z",
       "agent": {
         "agent_id": "daily-vigilance-agent",
         "guide_path": "scripts/ops/agent_guides/daily-vigilance-agent.md",
@@ -976,11 +2015,11 @@
     },
     "daily_data_quality": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T10:55:28.877711+00:00",
+      "generated_at_utc": "2026-03-15T10:38:37.934247+00:00",
       "reference_data_date": "2026-03-14",
       "site_as_of_date": "2026-03-14",
       "site_lag_days": 0,
-      "operation_generated_at_utc": "2026-03-14T10:54:54.304669+00:00",
+      "operation_generated_at_utc": "2026-03-15T10:37:39.587773+00:00",
       "prices_dir": "/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily",
       "total_assets": 853,
       "fresh_assets": 719,
@@ -1137,11 +2176,12 @@
           "deferred_review": false
         }
       ],
-      "ingestion_status": "ok",
-      "ingestion_warning_reasons": [],
+      "ingestion_status": "warn",
+      "ingestion_warning_reasons": [
+        "assets_without_remote_data"
+      ],
       "ingestion_provider_counts": {
-        "local_fresh": 5,
-        "local_fresh_remote_miss": 51
+        "local_fresh_remote_miss": 12
       },
       "notes": [
         "Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.",
@@ -1154,8 +2194,8 @@
           "message": "55 ativos periféricos estão velhos o suficiente para revisão ou poda."
         }
       ],
-      "cycle_run_id": "20260314T105413Z",
-      "agent_run_id": "20260314T105512Z",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103816Z",
       "agent": {
         "agent_id": "daily-data-quality-agent",
         "guide_path": "scripts/ops/agent_guides/daily-data-quality-agent.md",
@@ -1182,16 +2222,16 @@
       }
     },
     "daily_publish": {
-      "status": "ok",
-      "run_id": "20260314T105148Z",
-      "cycle_run_id": "20260314T105148Z",
-      "generated_at_utc": "2026-03-14T10:53:03.666685+00:00",
-      "master_code": 0,
+      "status": "fail",
+      "run_id": "20260314T221000Z",
+      "cycle_run_id": "20260314T221000Z",
+      "generated_at_utc": "2026-03-15T00:14:50.461566+00:00",
+      "master_code": 1,
       "deploy_code": 0,
-      "smoke_code": 0,
-      "publish_mode": "local",
-      "skip_master": true,
-      "failed_step": "",
+      "smoke_code": 1,
+      "publish_mode": "deploy",
+      "skip_master": false,
+      "failed_step": "daily_smoke_test",
       "last_completed_step": "daily_smoke_test",
       "agent": {
         "agent_id": "daily-publish",
@@ -1219,27 +2259,49 @@
       }
     },
     "daily_smoke_test": {
-      "status": "ok",
-      "generated_at_utc": "2026-03-14T10:53:03.371695+00:00",
+      "status": "fail",
+      "generated_at_utc": "2026-03-15T10:31:55.451725+00:00",
       "finance_last_date": "2026-03-14",
       "operation_attack_latest_date": "2026-03-13",
       "operation_candidate_id": "champion_profit_lock_partial",
       "registry_candidate_id": "champion_profit_lock_partial",
       "cycle_values": {
-        "operation": "20260314T105148Z",
-        "quality": "20260314T105148Z",
-        "vigilance": "20260314T105148Z",
-        "publish": "20260314T105148Z",
-        "snapshot": "20260314T105148Z"
+        "operation": "20260314T223704Z",
+        "shadow_gods": "20260315T000000Z",
+        "quality": "20260314T223704Z",
+        "vigilance": "20260314T221000Z",
+        "publish": "20260314T221000Z",
+        "snapshot": "20260314T223704Z"
       },
       "http_checks": [],
-      "checks": [],
+      "checks": [
+        {
+          "level": "fail",
+          "code": "publish_failed",
+          "message": "O publish diário não fechou com status ok."
+        },
+        {
+          "level": "fail",
+          "code": "cycle_run_mismatch",
+          "message": "Os artefatos do ciclo diário foram publicados com run_ids diferentes."
+        },
+        {
+          "level": "warn",
+          "code": "vigilance_older_than_operation",
+          "message": "A vigilância diária está mais velha que a leitura operacional."
+        },
+        {
+          "level": "fail",
+          "code": "snapshot_shadow_gods_missing",
+          "message": "O snapshot não publicou o bloco principal dos shadow gods."
+        }
+      ],
       "notes": [
         "Este agente compara a verdade operacional, o snapshot interno e o snapshot público.",
         "Smoke HTTP só roda quando uma base URL é fornecida explicitamente."
       ],
-      "cycle_run_id": "20260314T105148Z",
-      "agent_run_id": "20260314T105303Z",
+      "cycle_run_id": "20260315T000000Z",
+      "agent_run_id": "20260315T103155Z",
       "agent": {
         "agent_id": "daily-smoke-test-agent",
         "guide_path": "scripts/ops/agent_guides/daily-smoke-test-agent.md",
@@ -1264,17 +2326,91 @@
       }
     },
     "daily_watchdog": {
-      "status": "ok",
-      "generated_at_utc": "2026-03-14T04:49:49.871118+00:00",
-      "retries_attempted": 0,
-      "retries": [],
-      "checks": [],
+      "status": "fail",
+      "generated_at_utc": "2026-03-15T00:12:09.860125+00:00",
+      "retries_attempted": 1,
+      "retries": [
+        {
+          "cmd": [
+            "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+            "scripts/ops/run_daily_vigilance_agent.py",
+            "--cycle-run-id",
+            "20260315T001207Z"
+          ],
+          "returncode": 0,
+          "stdout": "{\"status\": \"warn\", \"generated_at_utc\": \"2026-03-15T00:12:09.761597+00:00\", \"operation_age_days\": 0.06272227976851852, \"snapshot_as_of_date\": \"2026-03-14\", \"research_rows_total\": 377, \"pbo_verdict\": \"desconhecido\", \"validation_metrics_source\": {\"candidate_id\": \"champion_profit_lock_partial\", \"source_suite\": \"profit_champion_extension_suite\", \"underperform_prob_63\": null, \"top3_total_retention\": null, \"pbo_verdict\": \"desconhecido\"}, \"alerts\": [{\"level\": \"warn\", \"code\": \"pbo_soft\", \"message\": \"Teste de overfit não está no nível mais forte.\"}, {\"level\": \"warn\", \"code\": \"main_deep_drawdown\", \"message\": \"Modo principal ainda tem tombo histórico pesado.\"}], \"notes\": [\"Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.\", \"O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham.\"], \"cycle_run_id\": \"20260315T001207Z\", \"agent_run_id\": \"20260315T001209Z\", \"agent\": {\"agent_id\": \"daily-vigilance-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-vigilance-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de vigilância\", \"mission\": \"Vigiar frescor, integridade e sinais de fragilidade do motor e do site.\", \"run_order\": \"4\", \"depends_on\": [\"daily-operation-agent\"], \"consumes\": [\"results/ops/agents/daily_operation/latest_summary.json\", \"results/ops/site_data/latest_site_snapshot.json\"], \"produces\": [\"results/ops/agents/daily_vigilance/latest_summary.json\"], \"rules\": [\"nao_mudar_parametros_do_motor\", \"so_alertar_e_documentar\"]}}",
+          "stderr": "",
+          "ok": true,
+          "parsed": {
+            "status": "warn",
+            "generated_at_utc": "2026-03-15T00:12:09.761597+00:00",
+            "operation_age_days": 0.06272227976851852,
+            "snapshot_as_of_date": "2026-03-14",
+            "research_rows_total": 377,
+            "pbo_verdict": "desconhecido",
+            "validation_metrics_source": {
+              "candidate_id": "champion_profit_lock_partial",
+              "source_suite": "profit_champion_extension_suite",
+              "underperform_prob_63": null,
+              "top3_total_retention": null,
+              "pbo_verdict": "desconhecido"
+            },
+            "alerts": [
+              {
+                "level": "warn",
+                "code": "pbo_soft",
+                "message": "Teste de overfit não está no nível mais forte."
+              },
+              {
+                "level": "warn",
+                "code": "main_deep_drawdown",
+                "message": "Modo principal ainda tem tombo histórico pesado."
+              }
+            ],
+            "notes": [
+              "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
+              "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham."
+            ],
+            "cycle_run_id": "20260315T001207Z",
+            "agent_run_id": "20260315T001209Z",
+            "agent": {
+              "agent_id": "daily-vigilance-agent",
+              "guide_path": "scripts/ops/agent_guides/daily-vigilance-agent.md",
+              "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+              "display_name": "Agente diário de vigilância",
+              "mission": "Vigiar frescor, integridade e sinais de fragilidade do motor e do site.",
+              "run_order": "4",
+              "depends_on": [
+                "daily-operation-agent"
+              ],
+              "consumes": [
+                "results/ops/agents/daily_operation/latest_summary.json",
+                "results/ops/site_data/latest_site_snapshot.json"
+              ],
+              "produces": [
+                "results/ops/agents/daily_vigilance/latest_summary.json"
+              ],
+              "rules": [
+                "nao_mudar_parametros_do_motor",
+                "so_alertar_e_documentar"
+              ]
+            }
+          }
+        }
+      ],
+      "checks": [
+        {
+          "level": "fail",
+          "code": "smoke_still_failing",
+          "message": "O smoke test continuou falhando após o retry controlado."
+        }
+      ],
       "notes": [
         "O watchdog só faz retry controlado. Ele não substitui o papel dos agentes principais.",
         "Se a falha persistir depois do retry, o estado fica explícito como fail."
       ],
-      "cycle_run_id": "20260314T044017Z",
-      "agent_run_id": "20260314T044949Z",
+      "cycle_run_id": "20260315T001207Z",
+      "agent_run_id": "20260315T001207Z",
       "agent": {
         "agent_id": "daily-watchdog-agent",
         "guide_path": "scripts/ops/agent_guides/daily-watchdog-agent.md",
@@ -1301,7 +2437,7 @@
   },
   "daily_operation": {
     "status": "ok",
-    "generated_at_utc": "2026-03-14T10:54:54.304669+00:00",
+    "generated_at_utc": "2026-03-15T10:37:39.587773+00:00",
     "mode_attack": {
       "label": "Modo ataque",
       "candidate_id": "champion_profit_lock_partial",
@@ -1313,11 +2449,11 @@
         "cash": 0.994375
       },
       "gross_exposure": 0.005625,
-      "net_ann_return": 0.06818066454808824,
-      "net_total_return": 0.9558471536444626,
-      "net_sharpe": 0.38848410018967516,
-      "net_max_drawdown": -0.8609608813925439,
-      "avg_turnover_daily": 0.0584482198595396,
+      "net_ann_return": 0.37279836231286234,
+      "net_total_return": 26.332541878460045,
+      "net_sharpe": 0.7919079369056886,
+      "net_max_drawdown": -0.7254232740634854,
+      "avg_turnover_daily": 0.06068129038388445,
       "notes": "combina criticidade relativa, reorganização leve e trava parcial de lucro baseada apenas no histórico realizado"
     },
     "mode_main": {
@@ -1331,11 +2467,11 @@
         "cash": 1.0
       },
       "gross_exposure": 0.0,
-      "net_ann_return": 0.18242861134187027,
-      "net_total_return": 4.497525377602256,
-      "net_sharpe": 0.5726543731585344,
-      "net_max_drawdown": -0.7633901416019916,
-      "avg_turnover_daily": 0.0444791260241904,
+      "net_ann_return": 0.5268015147810008,
+      "net_total_return": 81.94260537162565,
+      "net_sharpe": 0.9967290356071081,
+      "net_max_drawdown": -0.7587660400947667,
+      "avg_turnover_daily": 0.04522995058912961,
       "notes": "crypto if BTC risk-on and trailing 63d beats equities; else equities; cash if both BTC and SPY below MM200."
     },
     "mode_attack_guard": {
@@ -1349,11 +2485,11 @@
         "cash": 0.994375
       },
       "gross_exposure": 0.005625,
-      "net_ann_return": 0.006869713975627745,
-      "net_total_return": 0.07211191455197863,
-      "net_sharpe": 0.3162580079995102,
-      "net_max_drawdown": -0.9010392907180363,
-      "avg_turnover_daily": 0.05882896020288724,
+      "net_ann_return": 0.30844391578662766,
+      "net_total_return": 15.556897791726268,
+      "net_sharpe": 0.6935316562812864,
+      "net_max_drawdown": -0.7954231071327552,
+      "avg_turnover_daily": 0.0633563759026986,
       "notes": "reduz a mão quando a criticidade e a concentração estrutural entram no pior bloco recente"
     },
     "mode_main_guard": {
@@ -1367,11 +2503,11 @@
         "cash": 1.0
       },
       "gross_exposure": 0.0,
-      "net_ann_return": 0.1505036972987308,
-      "net_total_return": 3.1616907858657175,
-      "net_sharpe": 0.5283323886746023,
-      "net_max_drawdown": -0.6937659852860705,
-      "avg_turnover_daily": 0.0408115489660554,
+      "net_ann_return": 0.40275083965144565,
+      "net_total_return": 33.241028449508775,
+      "net_sharpe": 0.9535383418871418,
+      "net_max_drawdown": -0.7010333336845964,
+      "avg_turnover_daily": 0.04234131508931965,
       "notes": "regime_conditioned_mc_guard;base=meta_major8_eq_a2r1;horizon=21;step=42"
     },
     "artifacts": {
@@ -1379,7 +2515,7 @@
       "crypto_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_crypto_top_liquid_plus.csv",
       "equity_asset_groups": "/Users/PedroHenrique/Downloads/Assyntrax/data/asset_groups_target_800_clean_plus.csv"
     },
-    "reused_previous_operation": true,
+    "reused_previous_operation": false,
     "current_posture": {
       "mode_attack": {
         "posture": "quase_caixa",
@@ -1404,15 +2540,16 @@
     },
     "mode_confidence": {
       "recommended_mode": "proteção",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "confidence_level": "média",
-      "attack_score": 0.542465476605044,
-      "protection_score": 0.5866867890041698,
+      "attack_score": 0.5468805657014839,
+      "protection_score": 0.5632097049788064,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
+        "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
         "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
@@ -1420,27 +2557,27 @@
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
         "vigilance_status": "warn",
-        "vigilance_alert_count": 3,
-        "pbo_verdict": "desconhecido",
-        "attack_underperform_prob_63": 0.5,
+        "vigilance_alert_count": 2,
+        "pbo_verdict": "provavel_overfit",
+        "attack_underperform_prob_63": 0.570171931227509,
         "attack_top3_retention": 0.0,
-        "attack_drawdown_abs": 0.8609608813925439,
-        "protection_drawdown_abs": 0.6937659852860705,
+        "attack_drawdown_abs": 0.7254232740634854,
+        "protection_drawdown_abs": 0.7010333336845964,
         "execution_winner": ""
       }
     },
     "validation_metrics_source": {
       "candidate_id": "champion_profit_lock_partial",
-      "source_suite": "profit_champion_extension_suite",
-      "underperform_prob_63": null,
+      "source_suite": "profit_official_post_fiscal_validation",
+      "underperform_prob_63": 0.570171931227509,
       "top3_total_retention": null,
-      "pbo_verdict": "desconhecido"
+      "pbo_verdict": "provavel_overfit"
     },
     "official_structural_regime": {
       "as_of_date": "2026-03-13",
       "regime": "stress",
-      "criticality": 0.595779204747153,
-      "structural_stress": 0.7593793490588312,
+      "criticality": 0.6567165746389131,
+      "structural_stress": 0.7814514606748453,
       "market_mode_share_pct": 0.6984126984126984,
       "classification_method": "daily_live_nowcast"
     },
@@ -1448,7 +2585,7 @@
       "mode": "proteção",
       "label": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "current_posture": {
         "posture": "quase_caixa",
         "gross_exposure": 0.0,
@@ -1459,47 +2596,10 @@
       "O ataque agora combina criticidade estrutural com um freio leve de reorganização para evitar euforia e giro desnecessário.",
       "A proteção continua preferível quando o mercado inteiro aperta junto, a confiança cai e o atrito operacional sobe."
     ],
-    "post_steps": {
-      "registry": {
-        "cmd": [
-          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-          "scripts/ops/build_profit_research_registry.py"
-        ],
-        "returncode": 0,
-        "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 377}\n",
-        "stderr": "",
-        "ok": true
-      },
-      "data_quality": {
-        "cmd": [
-          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-          "scripts/ops/run_daily_data_quality_agent.py",
-          "--cycle-run-id",
-          "20260314T105413Z"
-        ],
-        "returncode": 0,
-        "stdout": "\"deferred_review\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"ok\", \"ingestion_warning_reasons\": [], \"ingestion_provider_counts\": {\"local_fresh\": 5, \"local_fresh_remote_miss\": 51}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260314T105413Z\", \"agent_run_id\": \"20260314T105457Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
-        "stderr": "",
-        "ok": true
-      },
-      "site_snapshot": {
-        "cmd": [
-          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
-          "scripts/ops/build_site_finance_snapshot.py",
-          "--cycle-run-id",
-          "20260314T105413Z"
-        ],
-        "returncode": 0,
-        "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
-        "stderr": "",
-        "ok": true
-      }
-    },
-    "publish_ready": true,
     "inputs_as_of_date": "2026-03-14",
-    "code_revision": "8266049-dirty",
-    "cycle_run_id": "20260314T105413Z",
-    "agent_run_id": "20260314T105453Z",
+    "code_revision": "d616c2b-dirty",
+    "cycle_run_id": "20260315T103242Z",
+    "agent_run_id": "20260315T103347Z",
     "agent": {
       "agent_id": "daily-operation-agent",
       "guide_path": "scripts/ops/agent_guides/daily-operation-agent.md",
@@ -1525,36 +2625,97 @@
     },
     "official_structural_regime_artifact": {
       "status": "ok",
-      "generated_at_utc": "2026-03-14T10:50:13.623003+00:00",
-      "cycle_run_id": "20260314T103345Z",
-      "agent_run_id": "20260314T103438Z",
+      "generated_at_utc": "2026-03-15T10:37:39.587773+00:00",
+      "cycle_run_id": "20260315T103242Z",
+      "agent_run_id": "20260315T103347Z",
       "as_of_date": "2026-03-13",
       "regime": "stress",
-      "criticality": 0.595779204747153,
-      "structural_stress": 0.7593793490588312,
+      "criticality": 0.6567165746389131,
+      "structural_stress": 0.7814514606748453,
       "market_mode_share_pct": 0.6984126984126984,
       "classification_method": "daily_live_nowcast",
       "base_run_dir": "",
       "base_regime_source": ""
     },
-    "reuse_reason": "same_inputs_and_code_revision"
+    "post_steps": {
+      "registry": {
+        "cmd": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/ops/build_profit_research_registry.py"
+        ],
+        "returncode": 0,
+        "stdout": "{\"status\": \"ok\", \"outdir\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/profit_research\", \"rows_total\": 377}\n",
+        "stderr": "",
+        "ok": true
+      },
+      "data_quality": {
+        "cmd": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/ops/run_daily_data_quality_agent.py",
+          "--cycle-run-id",
+          "20260315T103242Z"
+        ],
+        "returncode": 0,
+        "stdout": "view\": false}, {\"ticker\": \"USAR\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGO\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"USGOW\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UTZ\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZD\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}, {\"ticker\": \"UZE\", \"latest_date\": \"2026-02-12\", \"stale_days\": 30, \"role\": \"peripheral\", \"deferred_review\": false}], \"ingestion_status\": \"warn\", \"ingestion_warning_reasons\": [\"assets_without_remote_data\"], \"ingestion_provider_counts\": {\"local_fresh_remote_miss\": 12}, \"notes\": [\"Não apagar ativos atrasados às cegas. Primeiro separar o que é crítico, núcleo do motor e periferia.\", \"Ativos críticos atrasados devem ganhar fallback melhor; ativos periféricos muito velhos podem virar candidatos de poda.\"], \"alerts\": [{\"level\": \"info\", \"code\": \"peripheral_prune_candidates\", \"message\": \"55 ativos periféricos estão velhos o suficiente para revisão ou poda.\"}], \"cycle_run_id\": \"20260315T103242Z\", \"agent_run_id\": \"20260315T103743Z\", \"agent\": {\"agent_id\": \"daily-data-quality-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-data-quality-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de qualidade\", \"mission\": \"Medir cobertura, frescor e poda potencial do universo observado.\", \"run_order\": \"5\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\", \"daily-operation-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_data_quality/latest_summary.json\"], \"rules\": [\"separar_critico_nucleo_periferia\", \"qualidade_publica_e_rastreavel\"]}}\n",
+        "stderr": "",
+        "ok": true
+      },
+      "live_execution": {
+        "cmd": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/ops/run_live_execution_plan.py",
+          "--cycle-run-id",
+          "20260315T103242Z"
+        ],
+        "returncode": 0,
+        "stdout": "t\": {\"BTC-USD\": {\"price_native\": 70892.36, \"price_brl\": 354461.8}, \"ETH-USD\": {\"price_native\": 2089.76, \"price_brl\": 10448.800000000001}, \"SOL-USD\": {\"price_native\": 88.07, \"price_brl\": 440.34999999999997}}, \"selected_mode\": {\"mode_key\": \"guard\", \"candidate_id\": \"meta_dd_combo__conv25_vol25\", \"alias\": \"Hestia\", \"label\": \"Guard de drawdown\", \"confidence_score\": 0.5421134504131386, \"recommended_mode\": \"proteção\", \"vigilance_status\": \"warn\", \"attack_gross_exposure\": 0.005625}, \"target_notional_brl\": {\"CASH-BRL\": 400.0}, \"target_notional_after_caps_brl\": {\"CASH-BRL\": 400.0}, \"turnover_requested_brl\": 0.0, \"turnover_cap_brl\": 260.0, \"turnover_scale_applied\": 1.0, \"tickets\": [], \"blocked\": [], \"notes\": [\"O plano live usa proxy executavel em poucos ativos, não replica literalmente toda a cesta teorica do laboratorio.\", \"A emissao continua semi-automatica: o sistema sugere notional e lado, e a revisao humana ainda fica obrigatoria.\"], \"manual_steps\": [\"Revisar o selected_mode e confirmar se ele faz sentido para o contexto do dia.\", \"Checar se a carteira real e o saldo em caixa batem com o portfolio_state.json.\", \"Executar apenas os tickets com notional_brl acima do minimo e sem blocked.\", \"Depois da execucao, preencher execution_report.json e rodar a reconciliacao.\"], \"agent_run_id\": \"20260315T103808Z\", \"agent\": {\"agent_id\": \"daily-operation-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-operation-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de operação\", \"mission\": \"Recalcular os modos oficiais, a confiança e o modo recomendado com base na melhor base local disponível.\", \"run_order\": \"3\", \"depends_on\": [\"daily-ingestion-agent\", \"daily-backfill-agent\"], \"consumes\": [\"data/raw/finance/yfinance_daily\", \"results/ops/agents/daily_ingestion/latest_summary.json\"], \"produces\": [\"results/ops/agents/daily_operation/latest_summary.json\"], \"rules\": [\"uma_unica_verdade_operacional\", \"sem_usar_dado_velho_como_atual\"]}}\n",
+        "stderr": "",
+        "ok": true
+      },
+      "daily_shadow_gods": {
+        "cmd": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/ops/run_daily_shadow_gods_agent.py",
+          "--cycle-run-id",
+          "20260315T103242Z"
+        ],
+        "returncode": 0,
+        "stdout": "oads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_fills.json\"}, \"history_tail\": [{\"agent_run_id\": \"20260315T103137Z\", \"alias\": \"Hermes\", \"as_of_date\": \"2026-03-14\", \"capital_brl\": \"10000.0\", \"cash_after_brl\": \"10000.0\", \"cycle_run_id\": \"20260315T000000Z\", \"fill_count\": \"0\", \"market_state\": \"defense\", \"nav_after_brl\": \"10000.0\", \"nav_before_brl\": \"10000.0\", \"order_count\": \"0\", \"scenario_id\": \"hermes_10000\", \"selected_assets\": \"\"}], \"request_tail\": [], \"fills_tail\": []}], \"order_count_total\": 0, \"fill_count_total\": 0, \"latest_states\": {\"200\": \"defense\", \"1000\": \"defense\", \"10000\": \"defense\"}}], \"overview\": {\"god_count\": 4, \"scenario_count\": 12, \"order_count_total\": 4, \"fill_count_total\": 4}, \"config_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/config/shadow_gods_portfolios.json\", \"operation_summary_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_operation/latest_summary.json\", \"vigilance_summary_path\": \"/Users/PedroHenrique/Downloads/Assyntrax/results/ops/agents/daily_vigilance/latest_summary.json\", \"prices_dir\": \"/Users/PedroHenrique/Downloads/Assyntrax/data/raw/finance/yfinance_daily\", \"reused_previous_run\": true, \"agent\": {\"agent_id\": \"daily-shadow-gods-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-shadow-gods-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Daily Shadow Gods Agent\", \"mission\": \"Simular diariamente os quatro shadow gods congelados em três blocos de capital e registrar ordens, fills e estados.\", \"run_order\": \"4\", \"depends_on\": [\"daily-operation-agent\"], \"consumes\": [\"results/ops/agents/daily_operation/latest_summary.json\", \"results/ops/agents/daily_vigilance/latest_summary.json\", \"data/raw/finance/yfinance_daily\"], \"produces\": [\"results/ops/agents/daily_shadow_gods/latest_summary.json\"], \"rules\": [\"nao_mascarar_fail\", \"congelar_4_gods\", \"persistir_ordens_e_fills\", \"permitir_no_trade_quando_o_regime_pedir\"]}, \"reuse_reason\": \"same_as_of_date\"}\n",
+        "stderr": "",
+        "ok": true
+      },
+      "site_snapshot": {
+        "cmd": [
+          "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+          "scripts/ops/build_site_finance_snapshot.py",
+          "--cycle-run-id",
+          "20260315T103242Z"
+        ],
+        "returncode": 0,
+        "stdout": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/site_data/latest_site_snapshot.json\n",
+        "stderr": "",
+        "ok": true
+      }
+    },
+    "publish_ready": true
   },
   "automation": {
-    "ingestion_status": "ok",
+    "ingestion_status": "warn",
     "backfill_status": "ok",
     "operation_status": "ok",
+    "shadow_gods_status": "ok",
     "vigilance_status": "warn",
     "data_quality_status": "ok",
-    "publish_status": "ok",
-    "smoke_test_status": "ok",
-    "watchdog_status": "ok"
+    "publish_status": "fail",
+    "smoke_test_status": "fail",
+    "watchdog_status": "fail"
   },
   "confidence": {
     "recommended_live_mode": {
       "mode": "proteção",
       "label": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "current_posture": {
         "posture": "quase_caixa",
         "gross_exposure": 0.0,
@@ -1563,15 +2724,16 @@
     },
     "mode_confidence": {
       "recommended_mode": "proteção",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "confidence_level": "média",
-      "attack_score": 0.542465476605044,
-      "protection_score": 0.5866867890041698,
+      "attack_score": 0.5468805657014839,
+      "protection_score": 0.5632097049788064,
       "scenario_bad": "Mercado mais fraco que o esperado: proteção tende a sofrer menos e ataque pode ficar para trás.",
       "scenario_base": "Cenário central: manter o modo recomendado e revisar só quando a leitura estrutural ou a vigilância mudarem.",
       "scenario_good": "Mercado mais limpo e com breadth forte: ataque volta a ter mais chance de abrir vantagem.",
       "reasons": [
         "O ganho continua dependente dos nomes cripto mais fortes.",
+        "No curto e médio prazo, o modo agressivo ainda pode ficar abaixo do benchmark por bastante tempo.",
         "Os alertas diários pedem leitura mais defensiva.",
         "A leitura estrutural está mais limpa, então ainda existe espaço para ataque."
       ],
@@ -1579,12 +2741,12 @@
         "structural_risk_level": "stable",
         "structural_confidence_score": 1.0,
         "vigilance_status": "warn",
-        "vigilance_alert_count": 3,
-        "pbo_verdict": "desconhecido",
-        "attack_underperform_prob_63": 0.5,
+        "vigilance_alert_count": 2,
+        "pbo_verdict": "provavel_overfit",
+        "attack_underperform_prob_63": 0.570171931227509,
         "attack_top3_retention": 0.0,
-        "attack_drawdown_abs": 0.8609608813925439,
-        "protection_drawdown_abs": 0.6937659852860705,
+        "attack_drawdown_abs": 0.7254232740634854,
+        "protection_drawdown_abs": 0.7010333336845964,
         "execution_winner": ""
       }
     },
@@ -1594,11 +2756,6 @@
         "level": "warn",
         "code": "pbo_soft",
         "message": "Teste de overfit não está no nível mais forte."
-      },
-      {
-        "level": "warn",
-        "code": "attack_deep_drawdown",
-        "message": "Modo ataque continua muito agressivo no histórico."
       },
       {
         "level": "warn",
@@ -1616,7 +2773,7 @@
       "as_of_date": "2026-03-14",
       "mode": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "risk_level": "baixo",
       "exposure_target": null,
       "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
@@ -1630,7 +2787,7 @@
       "as_of_date": "2026-03-14",
       "mode": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "risk_level": "baixo",
       "exposure_target": null,
       "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
@@ -1644,7 +2801,7 @@
       "as_of_date": "2026-03-14",
       "mode": "Modo principal com guarda",
       "confidence_level": "média",
-      "confidence_score": 0.5675773245319,
+      "confidence_score": 0.5421134504131386,
       "risk_level": "baixo",
       "exposure_target": null,
       "assumption_note": "Horizontes diário, semanal e mensal ainda compartilham a mesma leitura estrutural viva.",
@@ -1700,6 +2857,979 @@
       "edge_vs_benchmark_total_return": -0.7403808088536177
     }
   },
+  "shadow_gods": {
+    "status": "ok",
+    "run_id": "20260315T103814Z",
+    "as_of_date": "2026-03-14",
+    "overview": {
+      "god_count": 4,
+      "scenario_count": 12,
+      "order_count_total": 4,
+      "fill_count_total": 4
+    },
+    "gods": [
+      {
+        "alias": "Apollo",
+        "candidate_id": "criticality_free_energy_attack",
+        "role": "structural_anchor",
+        "thesis": "Anchor estrutural com leitura global, Brasil e cripto sem virar turbo.",
+        "scenarios": [
+          {
+            "scenario_id": "apollo_200",
+            "capital_brl": 200.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 200.0,
+            "nav_after_brl": 200.0,
+            "cash_after_brl": 200.0,
+            "target_weights": {
+              "CASH-BRL": 0.7,
+              "SHY": 0.3
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 140.0,
+              "SHY": 60.0
+            },
+            "orders": [],
+            "blocked": [
+              {
+                "ticker": "SHY",
+                "reason": "target_below_min_position",
+                "target_notional_brl": 60.0,
+                "current_notional_brl": 0.0
+              }
+            ],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/200/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/200/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "200.0",
+                "cash_after_brl": "200.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "200.0",
+                "nav_before_brl": "200.0",
+                "order_count": "0",
+                "scenario_id": "apollo_200",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "apollo_1000",
+            "capital_brl": 1000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 1000.0,
+            "nav_after_brl": 999.7,
+            "cash_after_brl": 699.7,
+            "target_weights": {
+              "CASH-BRL": 0.7,
+              "SHY": 0.3
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 700.0,
+              "SHY": 300.0
+            },
+            "orders": [
+              {
+                "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de",
+                "ticker": "SHY",
+                "side": "buy",
+                "notional_brl": 300.0,
+                "current_notional_brl": 0.0,
+                "target_notional_brl": 300.0,
+                "quantity_estimate": 3.6341609801262367,
+                "price_brl_reference": 82.55000305175781,
+                "preferred_order_type": "market_notional",
+                "reason": "shadow_apollo_defense"
+              }
+            ],
+            "blocked": [],
+            "fills": [
+              {
+                "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de",
+                "ticker": "SHY",
+                "side": "buy",
+                "filled_notional_brl": 300.0,
+                "filled_quantity": 3.6341609801262367,
+                "avg_price_brl": 82.55000305175781,
+                "fee_brl": 0.3,
+                "status": "filled",
+                "executed_at": "2026-03-14T00:00:00+00:00"
+              }
+            ],
+            "holdings": [
+              {
+                "ticker": "SHY",
+                "quantity": 3.6341609801262367,
+                "market_value_brl": 300.0,
+                "avg_price_brl": 82.63255305480958,
+                "weight": 0.30009002700810244
+              }
+            ],
+            "order_count": 1,
+            "fill_count": 1,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/1000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/1000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cash_after_brl": "699.7",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "1",
+                "market_state": "defense",
+                "nav_after_brl": "999.7",
+                "nav_before_brl": "1000.0",
+                "order_count": "1",
+                "scenario_id": "apollo_1000",
+                "selected_assets": "SHY"
+              }
+            ],
+            "request_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "market_state": "defense",
+                "notional_brl": "300.0",
+                "reason": "shadow_apollo_defense",
+                "scenario_id": "apollo_1000",
+                "side": "buy",
+                "ticker": "SHY",
+                "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de"
+              }
+            ],
+            "fills_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "avg_price_brl": "82.55000305175781",
+                "capital_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "executed_at": "2026-03-14T00:00:00+00:00",
+                "fee_brl": "0.3",
+                "filled_notional_brl": "300.0",
+                "filled_quantity": "3.6341609801262367",
+                "market_state": "defense",
+                "scenario_id": "apollo_1000",
+                "side": "buy",
+                "status": "filled",
+                "ticker": "SHY",
+                "ticket_id": "482bfdb4-e4fe-4d1a-8001-8baad3b6b3de"
+              }
+            ]
+          },
+          {
+            "scenario_id": "apollo_10000",
+            "capital_brl": 10000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 10000.0,
+            "nav_after_brl": 9997.0,
+            "cash_after_brl": 6997.0,
+            "target_weights": {
+              "CASH-BRL": 0.7,
+              "SHY": 0.3
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 7000.0,
+              "SHY": 3000.0
+            },
+            "orders": [
+              {
+                "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee",
+                "ticker": "SHY",
+                "side": "buy",
+                "notional_brl": 3000.0,
+                "current_notional_brl": 0.0,
+                "target_notional_brl": 3000.0,
+                "quantity_estimate": 36.341609801262365,
+                "price_brl_reference": 82.55000305175781,
+                "preferred_order_type": "market_notional",
+                "reason": "shadow_apollo_defense"
+              }
+            ],
+            "blocked": [],
+            "fills": [
+              {
+                "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee",
+                "ticker": "SHY",
+                "side": "buy",
+                "filled_notional_brl": 3000.0,
+                "filled_quantity": 36.341609801262365,
+                "avg_price_brl": 82.55000305175781,
+                "fee_brl": 3.0,
+                "status": "filled",
+                "executed_at": "2026-03-14T00:00:00+00:00"
+              }
+            ],
+            "holdings": [
+              {
+                "ticker": "SHY",
+                "quantity": 36.341609801262365,
+                "market_value_brl": 3000.0,
+                "avg_price_brl": 82.63255305480958,
+                "weight": 0.30009002700810244
+              }
+            ],
+            "order_count": 1,
+            "fill_count": 1,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Apollo/10000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Apollo/10000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cash_after_brl": "6997.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "1",
+                "market_state": "defense",
+                "nav_after_brl": "9997.0",
+                "nav_before_brl": "10000.0",
+                "order_count": "1",
+                "scenario_id": "apollo_10000",
+                "selected_assets": "SHY"
+              }
+            ],
+            "request_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "market_state": "defense",
+                "notional_brl": "3000.0",
+                "reason": "shadow_apollo_defense",
+                "scenario_id": "apollo_10000",
+                "side": "buy",
+                "ticker": "SHY",
+                "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee"
+              }
+            ],
+            "fills_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Apollo",
+                "as_of_date": "2026-03-14",
+                "avg_price_brl": "82.55000305175781",
+                "capital_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "executed_at": "2026-03-14T00:00:00+00:00",
+                "fee_brl": "3.0",
+                "filled_notional_brl": "3000.0",
+                "filled_quantity": "36.341609801262365",
+                "market_state": "defense",
+                "scenario_id": "apollo_10000",
+                "side": "buy",
+                "status": "filled",
+                "ticker": "SHY",
+                "ticket_id": "0208d0fe-e57e-45e3-a379-911be67beeee"
+              }
+            ]
+          }
+        ],
+        "order_count_total": 2,
+        "fill_count_total": 2,
+        "latest_states": {
+          "200": "defense",
+          "1000": "defense",
+          "10000": "defense"
+        }
+      },
+      {
+        "alias": "Zeus",
+        "candidate_id": "meta_mode_selector",
+        "role": "context_selector",
+        "thesis": "Selector de contexto misturando internacional, Brasil e cripto conforme o regime.",
+        "scenarios": [
+          {
+            "scenario_id": "zeus_200",
+            "capital_brl": 200.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 200.0,
+            "nav_after_brl": 200.0,
+            "cash_after_brl": 200.0,
+            "target_weights": {
+              "CASH-BRL": 0.75,
+              "SHY": 0.25
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 150.0,
+              "SHY": 50.0
+            },
+            "orders": [],
+            "blocked": [
+              {
+                "ticker": "SHY",
+                "reason": "target_below_min_position",
+                "target_notional_brl": 50.0,
+                "current_notional_brl": 0.0
+              }
+            ],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/200/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/200/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "200.0",
+                "cash_after_brl": "200.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "200.0",
+                "nav_before_brl": "200.0",
+                "order_count": "0",
+                "scenario_id": "zeus_200",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "zeus_1000",
+            "capital_brl": 1000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 1000.0,
+            "nav_after_brl": 999.75,
+            "cash_after_brl": 749.75,
+            "target_weights": {
+              "CASH-BRL": 0.75,
+              "SHY": 0.25
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 750.0,
+              "SHY": 250.0
+            },
+            "orders": [
+              {
+                "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a",
+                "ticker": "SHY",
+                "side": "buy",
+                "notional_brl": 250.0,
+                "current_notional_brl": 0.0,
+                "target_notional_brl": 250.0,
+                "quantity_estimate": 3.0284674834385306,
+                "price_brl_reference": 82.55000305175781,
+                "preferred_order_type": "market_notional",
+                "reason": "shadow_zeus_defense"
+              }
+            ],
+            "blocked": [],
+            "fills": [
+              {
+                "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a",
+                "ticker": "SHY",
+                "side": "buy",
+                "filled_notional_brl": 250.0,
+                "filled_quantity": 3.0284674834385306,
+                "avg_price_brl": 82.55000305175781,
+                "fee_brl": 0.25,
+                "status": "filled",
+                "executed_at": "2026-03-14T00:00:00+00:00"
+              }
+            ],
+            "holdings": [
+              {
+                "ticker": "SHY",
+                "quantity": 3.0284674834385306,
+                "market_value_brl": 250.0,
+                "avg_price_brl": 82.63255305480958,
+                "weight": 0.25006251562890724
+              }
+            ],
+            "order_count": 1,
+            "fill_count": 1,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/1000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/1000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cash_after_brl": "749.75",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "1",
+                "market_state": "defense",
+                "nav_after_brl": "999.75",
+                "nav_before_brl": "1000.0",
+                "order_count": "1",
+                "scenario_id": "zeus_1000",
+                "selected_assets": "SHY"
+              }
+            ],
+            "request_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "market_state": "defense",
+                "notional_brl": "250.0",
+                "reason": "shadow_zeus_defense",
+                "scenario_id": "zeus_1000",
+                "side": "buy",
+                "ticker": "SHY",
+                "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a"
+              }
+            ],
+            "fills_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "avg_price_brl": "82.55000305175781",
+                "capital_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "executed_at": "2026-03-14T00:00:00+00:00",
+                "fee_brl": "0.25",
+                "filled_notional_brl": "250.0",
+                "filled_quantity": "3.0284674834385306",
+                "market_state": "defense",
+                "scenario_id": "zeus_1000",
+                "side": "buy",
+                "status": "filled",
+                "ticker": "SHY",
+                "ticket_id": "03e2f564-2f1b-44a5-8784-5e0936ccfc1a"
+              }
+            ]
+          },
+          {
+            "scenario_id": "zeus_10000",
+            "capital_brl": 10000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 10000.0,
+            "nav_after_brl": 9997.5,
+            "cash_after_brl": 7497.5,
+            "target_weights": {
+              "CASH-BRL": 0.75,
+              "SHY": 0.25
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 7500.0,
+              "SHY": 2500.0
+            },
+            "orders": [
+              {
+                "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1",
+                "ticker": "SHY",
+                "side": "buy",
+                "notional_brl": 2500.0,
+                "current_notional_brl": 0.0,
+                "target_notional_brl": 2500.0,
+                "quantity_estimate": 30.284674834385306,
+                "price_brl_reference": 82.55000305175781,
+                "preferred_order_type": "market_notional",
+                "reason": "shadow_zeus_defense"
+              }
+            ],
+            "blocked": [],
+            "fills": [
+              {
+                "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1",
+                "ticker": "SHY",
+                "side": "buy",
+                "filled_notional_brl": 2500.0,
+                "filled_quantity": 30.284674834385306,
+                "avg_price_brl": 82.55000305175781,
+                "fee_brl": 2.5,
+                "status": "filled",
+                "executed_at": "2026-03-14T00:00:00+00:00"
+              }
+            ],
+            "holdings": [
+              {
+                "ticker": "SHY",
+                "quantity": 30.284674834385306,
+                "market_value_brl": 2500.0,
+                "avg_price_brl": 82.63255305480956,
+                "weight": 0.25006251562890724
+              }
+            ],
+            "order_count": 1,
+            "fill_count": 1,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Zeus/10000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Zeus/10000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cash_after_brl": "7497.5",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "1",
+                "market_state": "defense",
+                "nav_after_brl": "9997.5",
+                "nav_before_brl": "10000.0",
+                "order_count": "1",
+                "scenario_id": "zeus_10000",
+                "selected_assets": "SHY"
+              }
+            ],
+            "request_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "market_state": "defense",
+                "notional_brl": "2500.0",
+                "reason": "shadow_zeus_defense",
+                "scenario_id": "zeus_10000",
+                "side": "buy",
+                "ticker": "SHY",
+                "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1"
+              }
+            ],
+            "fills_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Zeus",
+                "as_of_date": "2026-03-14",
+                "avg_price_brl": "82.55000305175781",
+                "capital_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "executed_at": "2026-03-14T00:00:00+00:00",
+                "fee_brl": "2.5",
+                "filled_notional_brl": "2500.0",
+                "filled_quantity": "30.284674834385306",
+                "market_state": "defense",
+                "scenario_id": "zeus_10000",
+                "side": "buy",
+                "status": "filled",
+                "ticker": "SHY",
+                "ticket_id": "62c1550c-0f3e-4c61-b296-3d2b2169fbd1"
+              }
+            ]
+          }
+        ],
+        "order_count_total": 2,
+        "fill_count_total": 2,
+        "latest_states": {
+          "200": "defense",
+          "1000": "defense",
+          "10000": "defense"
+        }
+      },
+      {
+        "alias": "Hephaestus",
+        "candidate_id": "all_assets__lb126__rb07__k2__mom_total__ama200__mma200__riskon",
+        "role": "brazil_crypto_slow_attack",
+        "thesis": "Ataque mais lento e executável, focado em Brasil mais cripto.",
+        "scenarios": [
+          {
+            "scenario_id": "hephaestus_200",
+            "capital_brl": 200.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 200.0,
+            "nav_after_brl": 200.0,
+            "cash_after_brl": 200.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 200.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/200/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/200/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hephaestus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "200.0",
+                "cash_after_brl": "200.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "200.0",
+                "nav_before_brl": "200.0",
+                "order_count": "0",
+                "scenario_id": "hephaestus_200",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "hephaestus_1000",
+            "capital_brl": 1000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 1000.0,
+            "nav_after_brl": 1000.0,
+            "cash_after_brl": 1000.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 1000.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/1000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/1000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hephaestus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cash_after_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "1000.0",
+                "nav_before_brl": "1000.0",
+                "order_count": "0",
+                "scenario_id": "hephaestus_1000",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "hephaestus_10000",
+            "capital_brl": 10000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 10000.0,
+            "nav_after_brl": 10000.0,
+            "cash_after_brl": 10000.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 10000.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hephaestus/10000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hephaestus/10000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hephaestus",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cash_after_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "10000.0",
+                "nav_before_brl": "10000.0",
+                "order_count": "0",
+                "scenario_id": "hephaestus_10000",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          }
+        ],
+        "order_count_total": 0,
+        "fill_count_total": 0,
+        "latest_states": {
+          "200": "defense",
+          "1000": "defense",
+          "10000": "defense"
+        }
+      },
+      {
+        "alias": "Hermes",
+        "candidate_id": "all_assets__lb021__rb07__k3__mom_vol_adj__ama000__mma000__relshy",
+        "role": "turbo_attack_shadow",
+        "thesis": "Detector de upside extremo, mantido em shadow para medir aceleração sem contaminar o live.",
+        "scenarios": [
+          {
+            "scenario_id": "hermes_200",
+            "capital_brl": 200.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 200.0,
+            "nav_after_brl": 200.0,
+            "cash_after_brl": 200.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 200.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/200/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/200/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hermes",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "200.0",
+                "cash_after_brl": "200.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "200.0",
+                "nav_before_brl": "200.0",
+                "order_count": "0",
+                "scenario_id": "hermes_200",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "hermes_1000",
+            "capital_brl": 1000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 1000.0,
+            "nav_after_brl": 1000.0,
+            "cash_after_brl": 1000.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 1000.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/1000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/1000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hermes",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "1000.0",
+                "cash_after_brl": "1000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "1000.0",
+                "nav_before_brl": "1000.0",
+                "order_count": "0",
+                "scenario_id": "hermes_1000",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          },
+          {
+            "scenario_id": "hermes_10000",
+            "capital_brl": 10000.0,
+            "market_state": "defense",
+            "market_notes": [
+              "Mercado em proteção, vigilância ruim ou stress estrutural."
+            ],
+            "nav_before_brl": 10000.0,
+            "nav_after_brl": 10000.0,
+            "cash_after_brl": 10000.0,
+            "target_weights": {
+              "CASH-BRL": 1.0
+            },
+            "target_notional_brl": {
+              "CASH-BRL": 10000.0
+            },
+            "orders": [],
+            "blocked": [],
+            "fills": [],
+            "holdings": [],
+            "order_count": 0,
+            "fill_count": 0,
+            "artifacts": {
+              "state_path": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/state/Hermes/10000/portfolio_state.json",
+              "requests_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/requests.csv",
+              "fills_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/fills.csv",
+              "history_csv": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/history.csv",
+              "request_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_requests.json",
+              "fills_json": "/Users/PedroHenrique/Downloads/Assyntrax/results/ops/shadow_gods/history/Hermes/10000/20260315T103137Z_fills.json"
+            },
+            "history_tail": [
+              {
+                "agent_run_id": "20260315T103137Z",
+                "alias": "Hermes",
+                "as_of_date": "2026-03-14",
+                "capital_brl": "10000.0",
+                "cash_after_brl": "10000.0",
+                "cycle_run_id": "20260315T000000Z",
+                "fill_count": "0",
+                "market_state": "defense",
+                "nav_after_brl": "10000.0",
+                "nav_before_brl": "10000.0",
+                "order_count": "0",
+                "scenario_id": "hermes_10000",
+                "selected_assets": ""
+              }
+            ],
+            "request_tail": [],
+            "fills_tail": []
+          }
+        ],
+        "order_count_total": 0,
+        "fill_count_total": 0,
+        "latest_states": {
+          "200": "defense",
+          "1000": "defense",
+          "10000": "defense"
+        }
+      }
+    ]
+  },
+  "shadow_gods_overview": {
+    "total_gods": 4,
+    "total_scenarios": 12,
+    "order_count_total": 4,
+    "fill_count_total": 4
+  },
   "shadow_modes": [
     {
       "slug": "mode_attack",
@@ -1714,10 +3844,10 @@
       "latest_date": "2026-03-13",
       "last_action": "Carteira alvo: cash 99%, equity 1%, crypto 0%. Exposição total em torno de 1%.",
       "forecast": "Só vale acelerar aqui quando a confiança voltar a subir e a vigilância parar de pedir cautela.",
-      "net_ann_return": 0.06818066454808824,
-      "net_total_return": 0.9558471536444626,
-      "net_sharpe": 0.38848410018967516,
-      "net_max_drawdown": -0.8609608813925439,
+      "net_ann_return": 0.37279836231286234,
+      "net_total_return": 26.332541878460045,
+      "net_sharpe": 0.7919079369056886,
+      "net_max_drawdown": -0.7254232740634854,
       "gross_exposure": 0.005625,
       "weights": [
         {
@@ -1749,10 +3879,10 @@
       "latest_date": "2026-03-13",
       "last_action": "Carteira alvo: cash 100%, crypto 0%, equity 0%.",
       "forecast": "Hoje este modo parece mais próximo do uso real, porque o ambiente pede mais disciplina.",
-      "net_ann_return": 0.18242861134187027,
-      "net_total_return": 4.497525377602256,
-      "net_sharpe": 0.5726543731585344,
-      "net_max_drawdown": -0.7633901416019916,
+      "net_ann_return": 0.5268015147810008,
+      "net_total_return": 81.94260537162565,
+      "net_sharpe": 0.9967290356071081,
+      "net_max_drawdown": -0.7587660400947667,
       "gross_exposure": null,
       "weights": [
         {
@@ -1784,10 +3914,10 @@
       "latest_date": "2026-03-13",
       "last_action": "Carteira alvo: cash 99%, equity 1%, crypto 0%. Exposição total em torno de 1%.",
       "forecast": "Só vale acelerar aqui quando a confiança voltar a subir e a vigilância parar de pedir cautela.",
-      "net_ann_return": 0.006869713975627745,
-      "net_total_return": 0.07211191455197863,
-      "net_sharpe": 0.3162580079995102,
-      "net_max_drawdown": -0.9010392907180363,
+      "net_ann_return": 0.30844391578662766,
+      "net_total_return": 15.556897791726268,
+      "net_sharpe": 0.6935316562812864,
+      "net_max_drawdown": -0.7954231071327552,
       "gross_exposure": 0.005625,
       "weights": [
         {
@@ -1819,10 +3949,10 @@
       "latest_date": "2026-03-13",
       "last_action": "Carteira alvo: cash 100%, crypto 0%, equity 0%.",
       "forecast": "Hoje este modo parece mais próximo do uso real, porque o ambiente pede mais disciplina.",
-      "net_ann_return": 0.1505036972987308,
-      "net_total_return": 3.1616907858657175,
-      "net_sharpe": 0.5283323886746023,
-      "net_max_drawdown": -0.6937659852860705,
+      "net_ann_return": 0.40275083965144565,
+      "net_total_return": 33.241028449508775,
+      "net_sharpe": 0.9535383418871418,
+      "net_max_drawdown": -0.7010333336845964,
       "gross_exposure": null,
       "weights": [
         {
@@ -2380,25 +4510,27 @@
     "price_source": "yfinance_daily_bundle",
     "price_history_start": "2016-01-05",
     "price_history_end": "2026-03-14",
-    "ingestion_status": "ok",
+    "ingestion_status": "warn",
     "backfill_status": "ok",
     "backfill_targeted_assets": 0,
     "backfill_deferred_review_tickers": [
       "ZD",
       "CCZ"
     ],
-    "smoke_test_status": "ok",
-    "watchdog_status": "ok",
-    "last_ingestion_at": "2026-03-14T10:54:18.771856+00:00",
+    "smoke_test_status": "fail",
+    "watchdog_status": "fail",
+    "last_ingestion_at": "2026-03-15T10:32:49.692761+00:00",
     "last_ingestion_data_date": "2026-03-14",
     "ingestion_updated_assets": 0,
-    "ingestion_refreshed_assets": 56,
-    "ingestion_no_remote_data_assets": 0,
+    "ingestion_refreshed_assets": 12,
+    "ingestion_no_remote_data_assets": 44,
     "ingestion_skipped_remote_assets": 0,
     "ingestion_failed_assets": 0,
-    "ingestion_stale_days": 0,
+    "ingestion_stale_days": 1,
     "ingestion_fatal_reason": null,
-    "ingestion_warning_reasons": [],
+    "ingestion_warning_reasons": [
+      "assets_without_remote_data"
+    ],
     "quality_status": "ok",
     "quality_reference_date": "2026-03-14",
     "quality_critical_stale_assets": 0,

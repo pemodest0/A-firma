@@ -20,6 +20,10 @@ from execution.live_ops import (  # noqa: E402
     portfolio_template_payload,
     write_json,
 )
+from execution.broker_mercado_bitcoin import (  # noqa: E402
+    build_mercado_bitcoin_preview,
+    write_mercado_bitcoin_preview,
+)
 from scripts.ops.agent_guides import attach_agent_guide  # noqa: E402
 from scripts.ops.cycle_context import attach_cycle_context, resolve_cycle_run_id, utc_now_iso, utc_run_id  # noqa: E402
 
@@ -109,6 +113,24 @@ def main() -> None:
                 "Executar apenas os tickets com notional_brl acima do minimo e sem blocked.",
                 "Depois da execucao, preencher execution_report.json e rodar a reconciliacao.",
             ],
+        }
+
+        broker_preview = build_mercado_bitcoin_preview(summary, profile)
+        broker_paths = ((profile.get("broker_adapter") or {}).get("paths") or {}) if isinstance((profile.get("broker_adapter") or {}).get("paths"), dict) else {}
+        broker_json_path = (ROOT / str(broker_paths.get("latest_preview_json") or "results/ops/execution_live/latest_mercado_bitcoin_order_preview.json")).resolve()
+        broker_csv_path = (ROOT / str(broker_paths.get("latest_preview_csv") or "results/ops/execution_live/latest_mercado_bitcoin_order_preview.csv")).resolve()
+        write_mercado_bitcoin_preview(
+            broker_preview,
+            json_path=broker_json_path,
+            csv_path=broker_csv_path,
+        )
+        summary["broker_preview"] = {
+            "broker": broker_preview.get("broker"),
+            "status": broker_preview.get("status"),
+            "order_count": broker_preview.get("order_count"),
+            "unsupported_count": broker_preview.get("unsupported_count"),
+            "json_path": str(broker_json_path),
+            "csv_path": str(broker_csv_path),
         }
 
     summary = attach_agent_guide(

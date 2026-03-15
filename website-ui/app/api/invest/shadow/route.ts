@@ -12,9 +12,18 @@ export async function GET() {
     readInvestmentShadowLatest(),
     readSiteFinanceSnapshot(),
   ])) as [Record<string, unknown>, Record<string, unknown>];
+  const shadowGods = (((siteSnapshot as Record<string, unknown>)?.shadow_gods as Record<string, unknown> | undefined) ||
+    {}) as Record<string, unknown>;
+  const shadowGodsOverview = (((siteSnapshot as Record<string, unknown>)?.shadow_gods_overview as
+    | Record<string, unknown>
+    | undefined) || {}) as Record<string, unknown>;
+  const shadowGodsAvailable = Array.isArray(shadowGods.gods) && shadowGods.gods.length > 0;
   if (String(payload.status || "") === "missing") {
     const shadow = ((siteSnapshot as Record<string, unknown>)?.shadow || {}) as Record<string, unknown>;
-    if (String((siteSnapshot as Record<string, unknown>)?.status || "") === "ok" && Object.keys(shadow).length) {
+    if (
+      String((siteSnapshot as Record<string, unknown>)?.status || "") === "ok" &&
+      (Object.keys(shadow).length || shadowGodsAvailable)
+    ) {
       const latest = (shadow.latest || {}) as Record<string, unknown>;
       const live = (shadow.live || {}) as Record<string, unknown>;
       const historical = (shadow.historical_proxy_replay || {}) as Record<string, unknown>;
@@ -67,6 +76,9 @@ export async function GET() {
             },
           },
           refresh_prices: { ok: null, failed: null },
+          shadow_gods_available: shadowGodsAvailable,
+          shadow_gods_overview: shadowGodsAvailable ? shadowGodsOverview : {},
+          shadow_gods: shadowGodsAvailable ? shadowGods : {},
           source: "site_finance_snapshot",
         },
         { headers: { "Cache-Control": "no-store" } }
@@ -132,6 +144,9 @@ export async function GET() {
         },
       },
       refresh_prices: payload.refresh_prices || {},
+      shadow_gods_available: shadowGodsAvailable,
+      shadow_gods_overview: shadowGodsAvailable ? shadowGodsOverview : {},
+      shadow_gods: shadowGodsAvailable ? shadowGods : {},
     },
     { headers: { "Cache-Control": "no-store" } }
   );
