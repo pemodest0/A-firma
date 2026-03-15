@@ -129,6 +129,7 @@ def main() -> None:
     ap.add_argument("--prices-dir", default="data/raw/finance/yfinance_daily")
     ap.add_argument("--benchmark-crypto", default="BTC-USD")
     ap.add_argument("--benchmark-equity", default="SPY")
+    ap.add_argument("--equity-profile-id", default="foreign_financial_brazil_resident")
     ap.add_argument("--capital-brl", type=float, default=10000.0)
     ap.add_argument("--outdir-root", default="results/validation/profit_official_post_fiscal_validation")
     args = ap.parse_args()
@@ -144,6 +145,7 @@ def main() -> None:
         equity_meta=(ROOT / args.equity_asset_metadata).resolve(),
         benchmark_crypto=str(args.benchmark_crypto),
         benchmark_equity=str(args.benchmark_equity),
+        equity_profile_id=str(args.equity_profile_id),
     )
     context = dict(built["context"])
     attack_alloc: AllocationBundle = built["allocations"]["attack"]

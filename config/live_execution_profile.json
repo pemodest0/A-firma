@@ -1,0 +1,98 @@
+{
+  "version": "2026.03.live.v1",
+  "purpose": "semi_automatic_small_account_execution",
+  "live_architecture": {
+    "core": {
+      "candidate_id": "champion_profit_lock_partial",
+      "alias": "Athena",
+      "label": "Core serio"
+    },
+    "guard": {
+      "candidate_id": "meta_dd_combo__conv25_vol25",
+      "alias": "Hestia",
+      "label": "Guard de drawdown"
+    },
+    "attack": {
+      "candidate_id": "all_assets__lb021__rb07__k2__mom_total__ama000__mma000__riskon",
+      "alias": "Ares",
+      "label": "Ataque rapido"
+    }
+  },
+  "shadow_modes": [
+    {
+      "candidate_id": "criticality_free_energy_attack",
+      "alias": "Apollo",
+      "label": "Anchor estrutural"
+    },
+    {
+      "candidate_id": "meta_mode_selector",
+      "alias": "Zeus",
+      "label": "Seletor de contexto"
+    },
+    {
+      "candidate_id": "all_assets__lb126__rb07__k2__mom_total__ama200__mma200__riskon",
+      "alias": "Hephaestus",
+      "label": "Ataque alternativo lento"
+    },
+    {
+      "candidate_id": "all_assets__lb021__rb07__k3__mom_vol_adj__ama000__mma000__relshy",
+      "alias": "Hermes",
+      "label": "Turbo shadow"
+    }
+  ],
+  "execution_profile": {
+    "profile_id": "small_account_crypto",
+    "base_currency": "BRL",
+    "allowed_tickers": [
+      "BTC-USD",
+      "ETH-USD",
+      "SOL-USD"
+    ],
+    "cash_ticker": "CASH-BRL",
+    "min_account_nav_brl": 200.0,
+    "min_order_brl": 40.0,
+    "min_position_brl": 80.0,
+    "min_actionable_gross_exposure": 0.15,
+    "min_two_asset_risk_brl": 180.0,
+    "max_assets": 2,
+    "core_proxy_weights": {
+      "BTC-USD": 0.85,
+      "ETH-USD": 0.15
+    },
+    "attack_proxy_weights": {
+      "BTC-USD": 0.7,
+      "ETH-USD": 0.3
+    },
+    "guard_proxy_weights": {
+      "CASH-BRL": 1.0
+    }
+  },
+  "selection_rules": {
+    "attack_min_confidence_score": 0.62,
+    "attack_min_gross_exposure": 0.3,
+    "core_floor_gross_exposure": 0.2,
+    "core_max_gross_exposure": 0.45,
+    "attack_max_gross_exposure": 0.8
+  },
+  "risk_guardrails": {
+    "max_gross_exposure": 0.8,
+    "max_assets": 2,
+    "max_turnover_fraction_of_nav": 0.65,
+    "block_new_attack_vigilance_statuses": [
+      "warn",
+      "fail"
+    ],
+    "block_new_attack_when_confidence_below": 0.55,
+    "force_cash_when_recommended_mode": "proteção"
+  },
+  "paths": {
+    "portfolio_state_json": "data/live_execution/portfolio_state.json",
+    "execution_report_json": "data/live_execution/execution_report.json",
+    "shadow_watchlist_json": "config/live_shadow_watchlist.json"
+  },
+  "notes": [
+    "A primeira versao live simplifica a execucao real para poucos ativos liquidos, mesmo quando o motor observa um universo bem maior.",
+    "Core, guard e attack ficam congelados para reduzir complexidade operacional; o resto permanece em shadow.",
+    "O modo attack real usa um proxy executavel em BTC e ETH para conta pequena, em vez de tentar replicar literalmente todo o universo do laboratorio."
+  ]
+}

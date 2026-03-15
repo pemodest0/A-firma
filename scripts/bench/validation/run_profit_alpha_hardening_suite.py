@@ -344,13 +344,16 @@ def _build_candidates(
     equity_meta: Path,
     benchmark_crypto: str,
     benchmark_equity: str,
+    equity_profile_id: str = "foreign_financial_brazil_resident",
 ):
     profiles = load_net_assumption_profiles(ROOT / "config" / "profit_net_assumptions.json")
-    foreign_profile = profiles["profiles"]["foreign_financial_brazil_resident"]
+    equity_profile = profiles["profiles"].get(str(equity_profile_id))
+    if equity_profile is None:
+        raise SystemExit(f"perfil de equities desconhecido: {equity_profile_id}")
     crypto_profile = profiles["profiles"]["crypto_global_brazil_resident_conservative"]
     blended_profile = _blended_profile(
         crypto_profile,
-        foreign_profile,
+        equity_profile,
         profile_id="alpha_hardening_blended",
         label="Alpha hardening blended",
     )
@@ -403,8 +406,8 @@ def _build_candidates(
         asset_lookback=126,
         asset_ma_days=200,
         market_ma_days=200,
-        profile=foreign_profile,
-        benchmark_profile=foreign_profile,
+        profile=equity_profile,
+        benchmark_profile=equity_profile,
     )
     eq_r1 = _simulate_equity_group_sleeve_v3(
         candidate_id="equities_v3__slow189__g3__a2__br35__cap40",
@@ -422,8 +425,8 @@ def _build_candidates(
         market_ma_days=200,
         min_group_breadth=0.35,
         max_group_weight=0.40,
-        profile=foreign_profile,
-        benchmark_profile=foreign_profile,
+        profile=equity_profile,
+        benchmark_profile=equity_profile,
     )
     eq_sp, _ = _simulate_equity_group_sleeve_v4_sector_pressure(
         candidate_id="equities_v4__sector_pressure_p25",
@@ -443,8 +446,8 @@ def _build_candidates(
         pressure_lookback=120,
         pressure_horizon=21,
         pressure_penalty=0.25,
-        profile=foreign_profile,
-        benchmark_profile=foreign_profile,
+        profile=equity_profile,
+        benchmark_profile=equity_profile,
     )
     if eq_a2 is None or eq_r1 is None or eq_sp is None:
         raise SystemExit("falha ao reconstruir sleeves de equities")
@@ -670,7 +673,8 @@ def _build_candidates(
         "context": {
             "profiles": {
                 "crypto": crypto_profile,
-                "foreign": foreign_profile,
+                "equity": equity_profile,
+                "foreign": equity_profile,
                 "blended": blended_profile,
             },
             "crypto_assets": crypto_assets,

@@ -350,10 +350,12 @@ def main() -> None:
 
     registry_step = _run_step([sys.executable, "scripts/ops/build_profit_research_registry.py"], timeout_sec=1200.0)
     data_quality_step = _run_step([sys.executable, "scripts/ops/run_daily_data_quality_agent.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
+    live_execution_step = _run_step([sys.executable, "scripts/ops/run_live_execution_plan.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
     snapshot_step = _run_step([sys.executable, "scripts/ops/build_site_finance_snapshot.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0)
     operation["post_steps"] = {
         "registry": registry_step,
         "data_quality": data_quality_step,
+        "live_execution": live_execution_step,
         "site_snapshot": snapshot_step,
     }
     operation["publish_ready"] = bool(registry_step["ok"] and data_quality_step["ok"] and snapshot_step["ok"])

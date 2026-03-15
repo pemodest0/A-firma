@@ -1,0 +1,65 @@
+{
+  "version": "2026.03.shadow.v1",
+  "purpose": "live_shadow_watchlist_for_frozen_execution_architecture",
+  "policy": {
+    "max_active_shadows": 4,
+    "review_frequency": "daily",
+    "retire_legacy_shadows_when_stale_days_gte": 3
+  },
+  "active_watchlist": [
+    {
+      "candidate_id": "criticality_free_energy_attack",
+      "alias": "Apollo",
+      "role": "structural_anchor",
+      "status": "shadow",
+      "priority": "high",
+      "reason": "Mantem a leitura estrutural critica viva contra o core promovido."
+    },
+    {
+      "candidate_id": "meta_mode_selector",
+      "alias": "Zeus",
+      "role": "context_selector",
+      "status": "shadow",
+      "priority": "high",
+      "reason": "Ajuda a validar se a selecao de contexto merece promocao futura."
+    },
+    {
+      "candidate_id": "all_assets__lb126__rb07__k2__mom_total__ama200__mma200__riskon",
+      "alias": "Hephaestus",
+      "role": "slow_attack_alternative",
+      "status": "shadow",
+      "priority": "medium",
+      "reason": "Ataque alternativo mais lento e menos nervoso do que o turbo."
+    },
+    {
+      "candidate_id": "all_assets__lb021__rb07__k3__mom_vol_adj__ama000__mma000__relshy",
+      "alias": "Hermes",
+      "role": "turbo_attack_shadow",
+      "status": "shadow",
+      "priority": "medium",
+      "reason": "Continua util como detector de upside, mas sem promocao direta para live."
+    }
+  ],
+  "legacy_retire_watchlist": [
+    {
+      "shadow_name": "global_plus_profit_shadow",
+      "results_path": "results/ops/profit_shadow/latest_summary.json",
+      "reason": "Suite antiga, stale e redundante frente ao core/guard/attack congelados."
+    },
+    {
+      "shadow_name": "target_800_profit_shadow_attack_only",
+      "results_path": "results/ops/profit_shadow_target_800_attack/latest_summary.json",
+      "reason": "Ficou abaixo do benchmark no proprio scorecard e nao adiciona nova informacao operacional."
+    },
+    {
+      "shadow_name": "target_800_profit_shadow_attack_ensemble",
+      "results_path": "results/ops/profit_shadow_target_800_attack_ensemble/latest_summary.json",
+      "reason": "Ataque ensemble antigo, stale e mais caro para manter do que o ganho marginal esperado."
+    },
+    {
+      "shadow_name": "sample_mpclip_shadow",
+      "results_path": "results/ops/invest_shadow/latest_summary.json",
+      "reason": "Paper shadow legado com proxies SPY/SHY, desalinhado da arquitetura atual."
+    }
+  ]
+}

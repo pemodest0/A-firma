@@ -1,0 +1,23 @@
+{
+  "as_of_date": "2026-03-15",
+  "base_currency": "BRL",
+  "cash_brl": 400.0,
+  "fx_rates": {
+    "USD_BRL": 5.0
+  },
+  "positions": [
+    {
+      "ticker": "BTC-USD",
+      "quantity": 0.0,
+      "market_value_brl": 0.0,
+      "avg_price_brl": 0.0
+    },
+    {
+      "ticker": "ETH-USD",
+      "quantity": 0.0,
+      "market_value_brl": 0.0,
+      "avg_price_brl": 0.0
+    }
+  ],
+  "open_orders": []
+}

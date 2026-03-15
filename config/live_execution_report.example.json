@@ -1,0 +1,16 @@
+{
+  "plan_run_id": "20260315T000000Z",
+  "broker": "manual_assisted",
+  "executions": [
+    {
+      "ticket_id": "sample-ticket-id",
+      "ticker": "BTC-USD",
+      "side": "buy",
+      "filled_notional_brl": 120.0,
+      "filled_quantity": 0.0,
+      "avg_price_brl": 0.0,
+      "fee_brl": 0.0,
+      "status": "filled"
+    }
+  ]
+}
