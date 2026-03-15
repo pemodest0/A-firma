@@ -30,6 +30,7 @@ from scripts.bench.validation.run_profit_champion_extension_suite import (  # no
 from scripts.bench.validation.run_profit_champion_timing_robustness_suite import _underperform_prob_rolling  # noqa: E402
 from scripts.bench.validation.run_profit_investment_yearbook import _calendar_rows  # noqa: E402
 from scripts.bench.validation.run_profit_marketmode_criticality_suite import _build_structure_layers  # noqa: E402
+from scripts.bench.validation.validation_input_snapshot import snapshot_validation_inputs  # noqa: E402
 
 
 def _run_id() -> str:
@@ -218,9 +219,41 @@ def main() -> None:
     compare_df.to_csv(outdir / "candidate_compare.csv", index=False)
 
     brazil_only_df = compare_df.loc[compare_df["scenario"] == "brazil_only"].copy()
-    brazil_only_best = brazil_only_df.sort_values(["net_total_return", "sharpe"], ascending=[False, False]).iloc[0].to_dict()
+    brazil_only_best = brazil_only_df.sort_values(["net_total_return", "net_sharpe"], ascending=[False, False]).iloc[0].to_dict()
     global_row = compare_df.loc[compare_df["scenario_label"] == "global_mixed_official"].iloc[0].to_dict()
     br_crypto_row = compare_df.loc[compare_df["scenario_label"] == "brazil_crypto_official"].iloc[0].to_dict()
+    global_snapshot = snapshot_validation_inputs(
+        outdir=outdir,
+        label="global_mixed",
+        prices_dir=prices_dir,
+        metadata_files={
+            "crypto_asset_groups": (ROOT / args.crypto_asset_groups).resolve(),
+            "crypto_asset_metadata": (ROOT / args.crypto_asset_metadata).resolve(),
+            "equity_asset_groups": (ROOT / args.equity_asset_groups).resolve(),
+            "equity_asset_metadata": (ROOT / args.equity_asset_metadata).resolve(),
+        },
+        universe_tables={
+            "crypto_assets": built_global["context"]["crypto_assets"],
+            "equity_assets": built_global["context"]["equity_assets"],
+        },
+        extra_tickers=[str(args.benchmark_crypto), "ETH-USD", str(args.benchmark_equity)],
+    )
+    brazil_snapshot = snapshot_validation_inputs(
+        outdir=outdir,
+        label="brazil_crypto",
+        prices_dir=br_prices_dir,
+        metadata_files={
+            "crypto_asset_groups": (ROOT / args.crypto_asset_groups).resolve(),
+            "crypto_asset_metadata": (ROOT / args.crypto_asset_metadata).resolve(),
+            "equity_groups_brazil_only": br_groups,
+            "equity_meta_brazil_only": br_meta,
+        },
+        universe_tables={
+            "crypto_assets": built_br["context"]["crypto_assets"],
+            "equity_assets": built_br["context"]["equity_assets"],
+        },
+        extra_tickers=[str(args.benchmark_crypto), "ETH-USD", br_benchmark_ticker],
+    )
 
     calendar_rows: list[dict[str, Any]] = []
     for scenario, label, result in [
@@ -245,14 +278,26 @@ def main() -> None:
         "brazil_only_best": brazil_only_best,
         "recommendation": {
             "best_net_total_return_label": str(compare_df.sort_values("net_total_return", ascending=False).iloc[0]["scenario_label"]),
-            "best_sharpe_label": str(compare_df.sort_values("sharpe", ascending=False).iloc[0]["scenario_label"]),
+            "best_sharpe_label": str(compare_df.sort_values("net_sharpe", ascending=False).iloc[0]["scenario_label"]),
+        },
+        "input_snapshots": {
+            "global_mixed": {
+                "label": str(global_snapshot.get("label")),
+                "ticker_count": int(global_snapshot.get("ticker_count", 0)),
+                "tickers_missing": list(global_snapshot.get("tickers_missing", [])),
+            },
+            "brazil_crypto": {
+                "label": str(brazil_snapshot.get("label")),
+                "ticker_count": int(brazil_snapshot.get("ticker_count", 0)),
+                "tickers_missing": list(brazil_snapshot.get("tickers_missing", [])),
+            },
         },
     }
     _write_json(outdir / "summary.json", summary)
     write_run_manifest(
-        outdir / "RUN_MANIFEST.json",
-        {
-            "suite": "profit_country_compare_suite",
+        outdir,
+        script="scripts/bench/validation/run_profit_country_compare_suite.py",
+        params={
             "equity_groups": str(args.equity_asset_groups),
             "equity_meta": str(args.equity_asset_metadata),
             "crypto_groups": str(args.crypto_asset_groups),
@@ -261,6 +306,10 @@ def main() -> None:
             "benchmark_equity_global": str(args.benchmark_equity),
             "benchmark_equity_brazil": br_benchmark_ticker,
             "capital_brl": float(args.capital_brl),
+        },
+        extra={
+            "suite": "profit_country_compare_suite",
+            "input_snapshot_labels": ["global_mixed", "brazil_crypto"],
         },
     )
     print(f"[ok] country compare at {outdir}")

@@ -36,6 +36,7 @@ from scripts.bench.validation.run_profit_champion_timing_robustness_suite import
     _common_monthly_matrix,
     _underperform_prob_rolling,
 )
+from scripts.bench.validation.validation_input_snapshot import snapshot_validation_inputs  # noqa: E402
 
 
 def _run_id() -> str:
@@ -255,6 +256,22 @@ def main() -> None:
     leave_one_year_worst = leave_one_year_df.sort_values("remaining_total_return").head(1).to_dict("records")
     current_regime_forecast = forecast_df[forecast_df["window"] == f"regime_{current_regime}"].copy()
     current_regime_forecast = current_regime_forecast.sort_values("horizon_days")
+    input_snapshot = snapshot_validation_inputs(
+        outdir=outdir,
+        label="official_global",
+        prices_dir=(ROOT / args.prices_dir).resolve(),
+        metadata_files={
+            "crypto_asset_groups": (ROOT / args.crypto_asset_groups).resolve(),
+            "crypto_asset_metadata": (ROOT / args.crypto_asset_metadata).resolve(),
+            "equity_asset_groups": (ROOT / args.equity_asset_groups).resolve(),
+            "equity_asset_metadata": (ROOT / args.equity_asset_metadata).resolve(),
+        },
+        universe_tables={
+            "crypto_assets": context["crypto_assets"],
+            "equity_assets": context["equity_assets"],
+        },
+        extra_tickers=[str(args.benchmark_crypto), "ETH-USD", str(args.benchmark_equity)],
+    )
 
     summary = {
         "suite": "profit_official_post_fiscal_validation",
@@ -278,6 +295,11 @@ def main() -> None:
             "Concentração cripto aqui mede share médio do top1 e top3 dentro do sleeve cripto do modo oficial.",
             "Leave-one-year-out mostra o quanto o resultado total depende de anos específicos.",
         ],
+        "input_snapshot": {
+            "label": str(input_snapshot.get("label")),
+            "ticker_count": int(input_snapshot.get("ticker_count", 0)),
+            "tickers_missing": list(input_snapshot.get("tickers_missing", [])),
+        },
     }
     _write_json(outdir / "summary.json", summary)
 
@@ -289,6 +311,8 @@ def main() -> None:
             "suite": "profit_official_post_fiscal_validation",
             "official_candidate": "champion_profit_lock_partial",
             "baseline_candidate": "criticality_free_energy_attack",
+            "input_snapshot_label": "official_global",
+            "input_snapshot_manifest": str(outdir / "input_snapshot" / "official_global" / "snapshot_manifest.json"),
         },
     )
     print(str(outdir))

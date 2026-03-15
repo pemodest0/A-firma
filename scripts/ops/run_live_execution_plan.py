@@ -22,6 +22,9 @@ from execution.live_ops import (  # noqa: E402
 )
 from execution.broker_mercado_bitcoin import (  # noqa: E402
     build_mercado_bitcoin_preview,
+    fetch_mercado_bitcoin_account_snapshot,
+    load_mercado_bitcoin_credentials,
+    write_mercado_bitcoin_snapshot,
     write_mercado_bitcoin_preview,
 )
 from scripts.ops.agent_guides import attach_agent_guide  # noqa: E402
@@ -36,6 +39,37 @@ def _read_json(path: Path) -> dict[str, Any]:
     except (OSError, json.JSONDecodeError):
         return {}
     return payload if isinstance(payload, dict) else {}
+
+
+def _sync_broker_account(
+    *,
+    profile: dict[str, Any],
+    portfolio_path: Path,
+    outdir: Path,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    adapter = profile.get("broker_adapter", {}) if isinstance(profile.get("broker_adapter"), dict) else {}
+    paths = adapter.get("paths", {}) if isinstance(adapter.get("paths"), dict) else {}
+    current_payload = _read_json(portfolio_path)
+    snapshot = fetch_mercado_bitcoin_account_snapshot(profile, portfolio_state=current_payload)
+    latest_snapshot_path = (ROOT / str(paths.get("latest_account_snapshot_json") or "results/ops/execution_live/latest_mercado_bitcoin_account_snapshot.json")).resolve()
+    write_mercado_bitcoin_snapshot(snapshot, json_path=latest_snapshot_path)
+    write_mercado_bitcoin_snapshot(snapshot, json_path=outdir / "mercado_bitcoin_account_snapshot.json")
+    if snapshot.get("status") == "ok" and isinstance(snapshot.get("portfolio_state"), dict):
+        write_json(portfolio_path, snapshot["portfolio_state"])
+    source = {
+        "type": "broker_sync" if snapshot.get("status") == "ok" else "local_fallback",
+        "broker": snapshot.get("broker") or str(adapter.get("name") or "mercado_bitcoin"),
+        "sync_status": str(snapshot.get("status") or "unknown"),
+        "snapshot_json_path": str(latest_snapshot_path),
+        "credentials_status": load_mercado_bitcoin_credentials(profile).get("status"),
+    }
+    if snapshot.get("status") != "ok":
+        source["sync_reason"] = str(snapshot.get("reason") or snapshot.get("status") or "")
+    else:
+        source["account_id"] = str(snapshot.get("account_id") or "")
+        source["positions_count"] = int(snapshot.get("positions_count") or 0)
+        source["open_orders_count"] = int(snapshot.get("open_orders_count") or 0)
+    return snapshot, source
 
 
 def main() -> None:
@@ -56,6 +90,20 @@ def main() -> None:
     operation = _read_json((ROOT / args.operation_json).resolve())
     paths = profile.get("paths", {}) if isinstance(profile.get("paths"), dict) else {}
     portfolio_path = (ROOT / str(paths.get("portfolio_state_json") or "data/live_execution/portfolio_state.json")).resolve()
+    adapter = profile.get("broker_adapter", {}) if isinstance(profile.get("broker_adapter"), dict) else {}
+    broker_snapshot: dict[str, Any] = {}
+    portfolio_source = {
+        "type": "local_file",
+        "portfolio_state_path": str(portfolio_path),
+    }
+
+    if adapter.get("sync_account_before_planning") is True:
+        broker_snapshot, portfolio_source = _sync_broker_account(
+            profile=profile,
+            portfolio_path=portfolio_path,
+            outdir=outdir,
+        )
+        portfolio_source["portfolio_state_path"] = str(portfolio_path)
 
     if not portfolio_path.exists():
         template_path = outdir / "portfolio_state_template.json"
@@ -67,6 +115,8 @@ def main() -> None:
             "cycle_run_id": cycle_run_id,
             "config_path": str((ROOT / args.config).resolve()),
             "portfolio_state_path": str(portfolio_path),
+            "portfolio_source": portfolio_source,
+            "broker_account": broker_snapshot,
             "portfolio_template_path": str(template_path),
             "notes": [
                 "Crie a carteira real local antes de emitir ordens.",
@@ -81,6 +131,8 @@ def main() -> None:
             "cycle_run_id": cycle_run_id,
             "config_path": str((ROOT / args.config).resolve()),
             "portfolio_state_path": str(portfolio_path),
+            "portfolio_source": portfolio_source,
+            "broker_account": broker_snapshot,
             "notes": ["O agente diario de operacao ainda nao produziu latest_summary.json."],
         }
     else:
@@ -96,6 +148,8 @@ def main() -> None:
             "config_path": str((ROOT / args.config).resolve()),
             "portfolio_state_path": str(portfolio_path),
             "operation_summary_path": str((ROOT / args.operation_json).resolve()),
+            "portfolio_source": portfolio_source,
+            "broker_account": broker_snapshot,
             "portfolio": portfolio.to_dict(),
             "price_context": prices,
             "selected_mode": compiled.get("selected_mode", {}),
@@ -109,7 +163,7 @@ def main() -> None:
             "notes": compiled.get("notes", []),
             "manual_steps": [
                 "Revisar o selected_mode e confirmar se ele faz sentido para o contexto do dia.",
-                "Checar se a carteira real e o saldo em caixa batem com o portfolio_state.json.",
+                "Checar se a carteira real e o saldo em caixa batem com o sync mais recente da corretora.",
                 "Executar apenas os tickets com notional_brl acima do minimo e sem blocked.",
                 "Depois da execucao, preencher execution_report.json e rodar a reconciliacao.",
             ],

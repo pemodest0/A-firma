@@ -811,12 +811,21 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
     group_oos_summary = latest_json_summary("profit_group_oos_validation")
     operation_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json", {})
     shadow_gods_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods" / "latest_summary.json", {})
+    shadow_gods_historical_agent = read_json(
+        RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods_historical" / "latest_summary.json",
+        {},
+    )
     vigilance_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json", {})
     data_quality_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json", {})
     backfill_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json", {})
     smoke_test_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_smoke_test" / "latest_summary.json", {})
     watchdog_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_watchdog" / "latest_summary.json", {})
     publish_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_publish" / "latest_summary.json", {})
+    live_execution_plan = read_json(RESULTS_ROOT / "ops" / "execution_live" / "latest_execution_plan.json", {})
+    live_execution_reconciliation = read_json(RESULTS_ROOT / "ops" / "execution_live" / "latest_reconciliation.json", {})
+    mb_account_snapshot = read_json(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_account_snapshot.json", {})
+    mb_order_preview = read_json(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_order_preview.json", {})
+    mb_submit = read_json(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_submit.json", {})
     operation_confidence = operation_agent.get("mode_confidence", {}) if isinstance(operation_agent, dict) else {}
     recommended_live_mode = operation_agent.get("recommended_live_mode", {}) if isinstance(operation_agent, dict) else {}
     group_top_candidates = group_method_summary.get("top_candidates", {}) if isinstance(group_method_summary, dict) else {}
@@ -1004,11 +1013,19 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "daily_backfill": str(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json"),
             "daily_operation": str(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json"),
             "daily_shadow_gods": str(RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods" / "latest_summary.json"),
+            "daily_shadow_gods_historical": str(
+                RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods_historical" / "latest_summary.json"
+            ),
             "daily_vigilance": str(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json"),
             "daily_data_quality": str(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json"),
             "daily_publish": str(RESULTS_ROOT / "ops" / "agents" / "daily_publish" / "latest_summary.json"),
             "daily_smoke_test": str(RESULTS_ROOT / "ops" / "agents" / "daily_smoke_test" / "latest_summary.json"),
             "daily_watchdog": str(RESULTS_ROOT / "ops" / "agents" / "daily_watchdog" / "latest_summary.json"),
+            "live_execution_plan": str(RESULTS_ROOT / "ops" / "execution_live" / "latest_execution_plan.json"),
+            "live_execution_reconciliation": str(RESULTS_ROOT / "ops" / "execution_live" / "latest_reconciliation.json"),
+            "mercado_bitcoin_account_snapshot": str(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_account_snapshot.json"),
+            "mercado_bitcoin_order_preview": str(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_order_preview.json"),
+            "mercado_bitcoin_submit": str(RESULTS_ROOT / "ops" / "execution_live" / "latest_mercado_bitcoin_submit.json"),
             "lab_run_dir": str(lab_run_dir or ""),
         },
         "finance": {
@@ -1038,6 +1055,15 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "latest_playbook": effective_latest_playbook,
             "latest_playbook_stale": latest_playbook_stale,
             "latest_playbook_stale_days": latest_playbook_stale_days,
+            "execution_live": {
+                "plan_status": live_execution_plan.get("status"),
+                "selected_mode": live_execution_plan.get("selected_mode") if isinstance(live_execution_plan.get("selected_mode"), dict) else {},
+                "portfolio_source": live_execution_plan.get("portfolio_source") if isinstance(live_execution_plan.get("portfolio_source"), dict) else {},
+                "broker_account": mb_account_snapshot if isinstance(mb_account_snapshot, dict) else {},
+                "broker_preview": mb_order_preview if isinstance(mb_order_preview, dict) else {},
+                "broker_submit": mb_submit if isinstance(mb_submit, dict) else {},
+                "reconciliation": live_execution_reconciliation if isinstance(live_execution_reconciliation, dict) else {},
+            },
         },
         "profit_research": {
             "rows_total": profit_registry.get("rows_total"),
@@ -1055,11 +1081,13 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "daily_backfill": backfill_agent,
             "daily_operation": operation_agent,
             "daily_shadow_gods": shadow_gods_agent,
+            "daily_shadow_gods_historical": shadow_gods_historical_agent,
             "daily_vigilance": vigilance_agent,
             "daily_data_quality": data_quality_agent,
             "daily_publish": publish_agent,
             "daily_smoke_test": smoke_test_agent,
             "daily_watchdog": watchdog_agent,
+            "live_execution_plan": live_execution_plan,
         },
         "daily_operation": operation_agent,
         "automation": {
@@ -1067,11 +1095,13 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "backfill_status": backfill_agent.get("status"),
             "operation_status": operation_agent.get("status"),
             "shadow_gods_status": shadow_gods_agent.get("status"),
+            "shadow_gods_historical_status": shadow_gods_historical_agent.get("status"),
             "vigilance_status": vigilance_agent.get("status"),
             "data_quality_status": data_quality_agent.get("status"),
             "publish_status": publish_agent.get("status") or "missing",
             "smoke_test_status": smoke_test_agent.get("status"),
             "watchdog_status": watchdog_agent.get("status"),
+            "live_execution_status": live_execution_plan.get("status") or "missing",
         },
         "confidence": {
             "recommended_live_mode": recommended_live_mode,
@@ -1133,6 +1163,32 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "total_scenarios": int(((shadow_gods_agent.get("overview") or {}).get("scenario_count")) or 0),
             "order_count_total": int(((shadow_gods_agent.get("overview") or {}).get("order_count_total")) or 0),
             "fill_count_total": int(((shadow_gods_agent.get("overview") or {}).get("fill_count_total")) or 0),
+        },
+        "shadow_gods_historical": {
+            "status": shadow_gods_historical_agent.get("status"),
+            "run_id": shadow_gods_historical_agent.get("agent_run_id") or shadow_gods_historical_agent.get("run_id"),
+            "as_of_date": shadow_gods_historical_agent.get("as_of_date"),
+            "window_start": shadow_gods_historical_agent.get("window_start"),
+            "window_end": shadow_gods_historical_agent.get("window_end"),
+            "overview": shadow_gods_historical_agent.get("overview")
+            if isinstance(shadow_gods_historical_agent.get("overview"), dict)
+            else {},
+            "years_overview": shadow_gods_historical_agent.get("years_overview")
+            if isinstance(shadow_gods_historical_agent.get("years_overview"), list)
+            else [],
+            "driver": shadow_gods_historical_agent.get("driver")
+            if isinstance(shadow_gods_historical_agent.get("driver"), dict)
+            else {},
+            "public_json": "/data/site/latest_shadow_gods_historical.json",
+        },
+        "shadow_gods_historical_overview": {
+            "total_gods": int(((shadow_gods_historical_agent.get("overview") or {}).get("god_count")) or 0),
+            "total_scenarios": int(((shadow_gods_historical_agent.get("overview") or {}).get("scenario_count")) or 0),
+            "order_count_total": int(((shadow_gods_historical_agent.get("overview") or {}).get("order_count_total")) or 0),
+            "fill_count_total": int(((shadow_gods_historical_agent.get("overview") or {}).get("fill_count_total")) or 0),
+            "years": shadow_gods_historical_agent.get("years_overview")
+            if isinstance(shadow_gods_historical_agent.get("years_overview"), list)
+            else [],
         },
         "shadow_modes": shadow_modes,
         "shadow_mode_overview": {
