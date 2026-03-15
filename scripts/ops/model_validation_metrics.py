@@ -79,6 +79,7 @@ def resolve_live_validation_metrics(*, root: Path, candidate_id: str) -> dict[st
         }
 
     for suite_name in [
+        "profit_official_post_fiscal_validation",
         "profit_champion_timing_robustness_suite",
         "profit_champion_extension_suite",
         "profit_champion_drawdown_suite",
