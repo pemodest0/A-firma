@@ -186,21 +186,21 @@ def main() -> None:
     )
 
     candidate_bundles = {
-        baseline_bundle.bundle.result.candidate_id: baseline_bundle.bundle,
+        baseline_bundle.bundle.result.candidate_id: baseline_bundle,
         fragility_bundle.bundle.result.candidate_id: fragility_bundle,
         bridge_bundle.bundle.result.candidate_id: bridge_bundle,
         official_bundle.bundle.result.candidate_id: official_bundle,
     }
-    results = {cid: bundle.result for cid, bundle in candidate_bundles.items()}
+    results = {cid: alloc.bundle.result for cid, alloc in candidate_bundles.items()}
 
     rows: list[dict[str, Any]] = []
     crypto_tickers = list(context["crypto_tiers"]["crypto_all"])
-    for cid, bundle in candidate_bundles.items():
-        result = bundle.result
+    for cid, alloc in candidate_bundles.items():
+        result = alloc.bundle.result
         row = _result_row(result, baseline=official_bundle.bundle.result, family="official_post_fiscal", label=cid)
         row["underperform_prob_63"] = _underperform_prob_rolling(result.net_ret, result.benchmark_net_ret, horizon=63)
-        top1_mean, top1_max = _topk_crypto_share(bundle.weights, crypto_tickers=crypto_tickers, k=1)
-        top3_mean, top3_max = _topk_crypto_share(bundle.weights, crypto_tickers=crypto_tickers, k=3)
+        top1_mean, top1_max = _topk_crypto_share(alloc.weights, crypto_tickers=crypto_tickers, k=1)
+        top3_mean, top3_max = _topk_crypto_share(alloc.weights, crypto_tickers=crypto_tickers, k=3)
         row["crypto_top1_share_mean"] = top1_mean
         row["crypto_top1_share_max"] = top1_max
         row["crypto_top3_share_mean"] = top3_mean
