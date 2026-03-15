@@ -1,0 +1,203 @@
+{
+  "version": "2026.03.shadow.gods.v1",
+  "purpose": "daily_simulated_shadow_portfolios_for_frozen_gods",
+  "base_currency": "BRL",
+  "default_fx_rates": {
+    "USD_BRL": 5.0
+  },
+  "capital_blocks": [
+    {
+      "capital_brl": 200.0,
+      "max_assets": 2,
+      "min_order_brl": 40.0,
+      "min_position_brl": 80.0
+    },
+    {
+      "capital_brl": 1000.0,
+      "max_assets": 4,
+      "min_order_brl": 60.0,
+      "min_position_brl": 120.0
+    },
+    {
+      "capital_brl": 10000.0,
+      "max_assets": 6,
+      "min_order_brl": 100.0,
+      "min_position_brl": 250.0
+    }
+  ],
+  "fee_bps_by_asset_class": {
+    "crypto": 25.0,
+    "international": 10.0,
+    "brazil": 15.0,
+    "cash": 0.0
+  },
+  "ticker_asset_class": {
+    "BTC-USD": "crypto",
+    "ETH-USD": "crypto",
+    "SOL-USD": "crypto",
+    "SPY": "international",
+    "QQQ": "international",
+    "SHY": "international",
+    "PETR4.SA": "brazil",
+    "VALE3.SA": "brazil",
+    "ITUB4.SA": "brazil",
+    "B3SA3.SA": "brazil",
+    "PRIO3.SA": "brazil",
+    "CASH-BRL": "cash"
+  },
+  "gods": [
+    {
+      "alias": "Apollo",
+      "candidate_id": "criticality_free_energy_attack",
+      "role": "structural_anchor",
+      "thesis": "Anchor estrutural com leitura global, Brasil e cripto sem virar turbo.",
+      "allocations": {
+        "risk_on": {
+          "SPY": 0.22,
+          "QQQ": 0.13,
+          "BTC-USD": 0.20,
+          "ETH-USD": 0.08,
+          "PETR4.SA": 0.10,
+          "VALE3.SA": 0.10,
+          "ITUB4.SA": 0.07,
+          "SHY": 0.10
+        },
+        "balanced": {
+          "SPY": 0.18,
+          "QQQ": 0.10,
+          "BTC-USD": 0.14,
+          "ETH-USD": 0.06,
+          "PETR4.SA": 0.10,
+          "VALE3.SA": 0.10,
+          "ITUB4.SA": 0.07,
+          "SHY": 0.25
+        },
+        "opportunistic": {
+          "SPY": 0.18,
+          "QQQ": 0.12,
+          "BTC-USD": 0.18,
+          "ETH-USD": 0.08,
+          "PETR4.SA": 0.12,
+          "VALE3.SA": 0.12,
+          "ITUB4.SA": 0.08,
+          "SHY": 0.12
+        },
+        "defense": {
+          "CASH-BRL": 0.70,
+          "SHY": 0.30
+        }
+      }
+    },
+    {
+      "alias": "Zeus",
+      "candidate_id": "meta_mode_selector",
+      "role": "context_selector",
+      "thesis": "Selector de contexto misturando internacional, Brasil e cripto conforme o regime.",
+      "allocations": {
+        "risk_on": {
+          "QQQ": 0.24,
+          "SPY": 0.18,
+          "BTC-USD": 0.20,
+          "ETH-USD": 0.08,
+          "PETR4.SA": 0.12,
+          "VALE3.SA": 0.10,
+          "ITUB4.SA": 0.08
+        },
+        "balanced": {
+          "SPY": 0.22,
+          "BTC-USD": 0.14,
+          "ETH-USD": 0.05,
+          "PETR4.SA": 0.15,
+          "VALE3.SA": 0.14,
+          "ITUB4.SA": 0.10,
+          "SHY": 0.20
+        },
+        "opportunistic": {
+          "BTC-USD": 0.24,
+          "ETH-USD": 0.10,
+          "QQQ": 0.18,
+          "SPY": 0.10,
+          "PETR4.SA": 0.12,
+          "VALE3.SA": 0.10,
+          "ITUB4.SA": 0.06,
+          "CASH-BRL": 0.10
+        },
+        "defense": {
+          "CASH-BRL": 0.75,
+          "SHY": 0.25
+        }
+      }
+    },
+    {
+      "alias": "Hephaestus",
+      "candidate_id": "all_assets__lb126__rb07__k2__mom_total__ama200__mma200__riskon",
+      "role": "brazil_crypto_slow_attack",
+      "thesis": "Ataque mais lento e executável, focado em Brasil mais cripto.",
+      "allocations": {
+        "risk_on": {
+          "BTC-USD": 0.30,
+          "ETH-USD": 0.15,
+          "PETR4.SA": 0.15,
+          "VALE3.SA": 0.15,
+          "ITUB4.SA": 0.10,
+          "B3SA3.SA": 0.08,
+          "PRIO3.SA": 0.07
+        },
+        "balanced": {
+          "BTC-USD": 0.20,
+          "ETH-USD": 0.10,
+          "PETR4.SA": 0.15,
+          "VALE3.SA": 0.15,
+          "ITUB4.SA": 0.15,
+          "B3SA3.SA": 0.10,
+          "CASH-BRL": 0.15
+        },
+        "opportunistic": {
+          "BTC-USD": 0.34,
+          "ETH-USD": 0.15,
+          "SOL-USD": 0.10,
+          "PETR4.SA": 0.14,
+          "VALE3.SA": 0.10,
+          "ITUB4.SA": 0.07,
+          "CASH-BRL": 0.10
+        },
+        "defense": {
+          "CASH-BRL": 1.0
+        }
+      }
+    },
+    {
+      "alias": "Hermes",
+      "candidate_id": "all_assets__lb021__rb07__k3__mom_vol_adj__ama000__mma000__relshy",
+      "role": "turbo_attack_shadow",
+      "thesis": "Detector de upside extremo, mantido em shadow para medir aceleração sem contaminar o live.",
+      "allocations": {
+        "risk_on": {
+          "BTC-USD": 0.34,
+          "ETH-USD": 0.20,
+          "SOL-USD": 0.16,
+          "QQQ": 0.15,
+          "SPY": 0.15
+        },
+        "balanced": {
+          "BTC-USD": 0.24,
+          "ETH-USD": 0.14,
+          "SOL-USD": 0.08,
+          "QQQ": 0.14,
+          "SPY": 0.10,
+          "CASH-BRL": 0.30
+        },
+        "opportunistic": {
+          "BTC-USD": 0.40,
+          "ETH-USD": 0.20,
+          "SOL-USD": 0.20,
+          "QQQ": 0.10,
+          "CASH-BRL": 0.10
+        },
+        "defense": {
+          "CASH-BRL": 1.0
+        }
+      }
+    }
+  ]
+}

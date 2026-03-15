@@ -80,6 +80,7 @@ def main() -> None:
         "daily_ingestion": _read_json(ROOT / "results/ops/agents/daily_ingestion/latest_summary.json"),
         "daily_backfill": _read_json(ROOT / "results/ops/agents/daily_backfill/latest_summary.json"),
         "daily_operation": _read_json(ROOT / "results/ops/agents/daily_operation/latest_summary.json"),
+        "daily_shadow_gods": _read_json(ROOT / "results/ops/agents/daily_shadow_gods/latest_summary.json"),
         "daily_vigilance": _read_json(ROOT / "results/ops/agents/daily_vigilance/latest_summary.json"),
         "daily_data_quality": _read_json(ROOT / "results/ops/agents/daily_data_quality/latest_summary.json"),
         "daily_publish": _read_json(ROOT / "results/ops/agents/daily_publish/latest_summary.json"),
@@ -105,6 +106,8 @@ def main() -> None:
         operation_dt is not None and vigilance_dt is not None and vigilance_dt < operation_dt
     ):
         retries.append(_run_step([sys.executable, "scripts/ops/run_daily_vigilance_agent.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0))
+    if not summaries["daily_shadow_gods"] or str(summaries["daily_shadow_gods"].get("status") or "").lower() == "fail":
+        retries.append(_run_step([sys.executable, "scripts/ops/run_daily_shadow_gods_agent.py", "--cycle-run-id", cycle_run_id], timeout_sec=1200.0))
     if not publish or str(publish.get("status") or "").lower() == "fail":
         retries.append(_run_step(["bash", "scripts/ops/run_daily_publish_site.sh"], timeout_sec=7200.0))
     if str(smoke.get("status") or "").lower() == "fail":
@@ -117,6 +120,7 @@ def main() -> None:
         "daily_ingestion": _read_json(ROOT / "results/ops/agents/daily_ingestion/latest_summary.json"),
         "daily_backfill": _read_json(ROOT / "results/ops/agents/daily_backfill/latest_summary.json"),
         "daily_operation": _read_json(ROOT / "results/ops/agents/daily_operation/latest_summary.json"),
+        "daily_shadow_gods": _read_json(ROOT / "results/ops/agents/daily_shadow_gods/latest_summary.json"),
         "daily_vigilance": _read_json(ROOT / "results/ops/agents/daily_vigilance/latest_summary.json"),
         "daily_data_quality": _read_json(ROOT / "results/ops/agents/daily_data_quality/latest_summary.json"),
         "daily_publish": _read_json(ROOT / "results/ops/agents/daily_publish/latest_summary.json"),
@@ -131,6 +135,8 @@ def main() -> None:
         checks.append({"level": "fail", "code": "ingestion_still_failing", "message": "A ingestão diária continuou falhando após o retry."})
     if str(refreshed["daily_publish"].get("status") or "").lower() == "fail" or not refreshed["daily_publish"]:
         checks.append({"level": "fail", "code": "publish_still_failing", "message": "O publish diário continuou falhando ou sem resumo."})
+    if str(refreshed["daily_shadow_gods"].get("status") or "").lower() == "fail" or not refreshed["daily_shadow_gods"]:
+        checks.append({"level": "fail", "code": "shadow_gods_still_failing", "message": "O agente dos shadow gods continuou falhando após o retry."})
     refreshed_operation_dt = _parse_dt(refreshed["daily_operation"].get("generated_at_utc"))
     refreshed_vigilance_dt = _parse_dt(refreshed["daily_vigilance"].get("generated_at_utc"))
     if refreshed_operation_dt is not None and refreshed_vigilance_dt is not None and refreshed_vigilance_dt < refreshed_operation_dt:

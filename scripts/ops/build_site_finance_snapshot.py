@@ -810,6 +810,7 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
     group_method_summary = latest_json_summary("profit_group_methodology_suite")
     group_oos_summary = latest_json_summary("profit_group_oos_validation")
     operation_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json", {})
+    shadow_gods_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods" / "latest_summary.json", {})
     vigilance_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json", {})
     data_quality_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json", {})
     backfill_agent = read_json(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json", {})
@@ -1002,6 +1003,7 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "daily_ingestion": str(RESULTS_ROOT / "ops" / "agents" / "daily_ingestion" / "latest_summary.json"),
             "daily_backfill": str(RESULTS_ROOT / "ops" / "agents" / "daily_backfill" / "latest_summary.json"),
             "daily_operation": str(RESULTS_ROOT / "ops" / "agents" / "daily_operation" / "latest_summary.json"),
+            "daily_shadow_gods": str(RESULTS_ROOT / "ops" / "agents" / "daily_shadow_gods" / "latest_summary.json"),
             "daily_vigilance": str(RESULTS_ROOT / "ops" / "agents" / "daily_vigilance" / "latest_summary.json"),
             "daily_data_quality": str(RESULTS_ROOT / "ops" / "agents" / "daily_data_quality" / "latest_summary.json"),
             "daily_publish": str(RESULTS_ROOT / "ops" / "agents" / "daily_publish" / "latest_summary.json"),
@@ -1052,6 +1054,7 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "daily_ingestion": ingestion_agent,
             "daily_backfill": backfill_agent,
             "daily_operation": operation_agent,
+            "daily_shadow_gods": shadow_gods_agent,
             "daily_vigilance": vigilance_agent,
             "daily_data_quality": data_quality_agent,
             "daily_publish": publish_agent,
@@ -1063,6 +1066,7 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
             "ingestion_status": ingestion_agent.get("status"),
             "backfill_status": backfill_agent.get("status"),
             "operation_status": operation_agent.get("status"),
+            "shadow_gods_status": shadow_gods_agent.get("status"),
             "vigilance_status": vigilance_agent.get("status"),
             "data_quality_status": data_quality_agent.get("status"),
             "publish_status": publish_agent.get("status") or "missing",
@@ -1116,6 +1120,19 @@ def build_snapshot(*, cycle_run_id: str | None = None) -> dict[str, Any]:
                 "total_return": shadow_portfolio.get("total_return"),
                 "edge_vs_benchmark_total_return": shadow_replay.get("edge_vs_benchmark_total_return"),
             },
+        },
+        "shadow_gods": {
+            "status": shadow_gods_agent.get("status"),
+            "run_id": shadow_gods_agent.get("agent_run_id") or shadow_gods_agent.get("run_id"),
+            "as_of_date": shadow_gods_agent.get("as_of_date"),
+            "overview": shadow_gods_agent.get("overview") if isinstance(shadow_gods_agent.get("overview"), dict) else {},
+            "gods": shadow_gods_agent.get("gods") if isinstance(shadow_gods_agent.get("gods"), list) else [],
+        },
+        "shadow_gods_overview": {
+            "total_gods": int(((shadow_gods_agent.get("overview") or {}).get("god_count")) or 0),
+            "total_scenarios": int(((shadow_gods_agent.get("overview") or {}).get("scenario_count")) or 0),
+            "order_count_total": int(((shadow_gods_agent.get("overview") or {}).get("order_count_total")) or 0),
+            "fill_count_total": int(((shadow_gods_agent.get("overview") or {}).get("fill_count_total")) or 0),
         },
         "shadow_modes": shadow_modes,
         "shadow_mode_overview": {

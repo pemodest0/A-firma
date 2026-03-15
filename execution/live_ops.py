@@ -239,6 +239,32 @@ def compile_order_tickets(operation: dict[str, Any], profile: dict[str, Any], po
     guardrails = profile.get("risk_guardrails", {}) if isinstance(profile.get("risk_guardrails"), dict) else {}
     selected = select_live_mode(operation, profile)
     target = build_target_allocation(operation, profile, portfolio)
+    return compile_target_order_tickets(
+        target=target,
+        selected=selected,
+        exec_profile=exec_profile,
+        guardrails=guardrails,
+        portfolio=portfolio,
+        prices=prices,
+        reason_prefix="align_to",
+        notes=[
+            "O plano live usa proxy executavel em poucos ativos, nao replica literalmente toda a cesta teorica do laboratorio.",
+            "A emissao continua semi-automatica: o sistema sugere notional e lado, e a revisao humana ainda fica obrigatoria.",
+        ],
+    )
+
+
+def compile_target_order_tickets(
+    *,
+    target: dict[str, float],
+    selected: dict[str, Any],
+    exec_profile: dict[str, Any],
+    guardrails: dict[str, Any],
+    portfolio: PortfolioState,
+    prices: dict[str, dict[str, float | None]],
+    reason_prefix: str,
+    notes: list[str] | None = None,
+) -> dict[str, Any]:
     nav_brl = max(0.0, portfolio.nav_brl)
     current_map = portfolio.position_map()
     current_notional: dict[str, float] = {
@@ -302,7 +328,7 @@ def compile_order_tickets(operation: dict[str, Any], profile: dict[str, Any], po
                 quantity_estimate=qty,
                 price_brl_reference=float(price_brl) if price_brl and price_brl > 0.0 else None,
                 preferred_order_type="market_notional",
-                reason=f"align_to_{selected['mode_key']}",
+                reason=f"{reason_prefix}_{selected['mode_key']}",
             )
         )
         next_target[ticker] = target_value
@@ -323,10 +349,7 @@ def compile_order_tickets(operation: dict[str, Any], profile: dict[str, Any], po
         "turnover_scale_applied": scale,
         "tickets": [ticket.to_dict() for ticket in tickets],
         "blocked": blocked,
-        "notes": [
-            "O plano live usa proxy executavel em poucos ativos, nao replica literalmente toda a cesta teorica do laboratorio.",
-            "A emissao continua semi-automatica: o sistema sugere notional e lado, e a revisao humana ainda fica obrigatoria.",
-        ],
+        "notes": list(notes or []),
     }
 
 

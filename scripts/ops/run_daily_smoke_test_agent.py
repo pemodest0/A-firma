@@ -70,6 +70,7 @@ def _http_check(base_url: str, path: str) -> dict[str, Any]:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Smoke test diário de artefatos operacionais e snapshot do site.")
     ap.add_argument("--operation-summary", default="results/ops/agents/daily_operation/latest_summary.json")
+    ap.add_argument("--shadow-gods-summary", default="results/ops/agents/daily_shadow_gods/latest_summary.json")
     ap.add_argument("--quality-summary", default="results/ops/agents/daily_data_quality/latest_summary.json")
     ap.add_argument("--vigilance-summary", default="results/ops/agents/daily_vigilance/latest_summary.json")
     ap.add_argument("--publish-summary", default="results/ops/agents/daily_publish/latest_summary.json")
@@ -84,6 +85,7 @@ def main() -> None:
     cycle_run_id = resolve_cycle_run_id(args.cycle_run_id)
 
     operation = _read_json((ROOT / args.operation_summary).resolve())
+    shadow_gods = _read_json((ROOT / args.shadow_gods_summary).resolve())
     quality = _read_json((ROOT / args.quality_summary).resolve())
     vigilance = _read_json((ROOT / args.vigilance_summary).resolve())
     publish = _read_json((ROOT / args.publish_summary).resolve())
@@ -113,6 +115,8 @@ def main() -> None:
             _push(checks, level="warn", code="snapshot_quality_mismatch", message="Snapshot interno e público divergiram na leitura de qualidade.")
     if not operation:
         _push(checks, level="fail", code="operation_missing", message="Resumo operacional ausente.")
+    if not shadow_gods:
+        _push(checks, level="fail", code="shadow_gods_missing", message="Resumo diário dos shadow gods ausente.")
     if not vigilance:
         _push(checks, level="fail", code="vigilance_missing", message="Resumo de vigilância ausente.")
     if not publish:
@@ -121,6 +125,7 @@ def main() -> None:
         _push(checks, level="fail", code="publish_failed", message="O publish diário não fechou com status ok.")
     cycle_values = {
         "operation": str(operation.get("cycle_run_id") or "").strip(),
+        "shadow_gods": str(shadow_gods.get("cycle_run_id") or "").strip(),
         "quality": str(quality.get("cycle_run_id") or "").strip(),
         "vigilance": str(vigilance.get("cycle_run_id") or "").strip(),
         "publish": str(publish.get("cycle_run_id") or "").strip(),
@@ -148,6 +153,12 @@ def main() -> None:
         _push(checks, level="warn", code="core_assets_stale", message="O núcleo do motor ainda tem ativos atrasados.")
     if not (operation.get("publish_ready") is True):
         _push(checks, level="warn", code="publish_not_marked_ready", message="O agente de operação não marcou a publicação como pronta.")
+    if snapshot and not isinstance(snapshot.get("shadow_gods"), dict):
+        _push(checks, level="fail", code="snapshot_shadow_gods_missing", message="O snapshot não publicou o bloco principal dos shadow gods.")
+    elif snapshot:
+        gods = (snapshot.get("shadow_gods") or {}).get("gods")
+        if not isinstance(gods, list) or len(gods) != 4:
+            _push(checks, level="warn", code="snapshot_shadow_gods_unexpected_count", message="O snapshot publicou uma contagem inesperada de shadow gods.")
 
     base_url = str(args.base_url or "").strip()
     http_checks: list[dict[str, Any]] = []
