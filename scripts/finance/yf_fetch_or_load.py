@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import subprocess
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -45,6 +46,24 @@ CRYPTO_BINANCE_MAP = {
     "ICP-USD": ["ICPUSDT"],
     "NEAR-USD": ["NEARUSDT"],
     "APT-USD": ["APTUSDT"],
+    "AAVE-USD": ["AAVEUSDT"],
+    "ARB-USD": ["ARBUSDT"],
+    "CRO-USD": ["CROUSDT"],
+    "FET-USD": ["FETUSDT"],
+    "HBAR-USD": ["HBARUSDT"],
+    "IMX-USD": ["IMXUSDT"],
+    "INJ-USD": ["INJUSDT"],
+    "MKR-USD": ["MKRUSDT"],
+    "ONDO-USD": ["ONDOUSDT"],
+    "OP-USD": ["OPUSDT"],
+    "PEPE-USD": ["PEPEUSDT"],
+    "RUNE-USD": ["RUNEUSDT"],
+    "SHIB-USD": ["SHIBUSDT"],
+    "SUI-USD": ["SUIUSDT"],
+    "TAO-USD": ["TAOUSDT"],
+    "TON-USD": ["TONUSDT"],
+    "UNI-USD": ["UNIUSDT"],
+    "XMR-USD": ["XMRUSDT"],
 }
 
 CRYPTO_COINGECKO_MAP = {
@@ -70,6 +89,24 @@ CRYPTO_COINGECKO_MAP = {
     "ICP-USD": ["internet-computer"],
     "NEAR-USD": ["near"],
     "APT-USD": ["aptos"],
+    "AAVE-USD": ["aave"],
+    "ARB-USD": ["arbitrum"],
+    "CRO-USD": ["crypto-com-chain"],
+    "FET-USD": ["artificial-superintelligence-alliance", "fetch-ai"],
+    "HBAR-USD": ["hedera-hashgraph"],
+    "IMX-USD": ["immutable-x"],
+    "INJ-USD": ["injective-protocol"],
+    "MKR-USD": ["maker"],
+    "ONDO-USD": ["ondo-finance"],
+    "OP-USD": ["optimism"],
+    "PEPE-USD": ["pepe"],
+    "RUNE-USD": ["thorchain"],
+    "SHIB-USD": ["shiba-inu"],
+    "SUI-USD": ["sui"],
+    "TAO-USD": ["bittensor"],
+    "TON-USD": ["the-open-network"],
+    "UNI-USD": ["uniswap"],
+    "XMR-USD": ["monero"],
 }
 
 
@@ -117,8 +154,15 @@ def _detect_price_column(columns):
 
 def _http_get_text(url: str, timeout_sec: int = 8) -> str:
     req = Request(url, headers=HTTP_HEADERS)
-    with urlopen(req, timeout=timeout_sec) as resp:
-        return resp.read().decode("utf-8", errors="ignore")
+    try:
+        with urlopen(req, timeout=timeout_sec) as resp:
+            return resp.read().decode("utf-8", errors="ignore")
+    except Exception:
+        cmd = ["curl", "-L", "--fail", "--max-time", str(int(timeout_sec)), url]
+        for key, value in HTTP_HEADERS.items():
+            cmd.extend(["-H", f"{key}: {value}"])
+        proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return proc.stdout
 
 
 def load_price_series(path):

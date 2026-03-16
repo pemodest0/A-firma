@@ -15,11 +15,12 @@ Ordem operacional esperada:
 2. `daily-backfill-agent`
 3. `daily-operation-agent`
 4. `daily-shadow-gods-agent`
-5. `daily-vigilance-agent`
-6. `daily-data-quality-agent`
-7. `daily-publish`
-8. `daily-smoke-test-agent`
-9. `daily-watchdog-agent`
+5. `daily-shadow-gods-historical-agent`
+6. `daily-vigilance-agent`
+7. `daily-data-quality-agent`
+8. `daily-publish`
+9. `daily-smoke-test-agent`
+10. `daily-watchdog-agent`
 
 Regras globais:
 - nenhum agente deve mascarar falha crítica como sucesso

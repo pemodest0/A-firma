@@ -245,12 +245,20 @@ export default async function DashboardPage() {
           como mandato de execução para terceiros.
         </p>
         <div className="mt-4">
-          <Link
-            href="/app/shadow-mode"
-            className="inline-flex rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
-          >
-            Ver todos os modos shadow
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/app/shadow-mode"
+              className="inline-flex rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
+            >
+              Ver todos os modos shadow
+            </Link>
+            <Link
+              href="/app/shadow-mode/historical-simulated"
+              className="inline-flex rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
+            >
+              Ver historico simulado
+            </Link>
+          </div>
         </div>
       </section>
 

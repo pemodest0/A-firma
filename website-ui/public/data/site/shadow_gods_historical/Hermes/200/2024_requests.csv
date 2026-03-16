@@ -1,0 +1,10 @@
+as_of_date,scenario_id,alias,capital_brl,market_state,ticket_id,ticker,side,notional_brl,reason
+2024-02-05,hermes_200,Hermes,200.0,risk_on,da03d7ea-be43-46f1-910d-49e54260565c,BTC-USD,buy,107.77150667351762,historical_hermes_risk_on
+2024-02-20,hermes_200,Hermes,200.0,defense,d04e334a-f157-4c09-92dd-e43631bf989b,BTC-USD,sell,131.87036290920014,historical_hermes_defense
+2024-06-07,hermes_200,Hermes,200.0,risk_on,0712c33e-18eb-4b1e-87c2-8c3fdb6457bd,BTC-USD,buy,118.128804584056,historical_hermes_risk_on
+2024-07-12,hermes_200,Hermes,200.0,defense,eb78b9c7-f090-4175-a9e7-9a91235b1b2b,BTC-USD,sell,98.59867381216334,historical_hermes_defense
+2024-07-23,hermes_200,Hermes,200.0,risk_on,40bc6fd2-e1de-49e1-808f-74d1ff541f88,BTC-USD,buy,109.28227870747043,historical_hermes_risk_on
+2024-07-29,hermes_200,Hermes,200.0,defense,07c5345d-caf5-4fd7-a0c0-ada17a22444e,BTC-USD,sell,110.68888011227877,historical_hermes_defense
+2024-08-01,hermes_200,Hermes,200.0,risk_on,12785ea7-d3d9-496a-818e-f31bab0392f2,BTC-USD,buy,109.65984962385309,historical_hermes_risk_on
+2024-08-06,hermes_200,Hermes,200.0,defense,f39faee7-2477-4bb9-96d4-65a37c89a60a,BTC-USD,sell,94.00133598860474,historical_hermes_defense
+2024-11-19,hermes_200,Hermes,200.0,risk_on,81ba239b-4db0-45e6-b407-d0063c761580,BTC-USD,buy,102.53410027083731,historical_hermes_risk_on

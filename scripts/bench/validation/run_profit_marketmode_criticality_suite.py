@@ -60,14 +60,24 @@ def _rolling_percentile(series: pd.Series, window: int) -> pd.Series:
     return values.rolling(int(window), min_periods=min_periods).apply(_pct, raw=True)
 
 
-def _build_structure_inputs(context: dict[str, Any]) -> tuple[pd.DataFrame, dict[str, str]]:
+def _build_structure_inputs(
+    context: dict[str, Any],
+    *,
+    observer_context: dict[str, Any] | None = None,
+    observer_crypto_cols: list[str] | None = None,
+) -> tuple[pd.DataFrame, dict[str, str]]:
+    source_context = observer_context if observer_context is not None else context
     crypto_cols = [
         c
-        for c in context["crypto_tiers"]["crypto_major8"]
-        if c in context["crypto_returns"].columns
+        for c in (
+            observer_crypto_cols
+            if observer_crypto_cols is not None
+            else source_context["crypto_tiers"]["crypto_major8"]
+        )
+        if c in source_context["crypto_returns"].columns
     ]
-    equity_returns = context["equity_returns"].copy()
-    equity_assets = context["equity_assets"].copy()
+    equity_returns = source_context["equity_returns"].copy()
+    equity_assets = source_context["equity_assets"].copy()
     if "ticker" not in equity_assets.columns:
         equity_assets["ticker"] = equity_assets["asset_id"].astype(str)
     if "asset_group" in equity_assets.columns:
@@ -103,7 +113,7 @@ def _build_structure_inputs(context: dict[str, Any]) -> tuple[pd.DataFrame, dict
     selected_equity = sorted(set(selected_equity))
     returns = pd.concat(
         [
-            context["crypto_returns"][crypto_cols],
+            source_context["crypto_returns"][crypto_cols],
             equity_returns[selected_equity],
         ],
         axis=1,
@@ -114,8 +124,17 @@ def _build_structure_inputs(context: dict[str, Any]) -> tuple[pd.DataFrame, dict
     return returns, sector_map
 
 
-def _build_structure_layers(context: dict[str, Any]) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    structure_returns, sector_map = _build_structure_inputs(context)
+def _build_structure_layers(
+    context: dict[str, Any],
+    *,
+    observer_context: dict[str, Any] | None = None,
+    observer_crypto_cols: list[str] | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    structure_returns, sector_map = _build_structure_inputs(
+        context,
+        observer_context=observer_context,
+        observer_crypto_cols=observer_crypto_cols,
+    )
     structure_panel = build_market_mode_structure_panel(
         returns=structure_returns,
         sector_map=sector_map,
@@ -290,6 +309,8 @@ def build_official_mode_allocations(
     equity_meta: Path,
     benchmark_crypto: str,
     benchmark_equity: str,
+    observer_context: dict[str, Any] | None = None,
+    observer_crypto_tickers: list[str] | None = None,
 ) -> dict[str, Any]:
     built = _build_candidates(
         prices_dir=prices_dir,
@@ -305,7 +326,11 @@ def build_official_mode_allocations(
     protect_alloc: AllocationBundle = built["allocations"]["baseline_guard"]
 
     base_score = pd.to_numeric(context["attack_score_exogenous"], errors="coerce").fillna(0.0).clip(0.0, 1.0).astype(float)
-    structure_daily, _spectral_panel, criticality, structural_stress = _build_structure_layers(context)
+    structure_daily, _spectral_panel, criticality, structural_stress = _build_structure_layers(
+        context,
+        observer_context=observer_context,
+        observer_crypto_cols=observer_crypto_tickers,
+    )
     criticality_pct = _rolling_percentile(criticality, 120).reindex(base_score.index).fillna(0.5).clip(0.0, 1.0)
     market_mode_share_pct = pd.to_numeric(
         structure_daily.get("market_mode_share_pct"),
@@ -387,6 +412,8 @@ def build_official_mode_allocations(
             "main": "Modo principal equilibrado.",
             "main_guard": "Modo principal com protecao reforcada.",
         },
+        "observer_crypto_count": int(len(observer_crypto_tickers or context["crypto_tiers"]["crypto_major8"])),
+        "observer_crypto_tickers": list(observer_crypto_tickers or context["crypto_tiers"]["crypto_major8"]),
     }
 
 

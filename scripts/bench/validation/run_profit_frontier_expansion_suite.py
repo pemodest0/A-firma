@@ -190,10 +190,14 @@ def _select_crypto_tiers(asset_table: pd.DataFrame, viability: pd.DataFrame) -> 
     joined = joined.sort_values(["days_available", "liquidity_proxy", "ticker"], ascending=[False, False, True]).reset_index(drop=True)
     all_assets = joined["ticker"].astype(str).tolist()
     majors = joined.head(8)["ticker"].astype(str).tolist()
+    major12 = joined.head(12)["ticker"].astype(str).tolist()
+    major20 = joined.head(20)["ticker"].astype(str).tolist()
     mids = [ticker for ticker in all_assets if ticker not in set(majors)]
     return {
         "crypto_all": all_assets,
         "crypto_major8": majors,
+        "crypto_major12": major12,
+        "crypto_major20": major20,
         "crypto_midcap": mids,
     }
 

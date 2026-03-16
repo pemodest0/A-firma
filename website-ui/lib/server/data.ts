@@ -426,6 +426,8 @@ export async function readSiteFinanceSnapshot() {
       daily_ingestion: {},
       daily_backfill: {},
       daily_operation: {},
+      daily_shadow_gods: {},
+      daily_shadow_gods_historical: {},
       daily_vigilance: {},
       daily_data_quality: {},
       daily_publish: {},
@@ -436,6 +438,8 @@ export async function readSiteFinanceSnapshot() {
       ingestion_status: "missing",
       backfill_status: "missing",
       operation_status: "missing",
+      shadow_gods_status: "missing",
+      shadow_gods_historical_status: "missing",
       vigilance_status: "missing",
       data_quality_status: "missing",
       publish_status: "missing",
@@ -498,6 +502,29 @@ export async function readSiteFinanceSnapshot() {
       order_count_total: 0,
       fill_count_total: 0,
     },
+    shadow_gods_historical: {
+      status: "missing",
+      run_id: "",
+      as_of_date: "",
+      window_start: "",
+      window_end: "",
+      overview: {
+        total_gods: 0,
+        total_scenarios: 0,
+        order_count_total: 0,
+        fill_count_total: 0,
+      },
+      years_overview: [],
+      driver: {},
+      public_json: "/data/site/latest_shadow_gods_historical.json",
+    },
+    shadow_gods_historical_overview: {
+      total_gods: 0,
+      total_scenarios: 0,
+      order_count_total: 0,
+      fill_count_total: 0,
+      years: [],
+    },
     layered_engine: {
       best_meta_candidate: {},
       drawdown_best_balanced: {},
@@ -513,6 +540,30 @@ export async function readSiteFinanceSnapshot() {
     },
     current_universe: [],
   };
+}
+
+export async function readShadowGodsHistoricalSnapshot() {
+  const target = path.join(process.cwd(), "public", "data", "site", "latest_shadow_gods_historical.json");
+  try {
+    const text = await fs.readFile(target, "utf-8");
+    return sanitizeEncoding(parseJsonText<Record<string, unknown>>(text, target));
+  } catch {
+    return {
+      status: "missing",
+      as_of_date: "",
+      window_start: "",
+      window_end: "",
+      driver: {},
+      overview: {
+        god_count: 0,
+        scenario_count: 0,
+        order_count_total: 0,
+        fill_count_total: 0,
+      },
+      years_overview: [],
+      gods: [],
+    };
+  }
 }
 
 export type LabCorrRunInfo = {

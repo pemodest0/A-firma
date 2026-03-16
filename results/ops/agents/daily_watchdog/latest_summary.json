@@ -1,15 +1,89 @@
 {
-  "status": "ok",
-  "generated_at_utc": "2026-03-14T04:49:49.871118+00:00",
-  "retries_attempted": 0,
-  "retries": [],
-  "checks": [],
+  "status": "fail",
+  "generated_at_utc": "2026-03-15T00:12:09.860125+00:00",
+  "retries_attempted": 1,
+  "retries": [
+    {
+      "cmd": [
+        "/Library/Frameworks/Python.framework/Versions/3.14/bin/python3",
+        "scripts/ops/run_daily_vigilance_agent.py",
+        "--cycle-run-id",
+        "20260315T001207Z"
+      ],
+      "returncode": 0,
+      "stdout": "{\"status\": \"warn\", \"generated_at_utc\": \"2026-03-15T00:12:09.761597+00:00\", \"operation_age_days\": 0.06272227976851852, \"snapshot_as_of_date\": \"2026-03-14\", \"research_rows_total\": 377, \"pbo_verdict\": \"desconhecido\", \"validation_metrics_source\": {\"candidate_id\": \"champion_profit_lock_partial\", \"source_suite\": \"profit_champion_extension_suite\", \"underperform_prob_63\": null, \"top3_total_retention\": null, \"pbo_verdict\": \"desconhecido\"}, \"alerts\": [{\"level\": \"warn\", \"code\": \"pbo_soft\", \"message\": \"Teste de overfit não está no nível mais forte.\"}, {\"level\": \"warn\", \"code\": \"main_deep_drawdown\", \"message\": \"Modo principal ainda tem tombo histórico pesado.\"}], \"notes\": [\"Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.\", \"O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham.\"], \"cycle_run_id\": \"20260315T001207Z\", \"agent_run_id\": \"20260315T001209Z\", \"agent\": {\"agent_id\": \"daily-vigilance-agent\", \"guide_path\": \"scripts/ops/agent_guides/daily-vigilance-agent.md\", \"master_guide_path\": \"scripts/ops/agent_guides/AGENTS_MAIN.md\", \"display_name\": \"Agente diário de vigilância\", \"mission\": \"Vigiar frescor, integridade e sinais de fragilidade do motor e do site.\", \"run_order\": \"4\", \"depends_on\": [\"daily-operation-agent\"], \"consumes\": [\"results/ops/agents/daily_operation/latest_summary.json\", \"results/ops/site_data/latest_site_snapshot.json\"], \"produces\": [\"results/ops/agents/daily_vigilance/latest_summary.json\"], \"rules\": [\"nao_mudar_parametros_do_motor\", \"so_alertar_e_documentar\"]}}",
+      "stderr": "",
+      "ok": true,
+      "parsed": {
+        "status": "warn",
+        "generated_at_utc": "2026-03-15T00:12:09.761597+00:00",
+        "operation_age_days": 0.06272227976851852,
+        "snapshot_as_of_date": "2026-03-14",
+        "research_rows_total": 377,
+        "pbo_verdict": "desconhecido",
+        "validation_metrics_source": {
+          "candidate_id": "champion_profit_lock_partial",
+          "source_suite": "profit_champion_extension_suite",
+          "underperform_prob_63": null,
+          "top3_total_retention": null,
+          "pbo_verdict": "desconhecido"
+        },
+        "alerts": [
+          {
+            "level": "warn",
+            "code": "pbo_soft",
+            "message": "Teste de overfit não está no nível mais forte."
+          },
+          {
+            "level": "warn",
+            "code": "main_deep_drawdown",
+            "message": "Modo principal ainda tem tombo histórico pesado."
+          }
+        ],
+        "notes": [
+          "Este agente não muda parâmetros do motor. Ele só vigia frescor, fragilidade e integridade.",
+          "O foco é impedir que o site e a trilha operacional pareçam saudáveis quando os artefatos envelhecem ou falham."
+        ],
+        "cycle_run_id": "20260315T001207Z",
+        "agent_run_id": "20260315T001209Z",
+        "agent": {
+          "agent_id": "daily-vigilance-agent",
+          "guide_path": "scripts/ops/agent_guides/daily-vigilance-agent.md",
+          "master_guide_path": "scripts/ops/agent_guides/AGENTS_MAIN.md",
+          "display_name": "Agente diário de vigilância",
+          "mission": "Vigiar frescor, integridade e sinais de fragilidade do motor e do site.",
+          "run_order": "4",
+          "depends_on": [
+            "daily-operation-agent"
+          ],
+          "consumes": [
+            "results/ops/agents/daily_operation/latest_summary.json",
+            "results/ops/site_data/latest_site_snapshot.json"
+          ],
+          "produces": [
+            "results/ops/agents/daily_vigilance/latest_summary.json"
+          ],
+          "rules": [
+            "nao_mudar_parametros_do_motor",
+            "so_alertar_e_documentar"
+          ]
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "level": "fail",
+      "code": "smoke_still_failing",
+      "message": "O smoke test continuou falhando após o retry controlado."
+    }
+  ],
   "notes": [
     "O watchdog só faz retry controlado. Ele não substitui o papel dos agentes principais.",
     "Se a falha persistir depois do retry, o estado fica explícito como fail."
   ],
-  "cycle_run_id": "20260314T044017Z",
-  "agent_run_id": "20260314T044949Z",
+  "cycle_run_id": "20260315T001207Z",
+  "agent_run_id": "20260315T001207Z",
   "agent": {
     "agent_id": "daily-watchdog-agent",
     "guide_path": "scripts/ops/agent_guides/daily-watchdog-agent.md",

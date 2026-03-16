@@ -1,0 +1,15 @@
+as_of_date,scenario_id,alias,capital_brl,market_state,ticket_id,ticker,side,notional_brl,reason
+2023-01-02,hephaestus_200,Hephaestus,200.0,balanced,05ead0e0-c6c4-4ff6-a87b-1fb094496edc,BTC-USD,buy,80.0,historical_hephaestus_balanced
+2023-09-01,hephaestus_200,Hephaestus,200.0,defense,8dedc963-dade-4787-b37f-8565427e0cff,BTC-USD,sell,123.81815488275265,historical_hephaestus_defense
+2023-09-06,hephaestus_200,Hephaestus,200.0,balanced,7b9a076b-c5ad-4e9a-b732-896f7cf08fa6,BTC-USD,buy,97.3234437982183,historical_hephaestus_balanced
+2023-09-13,hephaestus_200,Hephaestus,200.0,defense,1ba3f55d-19b4-4ba2-bc21-57e559b94859,BTC-USD,sell,99.06911089799787,historical_hephaestus_defense
+2023-09-14,hephaestus_200,Hephaestus,200.0,balanced,60745c3e-8e36-4aab-aa96-145903b3b527,BTC-USD,buy,97.82531808343393,historical_hephaestus_balanced
+2023-10-11,hephaestus_200,Hephaestus,200.0,risk_on,ec6fc312-4d23-4a5b-9fb5-8a7fe736dd4d,BTC-USD,buy,40.0581031765044,historical_hephaestus_risk_on
+2023-10-17,hephaestus_200,Hephaestus,200.0,balanced,99b2d8aa-a50c-4b81-93e5-fbd2394684d6,BTC-USD,sell,45.70105098643431,historical_hephaestus_balanced
+2023-10-23,hephaestus_200,Hephaestus,200.0,balanced,281044ed-f4f2-4882-98b2-617da235891b,PETR4.SA,buy,80.98898587916968,historical_hephaestus_balanced
+2023-11-15,hephaestus_200,Hephaestus,200.0,defense,e4343f19-1788-4ef8-8b74-5aa837532227,BTC-USD,sell,135.13254754013096,historical_hephaestus_defense
+2023-11-15,hephaestus_200,Hephaestus,200.0,defense,8be06c3d-2a44-44ec-b431-31d2b43a1f11,PETR4.SA,sell,77.41554736326893,historical_hephaestus_defense
+2023-12-12,hephaestus_200,Hephaestus,200.0,balanced,1fd8c5a4-d096-4965-8c7c-4f8613859683,BTC-USD,buy,113.16225384399243,historical_hephaestus_balanced
+2023-12-12,hephaestus_200,Hephaestus,200.0,balanced,4e45b356-c464-4f89-9135-b3c0d9cb7172,PETR4.SA,buy,84.87169038299432,historical_hephaestus_balanced
+2023-12-27,hephaestus_200,Hephaestus,200.0,defense,f18ed902-6158-46e8-beb4-7c7855d55c74,BTC-USD,sell,118.4435639367284,historical_hephaestus_defense
+2023-12-27,hephaestus_200,Hephaestus,200.0,defense,56aaa80a-f701-4499-b486-efe940086cb0,PETR4.SA,sell,92.20801001603378,historical_hephaestus_defense

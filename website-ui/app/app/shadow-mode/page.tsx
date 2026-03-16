@@ -217,7 +217,13 @@ export default async function ShadowModePage() {
             <p>- `Hephaestus` e `Hermes` testam a parte ofensiva. Um tenta ser mais disciplinado; o outro aceita mais cauda.</p>
             <p>- Se o cenario estiver em `defense`, o card pode deliberadamente nao operar. Isso tambem e decisao.</p>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/app/shadow-mode/historical-simulated"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
+            >
+              Ver desempenho historico simulado
+            </Link>
             <Link
               href="/app/dashboard"
               className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-800/70"
